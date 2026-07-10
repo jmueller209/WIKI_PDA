@@ -1,0 +1,5 @@
+# Ignore downloaded ZIM archives
+zim_files/
+
+# Ignore generated binary database files
+bin_files/
