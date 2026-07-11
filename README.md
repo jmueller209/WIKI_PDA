@@ -15,9 +15,9 @@ This document outlines the file structures and C++ lookup strategies for the ESP
 | Field Name | Type | Size | Python Struct | Description |
 | :--- | :--- | :--- | :--- | :--- |
 | **Term** | `char[64]` | 64 Bytes | `64s` | Null-padded UTF-8 search string |
-| **Q-ID** | `uint32_t` | 4 Bytes | `I` | Universal Concept ID |
-| **Lang ID**| `uint16_t` | 2 Bytes | `H` | E.g., `0`=EN, `1`=DE, `2`=JA |
-| **Type** | `uint16_t` | 2 Bytes | `H` | `0`=Direct Article, `1`=Alias/Term |
+| **Packed ID**| `uint32_t` | 2 Bytes* | `I` | Q-ID (bits 0-30) + Type Flag (bit 31) |
+
+*\*Note: The packed field is 4 bytes, allowing up to 2.1 billion Q-IDs and 1 bit for the type flag.*
 
 ### C++ Struct Definition
 ```cpp
