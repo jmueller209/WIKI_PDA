@@ -99,7 +99,7 @@ def generate_config_file():
         )
 
         for code, name in lang_list:
-            f.write(f"# {{ '{code}': '{name}' }},\n")
+            f.write(f"{{ '{code}': '{name}' }},\n")
 
     print(f"Configuration file generated successfully at: {lang_config_abs}")
 

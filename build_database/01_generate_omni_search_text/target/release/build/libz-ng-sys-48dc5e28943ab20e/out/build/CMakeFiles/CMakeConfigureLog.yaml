@@ -1,0 +1,2462 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+      - "/bin/"
+    searched_directories:
+      - "/home/jonas/.cargo/bin/uname"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/uname"
+      - "/home/jonas/.local/bin/uname"
+      - "/home/jonas/bin/uname"
+      - "/opt/oss-cad-suite/bin/uname"
+      - "/usr/local/bin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:212 (message)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      The system is: Linux - 7.0.14-201.fc44.x86_64 - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    searched_directories:
+      - "/home/jonas/.cargo/bin/gmake"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gmake"
+      - "/home/jonas/.local/bin/gmake"
+      - "/home/jonas/bin/gmake"
+      - "/opt/oss-cad-suite/bin/gmake"
+      - "/usr/local/bin/gmake"
+    found: "/usr/bin/gmake"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: -ffunction-sections;-fdata-sections;-fPIC;-m64;-w
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/4.3.0/CompilerIdC/a.out
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_AR"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/ar"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "strip"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/strip"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_LINKER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ld"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/ld"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "nm"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/nm"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "objdump"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/objdump"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "objcopy"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "readelf"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/readelf"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "dlltool"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    searched_directories:
+      - "/usr/bin/dlltool"
+      - "/home/jonas/.cargo/bin/dlltool"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/dlltool"
+      - "/home/jonas/.local/bin/dlltool"
+      - "/home/jonas/bin/dlltool"
+      - "/opt/oss-cad-suite/bin/dlltool"
+      - "/usr/local/bin/dlltool"
+      - "/var/lib/snapd/snap/bin/dlltool"
+      - "/usr/local/riscv-none-elf/bin/dlltool"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "addr2line"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    found: "/usr/bin/addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "tapi"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    searched_directories:
+      - "/usr/bin/tapi"
+      - "/home/jonas/.cargo/bin/tapi"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/tapi"
+      - "/home/jonas/.local/bin/tapi"
+      - "/home/jonas/bin/tapi"
+      - "/opt/oss-cad-suite/bin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/var/lib/snapd/snap/bin/tapi"
+      - "/usr/local/riscv-none-elf/bin/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ar-16.1"
+      - "gcc-ar-16"
+      - "gcc-ar16"
+      - "gcc-ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    searched_directories:
+      - "/usr/bin/gcc-ar-16.1"
+      - "/home/jonas/.cargo/bin/gcc-ar-16.1"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ar-16.1"
+      - "/home/jonas/.local/bin/gcc-ar-16.1"
+      - "/home/jonas/bin/gcc-ar-16.1"
+      - "/opt/oss-cad-suite/bin/gcc-ar-16.1"
+      - "/usr/local/bin/gcc-ar-16.1"
+      - "/var/lib/snapd/snap/bin/gcc-ar-16.1"
+      - "/usr/local/riscv-none-elf/bin/gcc-ar-16.1"
+      - "/usr/bin/gcc-ar-16"
+      - "/home/jonas/.cargo/bin/gcc-ar-16"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ar-16"
+      - "/home/jonas/.local/bin/gcc-ar-16"
+      - "/home/jonas/bin/gcc-ar-16"
+      - "/opt/oss-cad-suite/bin/gcc-ar-16"
+      - "/usr/local/bin/gcc-ar-16"
+      - "/var/lib/snapd/snap/bin/gcc-ar-16"
+      - "/usr/local/riscv-none-elf/bin/gcc-ar-16"
+      - "/usr/bin/gcc-ar16"
+      - "/home/jonas/.cargo/bin/gcc-ar16"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ar16"
+      - "/home/jonas/.local/bin/gcc-ar16"
+      - "/home/jonas/bin/gcc-ar16"
+      - "/opt/oss-cad-suite/bin/gcc-ar16"
+      - "/usr/local/bin/gcc-ar16"
+      - "/var/lib/snapd/snap/bin/gcc-ar16"
+      - "/usr/local/riscv-none-elf/bin/gcc-ar16"
+    found: "/usr/bin/gcc-ar"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:37 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ranlib-16.1"
+      - "gcc-ranlib-16"
+      - "gcc-ranlib16"
+      - "gcc-ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+    searched_directories:
+      - "/usr/bin/gcc-ranlib-16.1"
+      - "/home/jonas/.cargo/bin/gcc-ranlib-16.1"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ranlib-16.1"
+      - "/home/jonas/.local/bin/gcc-ranlib-16.1"
+      - "/home/jonas/bin/gcc-ranlib-16.1"
+      - "/opt/oss-cad-suite/bin/gcc-ranlib-16.1"
+      - "/usr/local/bin/gcc-ranlib-16.1"
+      - "/var/lib/snapd/snap/bin/gcc-ranlib-16.1"
+      - "/usr/local/riscv-none-elf/bin/gcc-ranlib-16.1"
+      - "/usr/bin/gcc-ranlib-16"
+      - "/home/jonas/.cargo/bin/gcc-ranlib-16"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ranlib-16"
+      - "/home/jonas/.local/bin/gcc-ranlib-16"
+      - "/home/jonas/bin/gcc-ranlib-16"
+      - "/opt/oss-cad-suite/bin/gcc-ranlib-16"
+      - "/usr/local/bin/gcc-ranlib-16"
+      - "/var/lib/snapd/snap/bin/gcc-ranlib-16"
+      - "/usr/local/riscv-none-elf/bin/gcc-ranlib-16"
+      - "/usr/bin/gcc-ranlib16"
+      - "/home/jonas/.cargo/bin/gcc-ranlib16"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcc-ranlib16"
+      - "/home/jonas/.local/bin/gcc-ranlib16"
+      - "/home/jonas/bin/gcc-ranlib16"
+      - "/opt/oss-cad-suite/bin/gcc-ranlib16"
+      - "/usr/local/bin/gcc-ranlib16"
+      - "/var/lib/snapd/snap/bin/gcc-ranlib16"
+      - "/usr/local/riscv-none-elf/bin/gcc-ranlib16"
+    found: "/usr/bin/gcc-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d40ca/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d40ca.dir/build.make CMakeFiles/cmTC_d40ca.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe'
+        Building C object CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11   -v -o CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-redhat-linux
+        Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,fortran,objc,obj-c++,ada,go,d,m2,cobol,algol68,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://bugzilla.redhat.com/ --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-16.1.1-build/gcc-16.1.1-20260515/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none,amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-tls=gnu2 --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1 --disable-libssp
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 16.1.1 20260515 (Red Hat 16.1.1-2) (GCC) 
+        COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/'
+         /usr/libexec/gcc/x86_64-redhat-linux/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_d40ca.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -m64 -mtune=generic -march=x86-64 -mtls-dialect=gnu2 -w -std=c11 -version -ffunction-sections -fdata-sections -fPIC -o /tmp/ccWO4LNe.s
+        GNU C11 (GCC) version 16.1.1 20260515 (Red Hat 16.1.1-2) (x86_64-redhat-linux)
+        	compiled by GNU C version 16.1.1 20260515 (Red Hat 16.1.1-2), GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.4.1, isl version isl-0.24-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/16/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/16/../../../../x86_64-redhat-linux/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-redhat-linux/16/include
+         /usr/local/include
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 02fd4c3bc0302122b50e730803efc7d8
+        COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/'
+         as -v -W --64 -o CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o /tmp/ccWO4LNe.s
+        GNU assembler version 2.46 (x86_64-redhat-linux) using BFD version version 2.46-3.fc44
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_d40ca
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d40ca.dir/link.txt --verbose=1
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-redhat-linux
+        Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,fortran,objc,obj-c++,ada,go,d,m2,cobol,algol68,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://bugzilla.redhat.com/ --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-16.1.1-build/gcc-16.1.1-20260515/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none,amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-tls=gnu2 --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1 --disable-libssp
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 16.1.1 20260515 (Red Hat 16.1.1-2) (GCC) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-v' '-o' 'cmTC_d40ca' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'cmTC_d40ca.'
+         /usr/libexec/gcc/x86_64-redhat-linux/16/collect2 -plugin /usr/libexec/gcc/x86_64-redhat-linux/16/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cchvfjnD.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_d40ca /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/16 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -lgcc -lgcc_s_asneeded -latomic_asneeded -lc -lgcc -lgcc_s_asneeded /usr/lib/gcc/x86_64-redhat-linux/16/crtend.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o
+        collect2 version 16.1.1 20260515 (Red Hat 16.1.1-2)
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-redhat-linux/16/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cchvfjnD.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_d40ca /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/16 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -lgcc -lgcc_s_asneeded -latomic_asneeded -lc -lgcc -lgcc_s_asneeded /usr/lib/gcc/x86_64-redhat-linux/16/crtend.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o
+        GNU ld version 2.46-3.fc44
+        COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-v' '-o' 'cmTC_d40ca' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'cmTC_d40ca.'
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w   -v -Wl,-v CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -o cmTC_d40ca
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-redhat-linux/16/include]
+          add: [/usr/local/include]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-redhat-linux/16/include] ==> [/usr/lib/gcc/x86_64-redhat-linux/16/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/lib/gcc/x86_64-redhat-linux/16/include;/usr/local/include;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d40ca/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_d40ca.dir/build.make CMakeFiles/cmTC_d40ca.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-XPS7Fe']
+        ignore line: [Building C object CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11   -v -o CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-redhat-linux]
+        ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c c++ fortran objc obj-c++ ada go d m2 cobol algol68 lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://bugzilla.redhat.com/ --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-16.1.1-build/gcc-16.1.1-20260515/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-tls=gnu2 --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1 --disable-libssp]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 16.1.1 20260515 (Red Hat 16.1.1-2) (GCC) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-redhat-linux/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_d40ca.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -m64 -mtune=generic -march=x86-64 -mtls-dialect=gnu2 -w -std=c11 -version -ffunction-sections -fdata-sections -fPIC -o /tmp/ccWO4LNe.s]
+        ignore line: [GNU C11 (GCC) version 16.1.1 20260515 (Red Hat 16.1.1-2) (x86_64-redhat-linux)]
+        ignore line: [	compiled by GNU C version 16.1.1 20260515 (Red Hat 16.1.1-2)  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.4.1  isl version isl-0.24-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/16/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/16/../../../../x86_64-redhat-linux/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-redhat-linux/16/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 02fd4c3bc0302122b50e730803efc7d8]
+        ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/']
+        ignore line: [ as -v -W --64 -o CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o /tmp/ccWO4LNe.s]
+        ignore line: [GNU assembler version 2.46 (x86_64-redhat-linux) using BFD version version 2.46-3.fc44]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-std=c11' '-v' '-o' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_d40ca]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d40ca.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-redhat-linux]
+        ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c c++ fortran objc obj-c++ ada go d m2 cobol algol68 lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://bugzilla.redhat.com/ --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-16.1.1-build/gcc-16.1.1-20260515/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-tls=gnu2 --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1 --disable-libssp]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 16.1.1 20260515 (Red Hat 16.1.1-2) (GCC) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/16/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/16/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/16/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-ffunction-sections' '-fdata-sections' '-fPIC' '-m64' '-w' '-v' '-o' 'cmTC_d40ca' '-mtune=generic' '-march=x86-64' '-mtls-dialect=gnu2' '-dumpdir' 'cmTC_d40ca.']
+        link line: [ /usr/libexec/gcc/x86_64-redhat-linux/16/collect2 -plugin /usr/libexec/gcc/x86_64-redhat-linux/16/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cchvfjnD.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_d40ca /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/16 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -lgcc -lgcc_s_asneeded -latomic_asneeded -lc -lgcc -lgcc_s_asneeded /usr/lib/gcc/x86_64-redhat-linux/16/crtend.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-redhat-linux/16/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-redhat-linux/16/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cchvfjnD.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s_asneeded] ==> ignore
+          arg [-plugin-opt=-pass-through=-latomic_asneeded] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s_asneeded] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--no-add-needed] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_d40ca] ==> ignore
+          arg [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/16] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/16]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64]
+          arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+          arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/16/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/16/../../..]
+          arg [-L/lib] ==> dir [/lib]
+          arg [-L/usr/lib] ==> dir [/usr/lib]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lgcc_s_asneeded] ==> lib [gcc_s_asneeded]
+          arg [-latomic_asneeded] ==> lib [atomic_asneeded]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lgcc_s_asneeded] ==> lib [gcc_s_asneeded]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/16/crtend.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/16/crtend.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o]
+        ignore line: [collect2 version 16.1.1 20260515 (Red Hat 16.1.1-2)]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-redhat-linux/16/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cchvfjnD.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s_asneeded --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_d40ca /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/16 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/16/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_d40ca.dir/CMakeCCompilerABI.c.o -lgcc -lgcc_s_asneeded -latomic_asneeded -lc -lgcc -lgcc_s_asneeded /usr/lib/gcc/x86_64-redhat-linux/16/crtend.o /usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o]
+        linker tool for 'C': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crt1.o] ==> [/usr/lib64/crt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crti.o] ==> [/usr/lib64/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64/crtn.o] ==> [/usr/lib64/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/16] ==> [/usr/lib/gcc/x86_64-redhat-linux/16]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/16/../../../../lib64] ==> [/usr/lib64]
+        collapse library dir [/lib/../lib64] ==> [/lib64]
+        collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/16/../../..] ==> [/usr/lib]
+        collapse library dir [/lib] ==> [/lib]
+        collapse library dir [/usr/lib] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s_asneeded;atomic_asneeded;c;gcc;gcc_s_asneeded]
+        implicit objs: [/usr/lib64/crt1.o;/usr/lib64/crti.o;/usr/lib/gcc/x86_64-redhat-linux/16/crtbegin.o;/usr/lib/gcc/x86_64-redhat-linux/16/crtend.o;/usr/lib64/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/16;/usr/lib64;/lib64;/usr/lib;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:37 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld version 2.46-3.fc44
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CTest.cmake:188 (find_program)"
+      - "CMakeLists.txt:48 (include)"
+    mode: "program"
+    variable: "MEMORYCHECK_COMMAND"
+    description: "Path to the memory checking command, used for memory error detection."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "purify"
+      - "valgrind"
+      - "boundscheck"
+      - "drmemory"
+      - "cuda-memcheck"
+      - "compute-sanitizer"
+    candidate_directories:
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/home/jonas/.cargo/bin/purify"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/purify"
+      - "/home/jonas/.local/bin/purify"
+      - "/home/jonas/bin/purify"
+      - "/opt/oss-cad-suite/bin/purify"
+      - "/usr/local/bin/purify"
+      - "/usr/bin/purify"
+      - "/var/lib/snapd/snap/bin/purify"
+      - "/usr/local/riscv-none-elf/bin/purify"
+      - "/usr/local/bin/purify"
+      - "/usr/local/sbin/purify"
+      - "/usr/local/purify"
+      - "/usr/bin/purify"
+      - "/usr/sbin/purify"
+      - "/usr/purify"
+      - "/bin/purify"
+      - "/sbin/purify"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/purify"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/purify"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/purify"
+      - "/usr/X11R6/bin/purify"
+      - "/usr/X11R6/sbin/purify"
+      - "/usr/X11R6/purify"
+      - "/usr/pkg/bin/purify"
+      - "/usr/pkg/sbin/purify"
+      - "/usr/pkg/purify"
+      - "/opt/bin/purify"
+      - "/opt/sbin/purify"
+      - "/opt/purify"
+      - "/home/jonas/.cargo/bin/valgrind"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/valgrind"
+      - "/home/jonas/.local/bin/valgrind"
+      - "/home/jonas/bin/valgrind"
+      - "/opt/oss-cad-suite/bin/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/usr/bin/valgrind"
+      - "/var/lib/snapd/snap/bin/valgrind"
+      - "/usr/local/riscv-none-elf/bin/valgrind"
+      - "/usr/local/bin/valgrind"
+      - "/usr/local/sbin/valgrind"
+      - "/usr/local/valgrind"
+      - "/usr/bin/valgrind"
+      - "/usr/sbin/valgrind"
+      - "/usr/valgrind"
+      - "/bin/valgrind"
+      - "/sbin/valgrind"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/valgrind"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/valgrind"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/valgrind"
+      - "/usr/X11R6/bin/valgrind"
+      - "/usr/X11R6/sbin/valgrind"
+      - "/usr/X11R6/valgrind"
+      - "/usr/pkg/bin/valgrind"
+      - "/usr/pkg/sbin/valgrind"
+      - "/usr/pkg/valgrind"
+      - "/opt/bin/valgrind"
+      - "/opt/sbin/valgrind"
+      - "/opt/valgrind"
+      - "/home/jonas/.cargo/bin/boundscheck"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/boundscheck"
+      - "/home/jonas/.local/bin/boundscheck"
+      - "/home/jonas/bin/boundscheck"
+      - "/opt/oss-cad-suite/bin/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/var/lib/snapd/snap/bin/boundscheck"
+      - "/usr/local/riscv-none-elf/bin/boundscheck"
+      - "/usr/local/bin/boundscheck"
+      - "/usr/local/sbin/boundscheck"
+      - "/usr/local/boundscheck"
+      - "/usr/bin/boundscheck"
+      - "/usr/sbin/boundscheck"
+      - "/usr/boundscheck"
+      - "/bin/boundscheck"
+      - "/sbin/boundscheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/boundscheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/boundscheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/boundscheck"
+      - "/usr/X11R6/bin/boundscheck"
+      - "/usr/X11R6/sbin/boundscheck"
+      - "/usr/X11R6/boundscheck"
+      - "/usr/pkg/bin/boundscheck"
+      - "/usr/pkg/sbin/boundscheck"
+      - "/usr/pkg/boundscheck"
+      - "/opt/bin/boundscheck"
+      - "/opt/sbin/boundscheck"
+      - "/opt/boundscheck"
+      - "/home/jonas/.cargo/bin/drmemory"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/drmemory"
+      - "/home/jonas/.local/bin/drmemory"
+      - "/home/jonas/bin/drmemory"
+      - "/opt/oss-cad-suite/bin/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/usr/bin/drmemory"
+      - "/var/lib/snapd/snap/bin/drmemory"
+      - "/usr/local/riscv-none-elf/bin/drmemory"
+      - "/usr/local/bin/drmemory"
+      - "/usr/local/sbin/drmemory"
+      - "/usr/local/drmemory"
+      - "/usr/bin/drmemory"
+      - "/usr/sbin/drmemory"
+      - "/usr/drmemory"
+      - "/bin/drmemory"
+      - "/sbin/drmemory"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/drmemory"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/drmemory"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/drmemory"
+      - "/usr/X11R6/bin/drmemory"
+      - "/usr/X11R6/sbin/drmemory"
+      - "/usr/X11R6/drmemory"
+      - "/usr/pkg/bin/drmemory"
+      - "/usr/pkg/sbin/drmemory"
+      - "/usr/pkg/drmemory"
+      - "/opt/bin/drmemory"
+      - "/opt/sbin/drmemory"
+      - "/opt/drmemory"
+      - "/home/jonas/.cargo/bin/cuda-memcheck"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/cuda-memcheck"
+      - "/home/jonas/.local/bin/cuda-memcheck"
+      - "/home/jonas/bin/cuda-memcheck"
+      - "/opt/oss-cad-suite/bin/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/var/lib/snapd/snap/bin/cuda-memcheck"
+      - "/usr/local/riscv-none-elf/bin/cuda-memcheck"
+      - "/usr/local/bin/cuda-memcheck"
+      - "/usr/local/sbin/cuda-memcheck"
+      - "/usr/local/cuda-memcheck"
+      - "/usr/bin/cuda-memcheck"
+      - "/usr/sbin/cuda-memcheck"
+      - "/usr/cuda-memcheck"
+      - "/bin/cuda-memcheck"
+      - "/sbin/cuda-memcheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/cuda-memcheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/cuda-memcheck"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/cuda-memcheck"
+      - "/usr/X11R6/bin/cuda-memcheck"
+      - "/usr/X11R6/sbin/cuda-memcheck"
+      - "/usr/X11R6/cuda-memcheck"
+      - "/usr/pkg/bin/cuda-memcheck"
+      - "/usr/pkg/sbin/cuda-memcheck"
+      - "/usr/pkg/cuda-memcheck"
+      - "/opt/bin/cuda-memcheck"
+      - "/opt/sbin/cuda-memcheck"
+      - "/opt/cuda-memcheck"
+      - "/home/jonas/.cargo/bin/compute-sanitizer"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/compute-sanitizer"
+      - "/home/jonas/.local/bin/compute-sanitizer"
+      - "/home/jonas/bin/compute-sanitizer"
+      - "/opt/oss-cad-suite/bin/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/var/lib/snapd/snap/bin/compute-sanitizer"
+      - "/usr/local/riscv-none-elf/bin/compute-sanitizer"
+      - "/usr/local/bin/compute-sanitizer"
+      - "/usr/local/sbin/compute-sanitizer"
+      - "/usr/local/compute-sanitizer"
+      - "/usr/bin/compute-sanitizer"
+      - "/usr/sbin/compute-sanitizer"
+      - "/usr/compute-sanitizer"
+      - "/bin/compute-sanitizer"
+      - "/sbin/compute-sanitizer"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/compute-sanitizer"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/compute-sanitizer"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/compute-sanitizer"
+      - "/usr/X11R6/bin/compute-sanitizer"
+      - "/usr/X11R6/sbin/compute-sanitizer"
+      - "/usr/X11R6/compute-sanitizer"
+      - "/usr/pkg/bin/compute-sanitizer"
+      - "/usr/pkg/sbin/compute-sanitizer"
+      - "/usr/pkg/compute-sanitizer"
+      - "/opt/bin/compute-sanitizer"
+      - "/opt/sbin/compute-sanitizer"
+      - "/opt/compute-sanitizer"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr"
+        - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CTest.cmake:196 (find_program)"
+      - "CMakeLists.txt:48 (include)"
+    mode: "program"
+    variable: "COVERAGE_COMMAND"
+    description: "Path to the coverage program that CTest uses for performing coverage inspection"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcov"
+    candidate_directories:
+      - "/home/jonas/.cargo/bin/"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/"
+      - "/home/jonas/.local/bin/"
+      - "/home/jonas/bin/"
+      - "/opt/oss-cad-suite/bin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/var/lib/snapd/snap/bin/"
+      - "/usr/local/riscv-none-elf/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/bin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/sbin/"
+      - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/home/jonas/.cargo/bin/gcov"
+      - "/home/jonas/.nvm/versions/node/v25.9.0/bin/gcov"
+      - "/home/jonas/.local/bin/gcov"
+      - "/home/jonas/bin/gcov"
+      - "/opt/oss-cad-suite/bin/gcov"
+      - "/usr/local/bin/gcov"
+    found: "/usr/bin/gcov"
+    search_context:
+      ENV{PATH}:
+        - "/home/jonas/.cargo/bin"
+        - "/home/jonas/.nvm/versions/node/v25.9.0/bin"
+        - "/home/jonas/.local/bin"
+        - "/home/jonas/bin"
+        - "/opt/oss-cad-suite/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/var/lib/snapd/snap/bin"
+        - "/usr/local/riscv-none-elf/bin"
+      CMAKE_INSTALL_PREFIX: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr"
+        - "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "cmake/detect-arch.cmake:25 (try_run)"
+      - "CMakeLists.txt:68 (include)"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeTmp"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "compile_result_unused"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f3a12/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f3a12.dir/build.make CMakeFiles/cmTC_f3a12.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeTmp'
+        Building C object CMakeFiles/cmTC_f3a12.dir/detect-arch.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_f3a12.dir/detect-arch.c.o -c /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.29/src/zlib-ng/cmake/detect-arch.c
+        /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libz-ng-sys-1.1.29/src/zlib-ng/cmake/detect-arch.c:8:6: error: #error archfound x86_64
+            8 |     #error archfound x86_64
+              |      ^~~~~
+        gmake[1]: *** [CMakeFiles/cmTC_f3a12.dir/build.make:81: CMakeFiles/cmTC_f3a12.dir/detect-arch.c.o] Error 1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeTmp'
+        gmake: *** [Makefile:134: cmTC_f3a12/fast] Error 2
+        
+      exitCode: 2
+    runResult:
+      variable: "run_result_unused"
+      cached: true
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:250 (check_c_source_compiles)"
+    checks:
+      - "Performing Test FNO_LTO_AVAILABLE"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "FNO_LTO_AVAILABLE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b7ba1/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b7ba1.dir/build.make CMakeFiles/cmTC_b7ba1.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR'
+        Building C object CMakeFiles/cmTC_b7ba1.dir/src.c.o
+        /usr/bin/cc -DFNO_LTO_AVAILABLE  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto -std=c11 -o CMakeFiles/cmTC_b7ba1.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR/src.c
+        Linking C executable cmTC_b7ba1
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b7ba1.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto CMakeFiles/cmTC_b7ba1.dir/src.c.o -o cmTC_b7ba1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3o8uaR'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "CMakeLists.txt:436 (check_include_file)"
+    checks:
+      - "Looking for arm_acle.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_ARM_ACLE_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_345b6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_345b6.dir/build.make CMakeFiles/cmTC_345b6.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg'
+        Building C object CMakeFiles/cmTC_345b6.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_345b6.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg/CheckIncludeFile.c
+        /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg/CheckIncludeFile.c:1:10: fatal error: arm_acle.h: No such file or directory
+            1 | #include <arm_acle.h>
+              |          ^~~~~~~~~~~~
+        compilation terminated.
+        gmake[1]: *** [CMakeFiles/cmTC_345b6.dir/build.make:81: CMakeFiles/cmTC_345b6.dir/CheckIncludeFile.c.o] Error 1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Sbjtmg'
+        gmake: *** [Makefile:134: cmTC_345b6/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "CMakeLists.txt:440 (check_include_file)"
+    checks:
+      - "Looking for sys/auxv.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SYS_AUXV_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_83282/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_83282.dir/build.make CMakeFiles/cmTC_83282.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq'
+        Building C object CMakeFiles/cmTC_83282.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_83282.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq/CheckIncludeFile.c
+        Linking C executable cmTC_83282
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_83282.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_83282.dir/CheckIncludeFile.c.o -o cmTC_83282
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-jAOLdq'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "CMakeLists.txt:444 (check_include_file)"
+    checks:
+      - "Looking for sys/sdt.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SYS_SDT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_07538/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_07538.dir/build.make CMakeFiles/cmTC_07538.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF'
+        Building C object CMakeFiles/cmTC_07538.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_07538.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF/CheckIncludeFile.c
+        /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF/CheckIncludeFile.c:1:10: fatal error: sys/sdt.h: No such file or directory
+            1 | #include <sys/sdt.h>
+              |          ^~~~~~~~~~~
+        compilation terminated.
+        gmake[1]: *** [CMakeFiles/cmTC_07538.dir/build.make:81: CMakeFiles/cmTC_07538.dir/CheckIncludeFile.c.o] Error 1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-TK4GxF'
+        gmake: *** [Makefile:134: cmTC_07538/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "CMakeLists.txt:448 (check_include_file)"
+    checks:
+      - "Looking for unistd.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_UNISTD_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_efbd5/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_efbd5.dir/build.make CMakeFiles/cmTC_efbd5.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb'
+        Building C object CMakeFiles/cmTC_efbd5.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_efbd5.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb/CheckIncludeFile.c
+        Linking C executable cmTC_efbd5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_efbd5.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_efbd5.dir/CheckIncludeFile.c.o -o cmTC_efbd5
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-3S2Kbb'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "CMakeLists.txt:453 (check_include_file)"
+    checks:
+      - "Looking for linux/auxvec.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_LINUX_AUXVEC_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_61e05/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_61e05.dir/build.make CMakeFiles/cmTC_61e05.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6'
+        Building C object CMakeFiles/cmTC_61e05.dir/CheckIncludeFile.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_61e05.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6/CheckIncludeFile.c
+        Linking C executable cmTC_61e05
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_61e05.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_61e05.dir/CheckIncludeFile.c.o -o cmTC_61e05
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-1zXUt6'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:462 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for sys/types.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ac899/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ac899.dir/build.make CMakeFiles/cmTC_ac899.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs'
+        Building C object CMakeFiles/cmTC_ac899.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_ac899.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs/CheckIncludeFile.c
+        Linking C executable cmTC_ac899
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ac899.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_ac899.dir/CheckIncludeFile.c.o -o cmTC_ac899
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-cvytEs'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:463 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for stdint.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_STDINT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f5cf7/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f5cf7.dir/build.make CMakeFiles/cmTC_f5cf7.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN'
+        Building C object CMakeFiles/cmTC_f5cf7.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_f5cf7.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN/CheckIncludeFile.c
+        Linking C executable cmTC_f5cf7
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f5cf7.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_f5cf7.dir/CheckIncludeFile.c.o -o cmTC_f5cf7
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-Lb37NN'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:174 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:464 (check_include_file)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Looking for stddef.h"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_STDDEF_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e928f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e928f.dir/build.make CMakeFiles/cmTC_e928f.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ'
+        Building C object CMakeFiles/cmTC_e928f.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_e928f.dir/CheckIncludeFile.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ/CheckIncludeFile.c
+        Linking C executable cmTC_e928f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e928f.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_e928f.dir/CheckIncludeFile.c.o -o cmTC_e928f
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-DkGJMQ'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:348 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:481 (__check_type_size_impl)"
+      - "CMakeLists.txt:462 (check_type_size)"
+    checks:
+      - "Check size of off64_t"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_OFF64_T"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_10a69/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_10a69.dir/build.make CMakeFiles/cmTC_10a69.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH'
+        Building C object CMakeFiles/cmTC_10a69.dir/OFF64_T.c.o
+        /usr/bin/cc -D_LARGEFILE64_SOURCE=1 -D__USE_LARGEFILE64  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_10a69.dir/OFF64_T.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH/OFF64_T.c
+        Linking C executable cmTC_10a69
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_10a69.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_10a69.dir/OFF64_T.c.o -o cmTC_10a69
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-rja4mH'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:167 (try_compile)"
+      - "CMakeLists.txt:479 (check_function_exists)"
+    checks:
+      - "Looking for fseeko"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_FSEEKO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ebd11/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ebd11.dir/build.make CMakeFiles/cmTC_ebd11.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb'
+        Building C object CMakeFiles/cmTC_ebd11.dir/CheckFunctionExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w -DCHECK_FUNCTION_EXISTS=fseeko -std=c11 -o CMakeFiles/cmTC_ebd11.dir/CheckFunctionExists.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb/CheckFunctionExists.c
+        Linking C executable cmTC_ebd11
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ebd11.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -DCHECK_FUNCTION_EXISTS=fseeko CMakeFiles/cmTC_ebd11.dir/CheckFunctionExists.c.o -o cmTC_ebd11
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-dC3yrb'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:167 (try_compile)"
+      - "CMakeLists.txt:486 (check_function_exists)"
+    checks:
+      - "Looking for strerror"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_STRERROR"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_78af1/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_78af1.dir/build.make CMakeFiles/cmTC_78af1.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx'
+        Building C object CMakeFiles/cmTC_78af1.dir/CheckFunctionExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w -DCHECK_FUNCTION_EXISTS=strerror -std=c11 -o CMakeFiles/cmTC_78af1.dir/CheckFunctionExists.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx/CheckFunctionExists.c
+        Linking C executable cmTC_78af1
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_78af1.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -DCHECK_FUNCTION_EXISTS=strerror CMakeFiles/cmTC_78af1.dir/CheckFunctionExists.c.o -o cmTC_78af1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-wJYaDx'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:193 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:98 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:495 (check_symbol_exists)"
+    checks:
+      - "Looking for __cpuid_count"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_CPUID_GNU"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_37fca/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_37fca.dir/build.make CMakeFiles/cmTC_37fca.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18'
+        Building C object CMakeFiles/cmTC_37fca.dir/CheckSymbolExists.c.o
+        /usr/bin/cc   -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_37fca.dir/CheckSymbolExists.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18/CheckSymbolExists.c
+        Linking C executable cmTC_37fca
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_37fca.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_37fca.dir/CheckSymbolExists.c.o -o cmTC_37fca
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-83qz18'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:506 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_CPUID_MS"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_CPUID_MS"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2dcd2/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2dcd2.dir/build.make CMakeFiles/cmTC_2dcd2.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ'
+        Building C object CMakeFiles/cmTC_2dcd2.dir/src.c.o
+        /usr/bin/cc -DHAVE_CPUID_MS  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_2dcd2.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ/src.c
+        /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ/src.c:2:10: fatal error: intrin.h: No such file or directory
+            2 | #include <intrin.h>
+              |          ^~~~~~~~~~
+        compilation terminated.
+        gmake[1]: *** [CMakeFiles/cmTC_2dcd2.dir/build.make:81: CMakeFiles/cmTC_2dcd2.dir/src.c.o] Error 1
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-NOZlCQ'
+        gmake: *** [Makefile:134: cmTC_2dcd2/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/CheckCCompilerFlag.cmake:105 (cmake_check_compiler_flag)"
+      - "CMakeLists.txt:547 (check_c_compiler_flag)"
+    checks:
+      - "Performing Test HAVE_NO_INTERPOSITION"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_NO_INTERPOSITION"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bb202/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bb202.dir/build.make CMakeFiles/cmTC_bb202.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9'
+        Building C object CMakeFiles/cmTC_bb202.dir/src.c.o
+        /usr/bin/cc -DHAVE_NO_INTERPOSITION  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11   -fno-semantic-interposition -o CMakeFiles/cmTC_bb202.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9/src.c
+        Linking C executable cmTC_bb202
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bb202.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_bb202.dir/src.c.o -o cmTC_bb202
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-q7UDQ9'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:553 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_VISIBILITY_HIDDEN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_VISIBILITY_HIDDEN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_550bc/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_550bc.dir/build.make CMakeFiles/cmTC_550bc.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf'
+        Building C object CMakeFiles/cmTC_550bc.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_VISIBILITY_HIDDEN  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_550bc.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf/src.c
+        Linking C executable cmTC_550bc
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_550bc.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_550bc.dir/src.c.o -o cmTC_550bc
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-e7feHf'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:567 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_VISIBILITY_INTERNAL"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_VISIBILITY_INTERNAL"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_92440/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_92440.dir/build.make CMakeFiles/cmTC_92440.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX'
+        Building C object CMakeFiles/cmTC_92440.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_VISIBILITY_INTERNAL  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_92440.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX/src.c
+        Linking C executable cmTC_92440
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_92440.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_92440.dir/src.c.o -o cmTC_92440
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-UKaBcX'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:581 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_ATTRIBUTE_ALIGNED"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_ATTRIBUTE_ALIGNED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_9be04/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_9be04.dir/build.make CMakeFiles/cmTC_9be04.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp'
+        Building C object CMakeFiles/cmTC_9be04.dir/src.c.o
+        /usr/bin/cc -DHAVE_ATTRIBUTE_ALIGNED  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_9be04.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp/src.c
+        Linking C executable cmTC_9be04
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9be04.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_9be04.dir/src.c.o -o cmTC_9be04
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-k2IKmp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:596 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_ASSUME_ALIGNED"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_BUILTIN_ASSUME_ALIGNED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d889c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d889c.dir/build.make CMakeFiles/cmTC_d889c.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X'
+        Building C object CMakeFiles/cmTC_d889c.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_ASSUME_ALIGNED  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto -std=c11 -o CMakeFiles/cmTC_d889c.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X/src.c
+        Linking C executable cmTC_d889c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d889c.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto CMakeFiles/cmTC_d889c.dir/src.c.o -o cmTC_d889c
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-PXf81X'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:614 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_CTZ"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_BUILTIN_CTZ"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_27116/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_27116.dir/build.make CMakeFiles/cmTC_27116.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r'
+        Building C object CMakeFiles/cmTC_27116.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_CTZ  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto -std=c11 -o CMakeFiles/cmTC_27116.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r/src.c
+        Linking C executable cmTC_27116
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_27116.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto CMakeFiles/cmTC_27116.dir/src.c.o -o cmTC_27116
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-P4VF7r'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:632 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_BUILTIN_CTZLL"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_BUILTIN_CTZLL"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d1818/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d1818.dir/build.make CMakeFiles/cmTC_d1818.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC'
+        Building C object CMakeFiles/cmTC_d1818.dir/src.c.o
+        /usr/bin/cc -DHAVE_BUILTIN_CTZLL  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto -std=c11 -o CMakeFiles/cmTC_d1818.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC/src.c
+        Linking C executable cmTC_d1818
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d1818.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -fno-lto CMakeFiles/cmTC_d1818.dir/src.c.o -o cmTC_d1818
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-45kuFC'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:649 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_PTRDIFF_T"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_PTRDIFF_T"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_db7d3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_db7d3.dir/build.make CMakeFiles/cmTC_db7d3.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz'
+        Building C object CMakeFiles/cmTC_db7d3.dir/src.c.o
+        /usr/bin/cc -DHAVE_PTRDIFF_T  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11 -o CMakeFiles/cmTC_db7d3.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz/src.c
+        Linking C executable cmTC_db7d3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_db7d3.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_db7d3.dir/src.c.o -o cmTC_db7d3
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-d2HgWz'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:672 (check_c_source_compiles)"
+      - "CMakeLists.txt:1056 (check_xsave_intrinsics)"
+    checks:
+      - "Performing Test HAVE_XSAVE_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_XSAVE_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2445b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2445b.dir/build.make CMakeFiles/cmTC_2445b.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA'
+        Building C object CMakeFiles/cmTC_2445b.dir/src.c.o
+        /usr/bin/cc -DHAVE_XSAVE_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mxsave  -fno-lto -std=c11 -o CMakeFiles/cmTC_2445b.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA/src.c
+        Linking C executable cmTC_2445b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2445b.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mxsave  -fno-lto CMakeFiles/cmTC_2445b.dir/src.c.o -o cmTC_2445b
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BK2fMA'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:561 (check_c_source_compiles)"
+      - "CMakeLists.txt:1067 (check_sse2_intrinsics)"
+    checks:
+      - "Performing Test HAVE_SSE2_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SSE2_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2c1d5/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2c1d5.dir/build.make CMakeFiles/cmTC_2c1d5.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw'
+        Building C object CMakeFiles/cmTC_2c1d5.dir/src.c.o
+        /usr/bin/cc -DHAVE_SSE2_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse2  -fno-lto -std=c11 -o CMakeFiles/cmTC_2c1d5.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw/src.c
+        Linking C executable cmTC_2c1d5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2c1d5.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse2  -fno-lto CMakeFiles/cmTC_2c1d5.dir/src.c.o -o cmTC_2c1d5
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RBj8pw'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:584 (check_c_source_compiles)"
+      - "CMakeLists.txt:1080 (check_ssse3_intrinsics)"
+    checks:
+      - "Performing Test HAVE_SSSE3_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SSSE3_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3638f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3638f.dir/build.make CMakeFiles/cmTC_3638f.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU'
+        Building C object CMakeFiles/cmTC_3638f.dir/src.c.o
+        /usr/bin/cc -DHAVE_SSSE3_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mssse3  -fno-lto -std=c11 -o CMakeFiles/cmTC_3638f.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU/src.c
+        Linking C executable cmTC_3638f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3638f.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mssse3  -fno-lto CMakeFiles/cmTC_3638f.dir/src.c.o -o cmTC_3638f
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-s89TBU'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:610 (check_c_source_compiles)"
+      - "CMakeLists.txt:1092 (check_sse41_intrinsics)"
+    checks:
+      - "Performing Test HAVE_SSE41_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SSE41_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_a6b1f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_a6b1f.dir/build.make CMakeFiles/cmTC_a6b1f.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf'
+        Building C object CMakeFiles/cmTC_a6b1f.dir/src.c.o
+        /usr/bin/cc -DHAVE_SSE41_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse4.1  -fno-lto -std=c11 -o CMakeFiles/cmTC_a6b1f.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf/src.c
+        Linking C executable cmTC_a6b1f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a6b1f.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse4.1  -fno-lto CMakeFiles/cmTC_a6b1f.dir/src.c.o -o cmTC_a6b1f
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-l4hUnf'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:633 (check_c_source_compiles)"
+      - "CMakeLists.txt:1103 (check_sse42_intrinsics)"
+    checks:
+      - "Performing Test HAVE_SSE42_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_SSE42_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f2dba/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f2dba.dir/build.make CMakeFiles/cmTC_f2dba.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg'
+        Building C object CMakeFiles/cmTC_f2dba.dir/src.c.o
+        /usr/bin/cc -DHAVE_SSE42_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse4.2  -fno-lto -std=c11 -o CMakeFiles/cmTC_f2dba.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg/src.c
+        Linking C executable cmTC_f2dba
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f2dba.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -msse4.2  -fno-lto CMakeFiles/cmTC_f2dba.dir/src.c.o -o cmTC_f2dba
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-ceO4dg'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:309 (check_c_source_compiles)"
+      - "CMakeLists.txt:1115 (check_pclmulqdq_intrinsics)"
+    checks:
+      - "Performing Test HAVE_PCLMULQDQ_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_PCLMULQDQ_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_74271/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_74271.dir/build.make CMakeFiles/cmTC_74271.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ'
+        Building C object CMakeFiles/cmTC_74271.dir/src.c.o
+        /usr/bin/cc -DHAVE_PCLMULQDQ_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mpclmul  -fno-lto -std=c11 -o CMakeFiles/cmTC_74271.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ/src.c
+        Linking C executable cmTC_74271
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_74271.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mpclmul  -fno-lto CMakeFiles/cmTC_74271.dir/src.c.o -o cmTC_74271
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-BJgXXZ'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:200 (check_c_source_compiles)"
+      - "CMakeLists.txt:1127 (check_avx2_intrinsics)"
+    checks:
+      - "Performing Test HAVE_AVX2_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_AVX2_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5e982/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5e982.dir/build.make CMakeFiles/cmTC_5e982.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp'
+        Building C object CMakeFiles/cmTC_5e982.dir/src.c.o
+        /usr/bin/cc -DHAVE_AVX2_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx2 -mbmi2  -fno-lto -std=c11 -o CMakeFiles/cmTC_5e982.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp/src.c
+        Linking C executable cmTC_5e982
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5e982.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx2 -mbmi2  -fno-lto CMakeFiles/cmTC_5e982.dir/src.c.o -o cmTC_5e982
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-uikHVp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/CheckCCompilerFlag.cmake:105 (cmake_check_compiler_flag)"
+      - "cmake/detect-intrinsics.cmake:117 (check_c_compiler_flag)"
+      - "CMakeLists.txt:1145 (check_avx512_intrinsics)"
+    checks:
+      - "Performing Test HAVE_CASCADE_LAKE"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_CASCADE_LAKE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_39eb6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_39eb6.dir/build.make CMakeFiles/cmTC_39eb6.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW'
+        Building C object CMakeFiles/cmTC_39eb6.dir/src.c.o
+        /usr/bin/cc -DHAVE_CASCADE_LAKE  -ffunction-sections -fdata-sections -fPIC -m64 -w  -std=c11   -mtune=cascadelake -o CMakeFiles/cmTC_39eb6.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW/src.c
+        Linking C executable cmTC_39eb6
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_39eb6.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w  CMakeFiles/cmTC_39eb6.dir/src.c.o -o cmTC_39eb6
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-RTuSHW'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:131 (check_c_source_compiles)"
+      - "CMakeLists.txt:1145 (check_avx512_intrinsics)"
+    checks:
+      - "Performing Test HAVE_AVX512_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_AVX512_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5e11a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5e11a.dir/build.make CMakeFiles/cmTC_5e11a.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ'
+        Building C object CMakeFiles/cmTC_5e11a.dir/src.c.o
+        /usr/bin/cc -DHAVE_AVX512_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx512f -mavx512dq -mavx512bw -mavx512vl -mbmi2 -mtune=cascadelake  -fno-lto -std=c11 -o CMakeFiles/cmTC_5e11a.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ/src.c
+        Linking C executable cmTC_5e11a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5e11a.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx512f -mavx512dq -mavx512bw -mavx512vl -mbmi2 -mtune=cascadelake  -fno-lto CMakeFiles/cmTC_5e11a.dir/src.c.o -o cmTC_5e11a
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-fo2deZ'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:168 (check_c_source_compiles)"
+      - "CMakeLists.txt:1162 (check_avx512vnni_intrinsics)"
+    checks:
+      - "Performing Test HAVE_AVX512VNNI_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_AVX512VNNI_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3ec0e/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3ec0e.dir/build.make CMakeFiles/cmTC_3ec0e.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy'
+        Building C object CMakeFiles/cmTC_3ec0e.dir/src.c.o
+        /usr/bin/cc -DHAVE_AVX512VNNI_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx512f -mavx512dq -mavx512bw -mavx512vl -mavx512vnni -mbmi2 -mtune=cascadelake  -fno-lto -std=c11 -o CMakeFiles/cmTC_3ec0e.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy/src.c
+        Linking C executable cmTC_3ec0e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3ec0e.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mavx512f -mavx512dq -mavx512bw -mavx512vl -mavx512vnni -mbmi2 -mtune=cascadelake  -fno-lto CMakeFiles/cmTC_3ec0e.dir/src.c.o -o cmTC_3ec0e
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-MzYzBy'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "cmake/detect-intrinsics.cmake:331 (check_c_source_compiles)"
+      - "CMakeLists.txt:1174 (check_vpclmulqdq_intrinsics)"
+    checks:
+      - "Performing Test HAVE_VPCLMULQDQ_INTRIN"
+    directories:
+      source: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg"
+      binary: "/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: " -ffunction-sections -fdata-sections -fPIC -m64 -w"
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_VPCLMULQDQ_INTRIN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0f32b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0f32b.dir/build.make CMakeFiles/cmTC_0f32b.dir/build
+        gmake[1]: Entering directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg'
+        Building C object CMakeFiles/cmTC_0f32b.dir/src.c.o
+        /usr/bin/cc -DHAVE_VPCLMULQDQ_INTRIN  -ffunction-sections -fdata-sections -fPIC -m64 -w -mvpclmulqdq -mavx512f  -fno-lto -std=c11 -o CMakeFiles/cmTC_0f32b.dir/src.c.o -c /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg/src.c
+        Linking C executable cmTC_0f32b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0f32b.dir/link.txt --verbose=1
+        /usr/bin/cc  -ffunction-sections -fdata-sections -fPIC -m64 -w -mvpclmulqdq -mavx512f  -fno-lto CMakeFiles/cmTC_0f32b.dir/src.c.o -o cmTC_0f32b
+        gmake[1]: Leaving directory '/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/libz-ng-sys-48dc5e28943ab20e/out/build/CMakeFiles/CMakeScratch/TryCompile-p27SHg'
+        
+      exitCode: 0
+...

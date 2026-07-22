@@ -1,0 +1,14 @@
+/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/deps/serde-4ede29b7d9eec2c6.d: /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/serde-83bd76a5d861502a/out/private.rs
+
+/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/deps/libserde-4ede29b7d9eec2c6.rlib: /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/serde-83bd76a5d861502a/out/private.rs
+
+/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/deps/libserde-4ede29b7d9eec2c6.rmeta: /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/serde-83bd76a5d861502a/out/private.rs
+
+/home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/jonas/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/serde-83bd76a5d861502a/out/private.rs:
+
+# env-dep:OUT_DIR=/home/jonas/git/wikipedia_engine/database_builder/process_wb/target/release/build/serde-83bd76a5d861502a/out

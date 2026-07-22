@@ -1,0 +1,1 @@
+/home/jonas/git/wikipedia_engine/build_database/generate_omni_search_text/target/release/generate_omni_search_text: /home/jonas/git/wikipedia_engine/build_database/generate_omni_search_text/src/main.rs
