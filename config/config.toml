@@ -1,0 +1,193 @@
+# Here you can customize your database 
+[database_content]
+# Specify which wikis to include in this database. Here is a list of all possible wikis:
+#
+# - wiki
+# - wiktionary
+# - wikiquote
+# - wikisource
+# - wikivoyage
+# - wikinews (not supported)
+# - wikiversity
+# - wikibooks 
+wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
+
+
+# All entries that have at least one entry in one of the included wikis will be added to the omni search index automatically. If you want to add any concepts, that do not have an entry in any of the included wikis or no wikis at all, you can do this by adding Classes to the following list. You might want to do this because those concepts might still have helpful metadata (e.g. the year of birth of a human that is not famous enough to have a wikipedia article but still has an entry in the database). If one of the filters applies, the concept will be included. Here is a list of the most important properties you might want to include:
+
+# People & Groups:
+# - Q5: Human
+# - Q43229: Organization (Companies, institutions, political parties, groups)
+#
+# Geography & Places:
+# - Q515: City 
+# - Q511: Capital city 
+# - Q625: Country 
+# - Q486972: Human settlement 
+# - Q3863: Mountain 
+#
+# History & Events:
+# - Q13418847: Historical event (Battles, treaties, disasters, turning points)
+# - Q1190554: Current event / occurrence (Notable modern happenings)
+#
+# Culture, Art & Media:
+# - Q11424: Film / Motion picture
+# - Q7725634: Literary work (Books, novels)
+# - Q3305213: Painting (Artworks)
+# - Q7889: Video game
+# - Q4022: Musical work / Album / Song
+#
+include_concepts_with_given_property_in_omni_search_index = ["Q5", "Q515", "Q511", "Q625", "Q3305213", "Q11424", "Q7725634", "Q486972"] 
+
+# Specify which tags should be included in the omni_search_index. 
+# Tags specify if a concept is an instance of something, e.g., human. 
+# Here is a list of the most important "is-an-instance-of" categories:
+# - Q5: Human
+# - Q515: City
+# - Q511: Capital city 
+# - Q625: Country 
+# - Q11424: Film / Motion Picture
+# - Q7725634: Literary Work / Book
+#
+# - is_in_wiki
+# - is_in_wiktionary
+# - is_in_wikiquote
+# - is_in_wikisource
+# - is_in_wikivoyage
+# - is_in_wikinews (not supported)
+# - is_in_wikiversity
+# - is_in_wikibooks 
+omni_search_index_tags = ["is_in_wiki", "is_in_wiktionary", "is_in_wikiquote", "is_in_wikisource", "is_in_wikivoyage", "is_in_wikiversity", "is_in_wikibooks", "Q5", "Q515", "Q515", "Q625", "Q11424", "Q7725634"]
+
+# Specify whether the omni search index should be case sensitiven or not. Setting this to false will save a little bit of space as some dublicates can be removed. Since many simple search algorithms are case insensitive, you will probably want to set this to false. 
+omni_search_index_case_sensitive = false 
+
+# Set this to true if you want to create an additional search index to look up coordinates quickly. All entries that have coordinate metadata will be included here. If you set 'include_all_matches_in_globe_coordinate_search_index' to true, EVERYTHING that has coordinates will be included. Otherwise, only the entries that have an entry in 'wikis_to_include' and have coordinates will be included. You can again specify tags like before.
+create_globe_coordinate_search_index = true
+include_all_matches_in_globe_coordinate_search_index = true
+globe_coordinate_search_index_tags = ["is_in_wiki", "Q5"]
+
+
+# Set this to true if you want to create an additional search index to look up temporal data quickly. All entries that have temporal metadata will be included here. If you set 'include_all_matches_in_temporal_search_index' to true, EVERYTHING that has temporal metadata will be included. Otherwise, only the entries that have an entry in 'wikis_to_include' and contain temporal metadata will be included. You can again specify tags like before. 
+create_temporal_search_index = true
+include_all_matches_in_temporal_search_index = true
+temporal_search_index_tags = ["is_in_wiki", "Q5"]
+
+
+# Set this to true if you want to create an additional search index for astronomical objects. 
+create_astronomical_search_index = true
+include_all_matches_in_astronomical_search_index = true
+astronomical_search_index_tags = ["is_in_wiki", "Q5"]
+
+
+# Specify which astronomical objects to include in the astronomical search index.
+# Here is the core list of important astronomical QIDs:
+# - Q523: Star
+# - Q318: Galaxy
+# - Q634: Planet
+# - Q2537: Natural satellite / Moon
+# - Q3559: Comet
+# - Q1022867: Minor planet / Asteroid
+astronomical_objects_to_include = ["Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
+
+# Maximum apparent magnitude limit for astronomical objects to be included.
+# Note: The magnitude scale is reverse logarithmic—lower (and even negative) numbers 
+# mean brighter objects. For reference:
+# - Minus numbers (-1.46 for Sirius, -26.7 for the Sun) are extremely bright.
+# - +6.0 is roughly the limit of what the human eye can see on a clear, dark night.
+# - +10.0 and above include millions of faint stars requiring telescopes.
+max_apparent_magnitude = 6.5
+
+# Specify which property datatypes should be included in the metadata. Exluding specific metadata will not affect the specialized search indexes like the coordinate search index. Here is a list of all available datatypes:
+# external-id
+# commonsMedia
+# url
+# string
+# quantity
+# math
+# wikibase-item
+# time
+# musical-notation
+# wikibase-form
+# globe-coordinate
+# geo-shape
+# wikibase-lexeme
+# monolingualtext
+# wikibase-property
+# wikibase-sense
+# tabular-data 
+property_datatypes_to_include_in_metadata = ["string", "quantity", "math", "wikibase-item", "time", "musical-notation", "globe-coordinate", "geo-shape", "monolingualtext", "wikibase-property", "tabular-data"]
+
+
+# Change these URLs if the source locations change in the future.
+[urls]
+wikidata_dump_url = "https://dumps.wikimedia.org/other/wikibase/wikidatawiki/latest-all.json.gz"
+wiki_base_url = "https://ftp.fau.de/kiwix/zim/wikipedia/"
+wiktionary_base_url = "https://ftp.fau.de/kiwix/zim/wiktionary/" #TODO: Check if this is still correct
+wikiquote_base_url = "https://ftp.fau.de/kiwix/zim/wikiquote/" #TODO: Check if this is still correct
+wikisource_base_url = "https://ftp.fau.de/kiwix/zim/wikisource/" #TODO: Check if this is still correct
+wikivoyage_base_url = "https://ftp.fau.de/kiwix/zim/wikivoyage/" #TODO: Check if this is still correct
+wikinews_base_url = "https://ftp.fau.de/kiwix/zim/wikinews/" #TODO: Check if this is still correct
+wikiversity_base_url = "https://ftp.fau.de/kiwix/zim/wikiversity/" #TODO: Check if this is still correct
+wikibooks_base_url = "https://ftp.fau.de/kiwix/zim/wikibooks/" #TODO: Check if this is still correct
+
+# These patterns are used to match the ZIM files for articles in different languages for different wikis. You only need to change these if the patterns change in the future. Make sure to use single quotes here.
+[match_patterns]
+wiki_zim_file_match_pattern =  'wikipedia_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
+wiktionary_zim_file_match_pattern = 'wiktionary_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikiquote_zim_file_match_pattern = 'wikiquote_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikisource_zim_file_match_pattern = 'wikisource_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikivoyage_zim_file_match_pattern = 'wikivoyage_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikinews_zim_file_match_pattern = 'wikinews_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikiversity_zim_file_match_pattern = 'wikiversity_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+wikibooks_zim_file_match_pattern = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.zim' #TODO: Check if this is still correct
+
+
+# These are the local paths where the downloaded files will be stored. Keeping the default ones should work.
+[paths]
+# Download paths
+wikidata_dump_path = "./data/wikidata/latest-all.json.gz"
+data_dir = "./data"
+
+# Temporary files for parsing
+omni_search_txt_file_path = "./tmp/omni_search.txt"
+properties_search_txt_file_path = "./tmp/properties_search.txt"
+globe_coordinate_search_txt_file_path = "./tmp/globe_coordinate_search.txt"
+astronomical_search_txt_file_path = "./tmp/astronomical_search_search.txt"
+temporal_search_text_file_path = "./tmp/temporal_search.txt"
+sitelinks_qid_mapping_txt_file_path = "./tmp/sitelink_qid_mapping.txt"
+qid_index_txt_file_path = "./tmp/qid_index.txt"
+meta_data_txt_file_path = "./tmp/meta_data.txt"
+
+# Log files
+progression_log_file_path = "./log/progression.log"
+
+# Binary files for the database
+content_bin_file_path = "./bin/content.bin"
+metadata_bin_file_path = "./bin/metadata.bin"
+omni_search_index_bin_file_path = "./bin/omni_search_index.bin"
+globe_coordinate_search_index_bin_file_path = "./bin/globe_coordinate_search_index.bin"
+astronomical_search_index_bin_file_path = "./bin/astronomical_search_index.bin"
+temporal_search_index_bin_file_path = "./bin/temporal_search_index.bin"
+properties_search_index_bin_file_path = "./bin/properties_search_index.bin"
+content_pointers_bin_file_path = "./bin/content_pointers.bin"
+q_id_index_bin_file_path = "./bin/qid_index.bin"
+
+
+# Other
+language_config_path = "./config/languages.config"
+# language_config_path = "./config/languages_backup.config"
+
+
+# Here you can specify some performace-related metrics for parsing the large data files. Adjust these values based on your system's capabilities and the size of the data you are processing.
+[performance]
+thread_count = 14 # Number of threads to use for processing. For best performance, set this to the number of cores/threads your CPU has minus 2. 
+
+buffer_size_kb = 1024 # Size of the buffer in kilobytes for reading files. We generally want the buffer to be kept small to fit in the CPU cache.
+
+ram_limit_mb = 8192 # Maximum amount of RAM in megabytes that the program is allowed to use. This is mainly important for sorting large files.
+
+# This pattern is used to match the ZIM files for Wikipedia articles in different languages. You only need to change this if the pattern changes in the future. Make sure to use single quotes here.
+[other]
+# Text Delimiter used in temporary text files. Make sure to use a character that is not used in any of the data.
+text_delimiter = '\t'

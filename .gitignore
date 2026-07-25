@@ -1,11 +1,14 @@
-# Ignore downloaded ZIM archives
-
-# Ignore generated binary database files
-bin/
-zim_files/
-
-*.log
-*.tmp
-*.txt
-*.bin
 *.zim
+
+bin/
+data/
+log/
+tmp/
+*.log
+
+**/target/
+
+**/*.rs.bk
+*.d
+
+.cargo/

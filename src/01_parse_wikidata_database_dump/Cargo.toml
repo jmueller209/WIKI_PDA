@@ -1,0 +1,13 @@
+[package]
+name = "parse_wikidata_database_dump"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+flate2 = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+config = "0.13"
+rayon = "1.8"
+crossbeam-channel = "0.5.16"
+shared = {path = "../shared"}
