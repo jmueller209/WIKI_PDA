@@ -1,6 +1,7 @@
 use crate::RunMode;
 use crate::cleanup;
 use crate::index_merger;
+use crate::preprocessor;
 use crate::zim_processor;
 use shared::load_config::Settings;
 
@@ -14,6 +15,9 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
             println!("Resume mode detected. Only processing missing ZIM files...");
         }
     }
+
+    println!("Generating zstd dictionary...");
+    preprocessor::generate_zstd_dictionary(&settings);
 
     println!("Starting ZIM extraction...");
     zim_processor::process_directories(&settings)?;

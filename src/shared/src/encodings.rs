@@ -1,29 +1,24 @@
-use std::ffi::CStr;
-use std::os::raw::{c_char, c_double, c_longlong};
+use std::ffi::CString;
+use std::os::raw::c_char;
 
-#[unsafe(no_mangle)]
-pub extern "C" fn encode_time(iso_str: *const c_char) -> c_longlong {
-    if iso_str.is_null() {
-        return -1;
+unsafe extern "C" {
+    fn encode_time(iso_str: *const c_char) -> i64;
+    fn encode_globe_coordinates(lat: f64, lon: f64) -> i64;
+    fn encode_astronomical_position(dec: f64, ra: f64) -> i64;
+}
+
+pub fn safe_encode_time(iso_str: &str) -> i64 {
+    if let Ok(c_string) = CString::new(iso_str) {
+        unsafe { encode_time(c_string.as_ptr()) }
+    } else {
+        -1
     }
-    let c_str = unsafe { CStr::from_ptr(iso_str) };
-    let Ok(_rust_str) = c_str.to_str() else {
-        return -1;
-    };
-
-    123456789
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn encode_globe_coordinates(lat: c_double, lon: c_double) -> c_longlong {
-    let x = ((lat + 90.0) * 1000.0) as i64;
-    let y = ((lon + 180.0) * 1000.0) as i64;
-    (x << 32) | (y & 0xFFFFFFFF)
+pub fn safe_encode_globe_coordinates(lat: f64, lon: f64) -> i64 {
+    unsafe { encode_globe_coordinates(lat, lon) }
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn encode_astronomical_position(dec: c_double, ra: c_double) -> c_longlong {
-    let x = ((dec + 90.0) * 1000.0) as i64;
-    let y = ((ra + 180.0) * 1000.0) as i64;
-    (x << 32) | (y & 0xFFFFFFFF)
+pub fn safe_encode_astronomical_position(dec: f64, ra: f64) -> i64 {
+    unsafe { encode_astronomical_position(dec, ra) }
 }

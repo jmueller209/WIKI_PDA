@@ -1,70 +1,50 @@
-use rusqlite::{Connection, Result};
-use std::fs::{self, File};
+use redb::{Database, TableDefinition};
+use std::fs;
+use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::process::Command;
 
-// Building an SQLite databse for sitelinks lookup
-pub fn build_sitelink_database(txt_path: &str, db_path: &str, delimiter: &str) -> Result<()> {
-    println!("Creating SQLite database from {}...", txt_path);
-    let mut conn = Connection::open(db_path)?;
-    conn.execute_batch(
-        "PRAGMA journal_mode = OFF;
-         PRAGMA synchronous = 0;
-         PRAGMA cache_size = 1000000;
-         PRAGMA locking_mode = EXCLUSIVE;
-         PRAGMA temp_store = MEMORY;",
-    )?;
+const SITELINKS_TABLE: TableDefinition<&str, &str> = TableDefinition::new("sitelinks");
 
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS sitelinks (
-            lang TEXT NOT NULL,
-            wiki TEXT NOT NULL,
-            title TEXT NOT NULL,
-            qid TEXT NOT NULL
-        )",
-        [],
-    )?;
-
-    conn.execute("DELETE FROM sitelinks", [])?;
-    let file = File::open(txt_path).expect("Could not open the file");
+pub fn build_sitelink_database(
+    txt_path: &str,
+    db_path: &str,
+    delimiter: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let _ = std::fs::remove_file(&db_path);
+    let db = Database::create(&db_path)?;
+    let file = File::open(txt_path)?;
     let reader = io::BufReader::new(file);
-    let tx = conn.transaction()?;
 
-    {
-        let mut stmt =
-            tx.prepare("INSERT INTO sitelinks (lang, wiki, title, qid) VALUES (?1, ?2, ?3, ?4)")?;
-        let mut count = 0;
-        for line in reader.lines() {
-            let line = line.expect("Could not read line");
-            let parts: Vec<&str> = line.split(delimiter).collect();
-            if parts.len() == 4 {
-                let lang = parts[0].trim();
-                let wiki = parts[1].trim();
-                let title = parts[2].trim();
-                let qid = parts[3].trim();
+    let mut count = 0;
+    let batch_size = 2_000_000;
 
-                stmt.execute([lang, wiki, title, qid])?;
-                count += 1;
-                if count % 500_000 == 0 {
-                    println!("  ... {} entries copied", count);
-                }
+    let mut write_txn = db.begin_write()?;
+
+    for line_result in reader.lines() {
+        let line = line_result?;
+        if let Some(last_delim_idx) = line.rfind(delimiter) {
+            let key = &line[..last_delim_idx];
+            let qid = &line[last_delim_idx + delimiter.len()..];
+            {
+                let mut table = write_txn.open_table(SITELINKS_TABLE)?;
+                table.insert(key, qid)?;
+            }
+            count += 1;
+            if count % batch_size == 0 {
+                write_txn.commit()?;
+                println!("  ... {} entries copied and committed", count);
+                write_txn = db.begin_write()?;
             }
         }
-        println!("Imported a total of {} entries. Saving...", count);
     }
-    tx.commit()?;
 
-    println!("Creating index on sitelinks table...");
-    conn.execute(
-        "CREATE INDEX idx_sitelink_lookup ON sitelinks (lang, wiki, title);",
-        [],
-    )?;
+    write_txn.commit()?;
+    println!("Imported a total of {} entries. Saving...", count);
 
-    println!("Successfully created SQLite database at {}.", db_path);
     Ok(())
 }
-
 // Sorting
 pub enum SortMode {
     Alphabetical,
@@ -94,7 +74,8 @@ pub fn external_merge_sort(
 
     cmd.env("LC_ALL", "C");
 
-    let ram_arg = format!("{}M", ram_limit_mb);
+    let safe_per_thread_ram = (ram_limit_mb / num_threads).max(64);
+    let ram_arg = format!("{}M", safe_per_thread_ram);
     let threads_arg = format!("{}", num_threads);
 
     cmd.arg("-S")

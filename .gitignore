@@ -2,8 +2,9 @@
 
 bin/
 data/
-log/
+logs/
 tmp/
+cache/
 *.log
 
 **/target/

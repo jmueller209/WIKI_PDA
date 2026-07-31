@@ -10,7 +10,7 @@
 # - wikinews (not supported)
 # - wikiversity
 # - wikibooks 
-wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
+wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikinews", "wikiversity", "wikibooks"]
 
 
 # All entries that have at least one entry in one of the included wikis will be added to the omni search index automatically. If you want to add any concepts, that do not have an entry in any of the included wikis or no wikis at all, you can do this by adding Classes to the following list. You might want to do this because those concepts might still have helpful metadata (e.g. the year of birth of a human that is not famous enough to have a wikipedia article but still has an entry in the database). If one of the filters applies, the concept will be included. Here is a list of the most important properties you might want to include:
@@ -147,47 +147,43 @@ wikibooks_zim_file_match_pattern = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.zi
 [paths]
 # Download paths
 wikidata_dump_path = "./data/wikidata/latest-all.json.gz"
+# language_config_path = "./config/languages.config"
+language_config_path = "./config/languages_backup.config"
 data_dir = "./data"
-
-# Temporary files for parsing
-omni_search_txt_file_path = "./tmp/omni_search.txt"
-properties_search_txt_file_path = "./tmp/properties_search.txt"
-globe_coordinate_search_txt_file_path = "./tmp/globe_coordinate_search.txt"
-astronomical_search_txt_file_path = "./tmp/astronomical_search_search.txt"
-temporal_search_text_file_path = "./tmp/temporal_search.txt"
-sitelinks_qid_mapping_txt_file_path = "./tmp/sitelink_qid_mapping.txt"
-qid_index_txt_file_path = "./tmp/qid_index.txt"
-meta_data_txt_file_path = "./tmp/meta_data.txt"
-
-# Log files
-progression_log_file_path = "./log/progression.log"
-
-# Binary files for the database
-content_bin_file_path = "./bin/content.bin"
-metadata_bin_file_path = "./bin/metadata.bin"
-omni_search_index_bin_file_path = "./bin/omni_search_index.bin"
-globe_coordinate_search_index_bin_file_path = "./bin/globe_coordinate_search_index.bin"
-astronomical_search_index_bin_file_path = "./bin/astronomical_search_index.bin"
-temporal_search_index_bin_file_path = "./bin/temporal_search_index.bin"
-properties_search_index_bin_file_path = "./bin/properties_search_index.bin"
-content_pointers_bin_file_path = "./bin/content_pointers.bin"
-q_id_index_bin_file_path = "./bin/qid_index.bin"
-
-
-# Other
-language_config_path = "./config/languages.config"
-# language_config_path = "./config/languages_backup.config"
+bin_dir = "./bin"
+log_dir = "./logs"
+tmp_dir = "./tmp"
+cache_dir = "./cache"
 
 
 # Here you can specify some performace-related metrics for parsing the large data files. Adjust these values based on your system's capabilities and the size of the data you are processing.
 [performance]
-thread_count = 14 # Number of threads to use for processing. For best performance, set this to the number of cores/threads your CPU has minus 2. 
+# Number of threads used for the database generation. For best performance, set this to the number of cores/threads your CPU has. This will not affect the performance of the database itself, only the time it takes to generate it. 
+thread_count = 16
 
-buffer_size_kb = 1024 # Size of the buffer in kilobytes for reading files. We generally want the buffer to be kept small to fit in the CPU cache.
+# Size of the buffer in kilobytes for reading files from disk and writing to files during the database generation phase. This only affects the performance during the database generation phase and not the performance of the database itself.
+read_buffer_size_kb = 16384 
+write_buffer_size_kb= 32768
 
-ram_limit_mb = 8192 # Maximum amount of RAM in megabytes that the program is allowed to use. This is mainly important for sorting large files.
+# Maximum amount of RAM in megabytes that the database generator is allowed to use. This will not affect the RAM usage of the database itself, only the generation process.
+# ram_limit_mb = 8192
+# ram_limit_mb = 16384
+ram_limit_mb = 12000
+
+# Size of the Zstandard dictionary used for compression and decompression. A larger dictionary can improve compression rate but will use more RAM. If you plan to use this database on a microcontroller or another system with very limited RAM, make sure to set this to a value that is supported.
+zstd_dict_size_kb = 128 
+
+ # Size of the sample data used to train the Zstandard dictionary. A larger sample size can improve compression rate but will also cause the training process to take longer. This will only affect the initial creation of the database and not the usage of it. 
+zstd_dict_training_sample_size_mb = 5 
+
+# The Zstandard compression level (1-22) used for compressing the articles. Values range from 1 (fastest generation, larger database) to 22 (slowest generation, smallest database). Levels above 19 are ultra-compression modes and will significantly increase generation time. This does not affect decompression speed while using the database.
+zstd_compression_level = 3
+
+# The maximum sliding window size in kilobytes used by Zstandard during compression. As this is also used for decompression, make sure this fits in the RAM of the system you plan to use the database on. 
+# zstd_window_size_kb = 32
+zstd_window_size_kb = 32
 
 # This pattern is used to match the ZIM files for Wikipedia articles in different languages. You only need to change this if the pattern changes in the future. Make sure to use single quotes here.
 [other]
 # Text Delimiter used in temporary text files. Make sure to use a character that is not used in any of the data.
-text_delimiter = '\t'
+text_delimiter = "\t" # We need to use double quotes here, otherwise '\' and 't' are read as two individual characters.

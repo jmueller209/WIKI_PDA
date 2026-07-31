@@ -1,6 +1,0 @@
-language = "C"
-include_guard = "SHARED_LIB_H"
-
-[parse]
-parse_deps = false
-include = ["encodings"]

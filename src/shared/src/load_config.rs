@@ -1,4 +1,6 @@
 use serde::Deserialize;
+use std::fs;
+use std::path::Path;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Settings {
@@ -61,41 +63,25 @@ pub struct MatchPatterns {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Paths {
-    // Download paths
     pub wikidata_dump_path: String,
-    pub data_dir: String,
-    // Temporary files for parsing
-    pub omni_search_txt_file_path: String,
-    pub properties_search_txt_file_path: String,
-    pub globe_coordinate_search_txt_file_path: String,
-    pub astronomical_search_txt_file_path: String,
-    pub temporal_search_text_file_path: String,
-    pub sitelinks_qid_mapping_txt_file_path: String,
-    pub qid_index_txt_file_path: String,
-    pub meta_data_txt_file_path: String,
-
-    // Log files
-    pub progression_log_file_path: String,
-
-    // Binary files for the database
-    pub content_bin_file_path: String,
-    pub metadata_bin_file_path: String,
-    pub omni_search_index_bin_file_path: String,
-    pub globe_coordinate_search_index_bin_file_path: String,
-    pub astronomical_search_index_bin_file_path: String,
-    pub temporal_search_index_bin_file_path: String,
-    pub properties_search_index_bin_file_path: String,
-    pub content_pointers_bin_file_path: String,
-    pub q_id_index_bin_file_path: String,
-    // Other
     pub language_config_path: String,
+    pub data_dir: String,
+    pub log_dir: String,
+    pub tmp_dir: String,
+    pub cache_dir: String,
+    pub bin_dir: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Performance {
     pub thread_count: usize,
-    pub buffer_size_kb: usize,
+    pub read_buffer_size_kb: usize,
+    pub write_buffer_size_kb: usize,
     pub ram_limit_mb: usize,
+    pub zstd_dict_size_kb: usize,
+    pub zstd_dict_training_sample_size_mb: usize,
+    pub zstd_compression_level: i32,
+    pub zstd_window_size_kb: usize,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -109,6 +95,32 @@ pub fn load_config_from_file(file_path: &str) -> Result<Settings, Box<dyn std::e
         .build()?;
 
     let settings: Settings = builder.try_deserialize()?;
+
+    // Create directories if they dont exist
+    let data_dir = Path::new(&settings.paths.data_dir);
+    if !data_dir.exists() {
+        fs::create_dir_all(data_dir).expect("Failed to create data directory.");
+    }
+
+    let tmp_dir = Path::new(&settings.paths.tmp_dir);
+    if !tmp_dir.exists() {
+        fs::create_dir_all(tmp_dir).expect("Failed to create temporary directory.");
+    }
+
+    let log_dir = Path::new(&settings.paths.log_dir);
+    if !log_dir.exists() {
+        fs::create_dir_all(log_dir).expect("Failed to create log directory.");
+    }
+
+    let cache_dir = Path::new(&settings.paths.cache_dir);
+    if !cache_dir.exists() {
+        fs::create_dir_all(cache_dir).expect("Failed to create cache directory.");
+    }
+
+    let bin_dir = Path::new(&settings.paths.bin_dir);
+    if !bin_dir.exists() {
+        fs::create_dir_all(bin_dir).expect("Failed to create binary directory.");
+    }
 
     Ok(settings)
 }

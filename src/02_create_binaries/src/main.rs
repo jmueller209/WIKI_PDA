@@ -5,11 +5,22 @@ use std::process;
 mod cleanup;
 mod index_merger;
 mod pipeline;
+mod preprocessor;
 mod zim_processor;
 
 pub enum RunMode {
     Resume,
     Restart,
+    Test,
+}
+
+pub enum PipelineStep {
+    CleanAll,
+    Download,
+    ParseWikiData,
+    TrainDictionary,
+    CreateContent,
+    MakeIndexes,
 }
 
 fn main() {
