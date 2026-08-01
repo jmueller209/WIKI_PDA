@@ -4,7 +4,9 @@ PYTHON = python
 .PHONY: test parse binaries-resume binaries-restart
 
 test:
-	$(PYTHON) -m build_database.000_test.test
+	cargo build --manifest-path ./src/02_create_binaries/Cargo.toml --release
+	./src/02_create_binaries/target/release/create_binaries ./config/config.toml --test
+
 
 parse:
 	cargo build --manifest-path ./src/01_parse_wikidata_database_dump/Cargo.toml --release

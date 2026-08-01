@@ -82,6 +82,9 @@ pub struct Performance {
     pub zstd_dict_training_sample_size_mb: usize,
     pub zstd_compression_level: i32,
     pub zstd_window_size_kb: usize,
+    pub omni_search_index_term_encoding_bytes: usize,
+    pub omni_search_sparse_index_ram_limit_kb: usize,
+    pub omni_search_chunk_size_bytes: usize,
 }
 
 #[derive(Deserialize, Debug, Clone)]

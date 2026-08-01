@@ -101,13 +101,24 @@ pub fn external_merge_sort(
     cmd.arg(input_path);
 
     let status = cmd.status()?;
-
     if status.success() {
-        println!(
-            "  -> Sorting successful! Deleting original file: {}",
-            input_path
-        );
-        let _ = fs::remove_file(input_path);
+        let in_abs = fs::canonicalize(input_path);
+        let out_abs = fs::canonicalize(output_path);
+
+        let is_same_file = match (in_abs, out_abs) {
+            (Ok(in_path), Ok(out_path)) => in_path == out_path,
+            _ => input_path == output_path,
+        };
+        if !is_same_file {
+            println!(
+                "  -> Sorting successful! Deleting original file: {}",
+                input_path
+            );
+            let _ = fs::remove_file(input_path);
+        } else {
+            println!("  -> Sorting successful! (Sorted in-place, skipping deletion)");
+        }
+
         Ok(())
     } else {
         Err(io::Error::new(

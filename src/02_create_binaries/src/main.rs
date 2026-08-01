@@ -5,6 +5,7 @@ use std::process;
 mod cleanup;
 mod index_merger;
 mod pipeline;
+mod pipeline_steps;
 mod preprocessor;
 mod zim_processor;
 
@@ -36,8 +37,12 @@ fn main() {
     let run_mode = match mode_arg.as_str() {
         "--resume" => RunMode::Resume,
         "--restart" => RunMode::Restart,
+        "--test" => RunMode::Test,
         _ => {
-            eprintln!("Fehler: Das dritte Argument muss '--resume' oder '--restart' sein.");
+            eprintln!(
+                "Invalid run mode: {}. Use --resume, --restart, or --test.",
+                mode_arg
+            );
             process::exit(1);
         }
     };
