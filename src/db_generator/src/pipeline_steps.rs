@@ -1,0 +1,9 @@
+pub mod _00_download_data;
+pub mod _01_parse_wikidata;
+pub mod _02_compression_setup;
+pub mod _03_process_zim_data;
+pub mod _04_make_metadata_binary;
+pub mod _05_make_qid_index_binary;
+pub mod _06_make_omni_search_index_binary;
+pub mod _07_merge_binaries;
+pub mod _08_make_c_header_file;

@@ -10,11 +10,4 @@ crate-type = ["staticlib", "lib"]
 cc = "1.0"
 
 [dependencies]
-flate2 = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-config = "0.13"
-html2text = "0.12"
-kuchikiki = "0.8"
-zstd = "0.13.3"
-redb = "2.1"
+

@@ -9,27 +9,40 @@
 // =========================================
 // OFFSETS
 // =========================================
-#define OFFSETS_CONTENT 6887279804
-#define OFFSETS_METADATA 41034688216
+#define OFFSETS_CONTENT 177964ULL
+#define OFFSETS_METADATA 27941185ULL
 
 static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
-    0,	// level_0
-    4351956224,	// level_1
-    4368956032,	// level_2
-    4369022464,	// level_3
+    0ULL,	// level_0
+    99552ULL,	// level_1
 };
 
-#define OFFSETS_QID_HASHMAP 4369022752
-#define OFFSETS_QID_INDEX 5211782134
-#define OFFSETS_ZSTD_DICTIONARY 48422742065
+#define OFFSETS_QID_HASHMAP 99936ULL
+#define OFFSETS_QID_INDEX 150930ULL
+#define OFFSETS_ZSTD_DICTIONARY 28547576ULL
 
 // =========================================
 // OMNI_SEARCH
 // =========================================
-#define OMNI_SEARCH_CHUNK_SIZE_ROWS 256
-#define OMNI_SEARCH_NUM_SPARSE_LEVELS 3
-#define OMNI_SEARCH_TERM_SIZE 24
-#define OMNI_SEARCH_TOP_LEVEL_ROWS 9
-#define OMNI_SEARCH_TOTAL_ROW_SIZE 32
+#define OMNI_SEARCH_CHUNK_SIZE_ROWS 256ULL
+#define OMNI_SEARCH_NUM_SPARSE_LEVELS 1ULL
+#define OMNI_SEARCH_TERM_SIZE 24ULL
+#define OMNI_SEARCH_TOP_LEVEL_ROWS 12ULL
+#define OMNI_SEARCH_TOTAL_ROW_SIZE 32ULL
+
+// =========================================
+// SIZES
+// =========================================
+#define SIZES_CONTENT 27763221ULL
+#define SIZES_METADATA 606391ULL
+
+static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
+    99552ULL,	// level_0
+    384ULL,	// level_1
+};
+
+#define SIZES_QID_HASHMAP 50994ULL
+#define SIZES_QID_INDEX 27034ULL
+#define SIZES_ZSTD_DICTIONARY 131072ULL
 
 #endif // DATABASE_CONSTANTS_H
