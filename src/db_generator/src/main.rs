@@ -5,7 +5,7 @@ mod pipeline;
 mod pipeline_steps;
 mod utils;
 
-use crate::utils::settings::load_config_from_file;
+use crate::utils::settings::Settings;
 
 pub enum RunMode {
     Resume,
@@ -45,7 +45,7 @@ fn main() {
         }
     };
 
-    let settings = load_config_from_file(config_path).unwrap_or_else(|err| {
+    let settings = Settings::load_from_file(config_path).unwrap_or_else(|err| {
         eprintln!(
             "Failed to load configuration from '{}': {}",
             config_path, err

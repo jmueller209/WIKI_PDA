@@ -7,11 +7,12 @@
 # - wikiquote
 # - wikisource
 # - wikivoyage
-# - wikinews (not supported)
 # - wikiversity
 # - wikibooks 
-wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikinews", "wikiversity", "wikibooks"]
+# wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
 
+
+wikis_to_include = ["wiki", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
 
 # All entries that have at least one entry in one of the included wikis will be added to the omni search index automatically. If you want to add any concepts, that do not have an entry in any of the included wikis or no wikis at all, you can do this by adding Classes to the following list. You might want to do this because those concepts might still have helpful metadata (e.g. the year of birth of a human that is not famous enough to have a wikipedia article but still has an entry in the database). If one of the filters applies, the concept will be included. Here is a list of the most important properties you might want to include:
 
@@ -145,7 +146,6 @@ wikibooks_zim_file_match_pattern = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.zi
 
 # These are the local paths where the downloaded files will be stored. Keeping the default ones should work.
 [paths]
-# Download paths
 wikidata_dump_path = "./data/wikidata/latest-all.json.gz"
 # language_config_path = "./config/languages.config"
 language_config_path = "./config/languages_backup.config"
@@ -153,7 +153,7 @@ data_dir = "./data"
 bin_dir = "./bin"
 log_dir = "./logs"
 tmp_dir = "./tmp"
-cache_dir = "./cache"
+checkpoint_dir = "./checkpoints"
 
 
 # Here you can specify some performace-related metrics for parsing the large data files. Adjust these values based on your system's capabilities and the size of the data you are processing.

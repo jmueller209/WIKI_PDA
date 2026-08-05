@@ -82,10 +82,9 @@ pub fn process_directories(
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let log_dir = PathBuf::from(&settings.paths.log_dir);
     let data_dir = PathBuf::from(&settings.paths.data_dir);
-    let cache_dir = PathBuf::from(&settings.paths.cache_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
 
-    let prog_file_path = cache_dir.join(constants::ZIM_PROGRESSION_CACHE);
+    let prog_file_path = tmp_dir.join(constants::ZIM_PROGRESSION_CACHE);
     let qid_idx_unsorted_txt_path =
         tmp_dir.join(constants::QID_INDEX_TXT.replace(".txt", "_unsorted.txt"));
     let qid_idx_txt_path = tmp_dir.join(constants::QID_INDEX_TXT);

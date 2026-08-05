@@ -25,6 +25,7 @@ pub const OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN: &str = "omni_search_spare_index
 pub const DATA_BASE_BIN: &str = "data_base.bin";
 
 // Log files
+pub const DOWNLOAD_LOG: &str = "download.log";
 pub const PARSER_LOG: &str = "parser.log";
 pub const BINARIES_LOG: &str = "create_binaries.log";
 

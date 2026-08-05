@@ -12,6 +12,17 @@ pub struct Settings {
     pub other: Other,
 }
 
+impl Settings {
+    pub fn load_from_file(file_path: &str) -> Result<Settings, Box<dyn std::error::Error>> {
+        let builder = config::Config::builder()
+            .add_source(config::File::with_name(file_path))
+            .build()?;
+
+        let settings: Settings = builder.try_deserialize()?;
+        Ok(settings)
+    }
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct DatabaseContent {
     pub wikis_to_include: Vec<String>,
@@ -68,8 +79,8 @@ pub struct Paths {
     pub data_dir: String,
     pub log_dir: String,
     pub tmp_dir: String,
-    pub cache_dir: String,
     pub bin_dir: String,
+    pub checkpoint_dir: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -90,40 +101,4 @@ pub struct Performance {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Other {
     pub text_delimiter: String,
-}
-
-pub fn load_config_from_file(file_path: &str) -> Result<Settings, Box<dyn std::error::Error>> {
-    let builder = config::Config::builder()
-        .add_source(config::File::with_name(file_path))
-        .build()?;
-
-    let settings: Settings = builder.try_deserialize()?;
-
-    // Create directories if they dont exist
-    let data_dir = Path::new(&settings.paths.data_dir);
-    if !data_dir.exists() {
-        fs::create_dir_all(data_dir).expect("Failed to create data directory.");
-    }
-
-    let tmp_dir = Path::new(&settings.paths.tmp_dir);
-    if !tmp_dir.exists() {
-        fs::create_dir_all(tmp_dir).expect("Failed to create temporary directory.");
-    }
-
-    let log_dir = Path::new(&settings.paths.log_dir);
-    if !log_dir.exists() {
-        fs::create_dir_all(log_dir).expect("Failed to create log directory.");
-    }
-
-    let cache_dir = Path::new(&settings.paths.cache_dir);
-    if !cache_dir.exists() {
-        fs::create_dir_all(cache_dir).expect("Failed to create cache directory.");
-    }
-
-    let bin_dir = Path::new(&settings.paths.bin_dir);
-    if !bin_dir.exists() {
-        fs::create_dir_all(bin_dir).expect("Failed to create binary directory.");
-    }
-
-    Ok(settings)
 }
