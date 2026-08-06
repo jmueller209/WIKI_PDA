@@ -1,6 +1,3 @@
-use crate::utils::checkpoints::{self, clear_checkpoints};
-use crate::utils::logs;
-use crate::utils::settings::Settings;
 use indicatif::{ProgressBar, ProgressStyle};
 use regex::Regex;
 use reqwest::StatusCode;
@@ -10,6 +7,8 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::copy;
 use std::path::Path;
+
+use crate::utils::{checkpoints, constants, logs, settings::Settings, txt_file_processing};
 
 struct DownloadMetrics {
     finished_downloads: Vec<String>,
@@ -46,7 +45,7 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
             ));
         }
         checkpoints::CheckpointState::exists_in_bad_state(i) => {
-            let _ = clear_checkpoints(&settings, i);
+            let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
         checkpoints::CheckpointState::does_not_exist => (),
@@ -69,10 +68,10 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
         .build()
         .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
 
-    // let wiki_data_url = &settings.urls.wikidata_dump_url;
-    // println!("Downloading wikidata dump from: {}", wiki_data_url);
-    // download_wikidata_dump(wiki_data_url, &settings.paths.wikidata_dump_path, &client)?;
-    //
+    let wiki_data_url = &settings.urls.wikidata_dump_url;
+    println!("Downloading wikidata dump from: {}", wiki_data_url);
+    download_wikidata_dump(wiki_data_url, &settings.paths.wikidata_dump_path, &client)?;
+
     let wikis_to_include = &settings.database_content.wikis_to_include;
     let mut total_metrics = DownloadMetrics::new();
     for wiki in wikis_to_include {
@@ -141,17 +140,6 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
                 )?;
                 total_metrics.merge(new_metrics);
             }
-            "wikinews" => {
-                println!("Searching wikinews...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikinews_base_url,
-                    &settings.match_patterns.wikinews_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path).join("wikinews").to_str().unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
             "wikiversity" => {
                 println!("Searching wikiversity...");
                 let new_metrics = download_wikis_from_base_url(
@@ -185,55 +173,8 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
             }
         }
     }
-    let mut summary_string = String::new();
-    let _ = writeln!(&mut summary_string, "=== Wiki Download Summary ===");
-    let _ = writeln!(
-        &mut summary_string,
-        "Total Successful: {}",
-        total_metrics.finished_downloads.len()
-    );
-    let _ = writeln!(
-        &mut summary_string,
-        "Total Failed: {}",
-        total_metrics.failed_downloads.len()
-    );
-    let _ = writeln!(
-        &mut summary_string,
-        "Total Missing on Server: {}",
-        total_metrics.failed_retrievals.len()
-    );
-    let _ = writeln!(&mut summary_string, "=============================\n");
 
-    let _ = writeln!(&mut summary_string, "SUCCESSFULLY DOWNLOADED:");
-    if total_metrics.finished_downloads.is_empty() {
-        let _ = writeln!(&mut summary_string, "  None");
-    } else {
-        for file in &total_metrics.finished_downloads {
-            let _ = writeln!(&mut summary_string, "  - {}", file);
-        }
-    }
-
-    let _ = writeln!(&mut summary_string, "\nFAILED DOWNLOADS:");
-    if total_metrics.failed_downloads.is_empty() {
-        let _ = writeln!(&mut summary_string, "  None");
-    } else {
-        for error_msg in &total_metrics.failed_downloads {
-            let _ = writeln!(&mut summary_string, "  - {}", error_msg);
-        }
-    }
-
-    let _ = writeln!(
-        &mut summary_string,
-        "\nFAILED RETRIEVALS (No matches found for regex):"
-    );
-    if total_metrics.failed_retrievals.is_empty() {
-        let _ = writeln!(&mut summary_string, "  None");
-    } else {
-        for pattern in &total_metrics.failed_retrievals {
-            let _ = writeln!(&mut summary_string, "  - {}", pattern);
-        }
-    }
-    logs::write_summary_to_log(&summary_string, &settings, true)?;
+    make_summary(total_metrics, &settings)?;
 
     checkpoints::make_checkpoint(&settings, 0, "downloads", None).map_err(|e| {
         format!(
@@ -465,6 +406,69 @@ fn download_file(
 
     copy(&mut source, &mut dest_file)
         .map_err(|e| format!("Failed to write data to file: {}", e))?;
+
+    Ok(())
+}
+
+fn make_summary(total_metrics: DownloadMetrics, settings: &Settings) -> Result<(), String> {
+    let mut summary_string = String::new();
+    let _ = writeln!(
+        &mut summary_string,
+        "\n================ DOWNLOAD SUMMARY ================"
+    );
+    let _ = writeln!(
+        &mut summary_string,
+        "Total Successful: {}",
+        total_metrics.finished_downloads.len()
+    );
+    let _ = writeln!(
+        &mut summary_string,
+        "Total Failed: {}",
+        total_metrics.failed_downloads.len()
+    );
+    let _ = writeln!(
+        &mut summary_string,
+        "Total Missing on Server: {}",
+        total_metrics.failed_retrievals.len()
+    );
+    let _ = writeln!(&mut summary_string, "=============================\n");
+
+    let _ = writeln!(&mut summary_string, "SUCCESSFULLY DOWNLOADED:");
+    if total_metrics.finished_downloads.is_empty() {
+        let _ = writeln!(&mut summary_string, "  None");
+    } else {
+        for file in &total_metrics.finished_downloads {
+            let _ = writeln!(&mut summary_string, "  - {}", file);
+        }
+    }
+
+    let _ = writeln!(&mut summary_string, "\nFAILED DOWNLOADS:");
+    if total_metrics.failed_downloads.is_empty() {
+        let _ = writeln!(&mut summary_string, "  None");
+    } else {
+        for error_msg in &total_metrics.failed_downloads {
+            let _ = writeln!(&mut summary_string, "  - {}", error_msg);
+        }
+    }
+
+    let _ = writeln!(
+        &mut summary_string,
+        "\nFAILED RETRIEVALS (No matches found for regex):"
+    );
+    if total_metrics.failed_retrievals.is_empty() {
+        let _ = writeln!(&mut summary_string, "  None");
+    } else {
+        for pattern in &total_metrics.failed_retrievals {
+            let _ = writeln!(&mut summary_string, "  - {}", pattern);
+        }
+    }
+    writeln!(
+        &mut summary_string,
+        "========================================================"
+    )
+    .unwrap();
+
+    logs::write_summary_to_log(&summary_string, &settings, true, constants::DOWNLOAD_LOG)?;
 
     Ok(())
 }

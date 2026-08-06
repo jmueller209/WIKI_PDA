@@ -55,7 +55,6 @@ pub struct Urls {
     pub wikiquote_base_url: String,
     pub wikisource_base_url: String,
     pub wikivoyage_base_url: String,
-    pub wikinews_base_url: String,
     pub wikiversity_base_url: String,
     pub wikibooks_base_url: String,
 }
@@ -67,7 +66,6 @@ pub struct MatchPatterns {
     pub wikiquote_zim_file_match_pattern: String,
     pub wikisource_zim_file_match_pattern: String,
     pub wikivoyage_zim_file_match_pattern: String,
-    pub wikinews_zim_file_match_pattern: String,
     pub wikiversity_zim_file_match_pattern: String,
     pub wikibooks_zim_file_match_pattern: String,
 }

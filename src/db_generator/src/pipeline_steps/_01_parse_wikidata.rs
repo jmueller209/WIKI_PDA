@@ -2,19 +2,19 @@ use crossbeam_channel::bounded;
 use flate2::read::MultiGzDecoder;
 use rayon::prelude::*;
 use shared::encodings;
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
-use std::fs::{self, File, OpenOptions};
-use std::io::Write as IoWrite;
-use std::io::{BufRead, BufReader, BufWriter};
-use std::path::{Path, PathBuf};
+use std::fs::{self, File};
+use std::io::{BufRead, BufReader, BufWriter, Write as IoWrite};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::utils::constants;
-use crate::utils::settings::Settings;
-use crate::utils::txt_file_processing;
+use crate::utils::{
+    checkpoints, constants, logs,
+    settings::Settings,
+    txt_file_processing::{self, SortMode},
+};
 
 #[derive(Default, Debug)]
 struct ParserMetrics {
@@ -174,7 +174,25 @@ impl PreparedBatch {
     }
 }
 
-pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
+pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Result<(), String> {
+    match checkpoints::checkpoint_exists(&settings, 1) {
+        checkpoints::CheckpointState::exists_empty => {
+            println!("Checkpoint found: Wikidata parser has already finished");
+            return Ok(());
+        }
+        checkpoints::CheckpointState::exists_with_data(data) => {
+            return Err(format!(
+                "Download checkpoint should not contain any data, but contains: \n {}",
+                data
+            ));
+        }
+        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+            let _ = checkpoints::clear_checkpoints(&settings, i);
+            return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
+        }
+        checkpoints::CheckpointState::does_not_exist => (),
+    }
+
     let num_threads = settings.performance.thread_count;
     let read_buffer_bytes = settings.performance.read_buffer_size_kb * 1024;
     let write_buffer_bytes = settings.performance.write_buffer_size_kb * 1024;
@@ -280,12 +298,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
     let global_metrics = Arc::new(Mutex::new(ParserMetrics::default()));
 
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
+    std::fs::create_dir_all(&tmp_dir).map_err(|e| format!("Failed to create directory: {}", e))?;
 
     fn unsorted_filename(filename: &str) -> String {
         filename.replace(".txt", "_unsorted.txt")
     }
 
-    // Create all files in tmp_dir
     let omni_search_unsorted_txt_path = tmp_dir.join(unsorted_filename(constants::OMNI_SEARCH_TXT));
     let omni_search_txt_path = tmp_dir.join(constants::OMNI_SEARCH_TXT);
     let mut omni_search_file = BufWriter::with_capacity(
@@ -726,8 +744,16 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
                                             if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f64>(), parts[1].parse::<f64>()) {
                                                 let encoded_coord = encodings::safe_encode_globe_coordinates(lat, lon);
                                                 let mut coord_tags = Vec::new();
-                                                if has_relevant_sitelink && globe_coordinate_search_index_tags.contains(&"is_in_wiki".to_string()) {
-                                                    coord_tags.push("is_in_wiki".to_string());
+                                                for wiki_type in &found_wiki_types {
+                                                    let tag_name = format!("is_in_{}", wiki_type);
+                                                    if globe_coordinate_search_index_tags.contains(&tag_name) {
+                                                        coord_tags.push(tag_name);
+                                                    }
+                                                }
+                                                for p31 in &p31_qids {
+                                                    if globe_coordinate_search_index_tags.contains(p31) {
+                                                        coord_tags.push(p31.clone());
+                                                    }
                                                 }
                                                 let coord_tags_str = coord_tags.join(",");
                                                 entity_data.coordinate_lines.push_str(&format!("{encoded_coord}{text_delimiter}{entity_id}{text_delimiter}{coord_tags_str}\n"));
@@ -757,8 +783,17 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
                                         for time_val in times {
                                             let timestamp = encodings::safe_encode_time(time_val.as_str());
                                             let mut temp_tags = Vec::new();
-                                            if has_relevant_sitelink && temporal_search_index_tags.contains(&"is_in_wiki".to_string()) {
-                                                temp_tags.push("is_in_wiki".to_string());
+                                            for wiki_type in &found_wiki_types {
+                                                let tag_name = format!("is_in_{}", wiki_type);
+                                                if temporal_search_index_tags.contains(&tag_name) {
+                                                    temp_tags.push(tag_name);
+                                                }
+                                            }
+
+                                            for p31 in &p31_qids {
+                                                if temporal_search_index_tags.contains(p31) {
+                                                    temp_tags.push(p31.clone());
+                                                }
                                             }
                                             let temp_tags_str = temp_tags.join(",");
                                             entity_data.temporal_lines.push_str(&format!("{timestamp}{text_delimiter}{entity_id}{text_delimiter}{pid}{text_delimiter}{temp_tags_str}\n"));
@@ -796,8 +831,18 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
                                     let encoded_astro = encodings::safe_encode_astronomical_position(dec, ra);
 
                                     let mut astro_tags = Vec::new();
-                                    if has_relevant_sitelink && astronomical_search_index_tags.contains(&"is_in_wiki".to_string()) {
-                                        astro_tags.push("is_in_wiki".to_string());
+
+                                    for wiki_type in &found_wiki_types {
+                                        let tag_name = format!("is_in_{}", wiki_type);
+                                        if astronomical_search_index_tags.contains(&tag_name) {
+                                            astro_tags.push(tag_name);
+                                        }
+                                    }
+
+                                    for p31 in &p31_qids {
+                                        if astronomical_search_index_tags.contains(p31) {
+                                            astro_tags.push(p31.clone());
+                                        }
                                     }
                                     let astro_tags_str = astro_tags.join(",");
 
@@ -897,7 +942,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
                     }
                 );
 
-            // 2. Genau EIN EINZIGER LOCK pro Batch! Hier aktualisieren wir auch num_lines_read mit.
             {
                 let mut global_m = global_metrics_clone.lock().unwrap();
                 global_m.num_lines_read += batch_len;
@@ -936,8 +980,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
     }
 
     println!("Starting sorting of text files...");
-
-    use txt_file_processing::SortMode;
 
     let _ = txt_file_processing::external_merge_sort(
         omni_search_unsorted_txt_path.to_str().unwrap(),
@@ -1000,12 +1042,25 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
     }
     println!("Sorting complete!");
 
-    let m = global_metrics.lock().unwrap();
+    let m: ParserMetrics = Arc::try_unwrap(global_metrics)
+        .expect("Other threads are still holding the Arc!")
+        .into_inner()
+        .expect("Mutex is bad!");
+
+    make_summary(&m, &settings)?;
+
+    checkpoints::make_checkpoint(&settings, 1, "parser", None)
+        .map_err(|e| format!("Finished parsing, but failed to create checkpoint: {}", e))?;
+
+    Ok(())
+}
+
+fn make_summary(m: &ParserMetrics, settings: &Settings) -> Result<(), String> {
     let mut summary = String::new();
 
     writeln!(
         &mut summary,
-        "\n================ DETAILED PARSING METRICS ================"
+        "\n================ PARSING SUMMARY ================"
     )
     .unwrap();
     writeln!(
@@ -1345,18 +1400,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) {
     )
     .unwrap();
 
-    std::mem::drop(m);
-    print!("{}", summary);
+    logs::write_summary_to_log(&summary, &settings, true, constants::PARSER_LOG)?;
 
-    let summary_log_path = Path::new(&settings.paths.log_dir).join(constants::PARSER_LOG);
-
-    let mut log_file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&summary_log_path)
-        .expect("Failed to open summary log file");
-
-    log_file
-        .write_all(summary.as_bytes())
-        .expect("Failed to write summary to log file");
+    Ok(())
 }

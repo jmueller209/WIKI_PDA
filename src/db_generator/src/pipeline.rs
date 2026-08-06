@@ -34,8 +34,8 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
         }
         RunMode::Test => {
             println!("Test mode detected");
-            _00_download_data::download_data(&settings)?;
-            // let _ = _01_parse_wikidata::parse_wikidata(&settings, Some(1000));
+            // _00_download_data::download_data(&settings)?;
+            _01_parse_wikidata::parse_wikidata(&settings, Some(1000))?;
             // let _ = _02_compression_setup::generate_zstd_dictionary(&settings);
             // let _ = _03_process_zim_data::process_directories(&settings, Some(1000));
             // let _ = _04_make_metadata_binary::make_metadata_binary(&settings);
