@@ -10,6 +10,3 @@ graph TD;
     D --> F[(Database)];
     E --> F; read-head and loading a single fixed-width struct at a time (e.g., max 72 Bytes).
 
-
-## Setting up the Database
-Test
