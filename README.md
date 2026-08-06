@@ -1,45 +1,34 @@
 ```mermaid
-flowchart TD
-    User((User))
+flowchart LR
+    User([👤 User])
 
-    subgraph Search_Layer [1. Search Layer]
-        OS[Omni Search: Term based]
-        AS[Astronomical Search: Star coords]
-        TS[Temporal Search: Time based]
-        CS[Coordinate Search: Globe coords]
-    end
+    %% 1. Search Phase
+    User --> OS[🔍 Omni Search]
+    User -.-> AS[⭐ Astro Search]
+    User -.-> TS[⏳ Temporal Search]
+    User -.-> CS[🌍 Coordinate Search]
 
-    User --> OS
-    User -.-> AS
-    User -.-> TS
-    User -.-> CS
+    %% 2. Resolution
+    OS --> Q((( QID )))
+    AS --> Q
+    TS --> Q
+    CS --> Q
 
-    OS --> QID([Resolved QID])
-    AS --> QID
-    TS --> QID
-    CS --> QID
+    %% 3. Lookup
+    Q --> HM{O 1 HashMap}
+    HM -->|Offset + Rows| IDX[[Article Index]]
 
-    subgraph Lookup [2. O 1 QID Lookup]
-        QID --> HM{{HashMap Index}}
-        HM -->|Yields| Pointers[Memory Offset + Number of Rows]
-    end
+    %% 4. Routing
+    IDX --> R1(Row: EN Wikipedia)
+    IDX --> R2(Row: DE Wikipedia)
+    IDX -.-> RN(Row: ...)
 
-    subgraph Routing [3. Article Routing Index]
-        Pointers --> AI[QID Row Table]
-        AI --> Row1[Row: Wikipedia English]
-        AI --> Row2[Row: Wikipedia German]
-        AI --> Row3[Row: Wikiquote English]
-        AI -.-> RowN[Row: ...]
-    end
+    %% 5. Storage & Decoding
+    R1 --> MD[(Metadata)]
+    R1 --> DAT[(Compressed Data)]
+    
+    R2 --> MD
+    R2 --> DAT
 
-    subgraph Storage [4. Data & Metadata]
-        Row1 -->|Metadata Pointer| Meta[(Metadata)]
-        Row1 -->|Data Pointer| Data[(Compressed Data)]
-        
-        Row2 --> Meta
-        Row2 --> Data
-        
-        ZSTD[[Custom Pretrained Zstandard Dictionary]]
-        ZSTD -.->|Decompresses| Data
-    end
+    ZSTD>📚 Zstd Dictionary] -.->|Decompresses| DAT
 ```
