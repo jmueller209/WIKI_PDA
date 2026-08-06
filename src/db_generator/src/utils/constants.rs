@@ -27,6 +27,7 @@ pub const DATA_BASE_BIN: &str = "data_base.bin";
 // Log files
 pub const DOWNLOAD_LOG: &str = "download.log";
 pub const PARSER_LOG: &str = "parser.log";
+pub const COMPRESSION_SETUP_LOG: &str = "compression_setup.log";
 pub const BINARIES_LOG: &str = "create_binaries.log";
 
 // Names
