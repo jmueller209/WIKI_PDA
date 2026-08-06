@@ -1,5 +1,5 @@
 ```mermaid
-flowchart LR
+flowchart TD
     %% Color Palette Definition
     classDef search fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1
     classDef core fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#4a148c
@@ -7,14 +7,13 @@ flowchart LR
     classDef storage fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#1b5e20
     classDef tool fill:#ffebee,stroke:#e53935,stroke-width:2px,color:#b71c1c
 
-    User([👤 User Query])
+    User([User Query])
 
-    subgraph Phase1 ["1. Query Resolution"]
-        direction TB
-        OS["🔍 Omni Index (Text)"]:::search
-        AS["⭐ Astro Index (Celestial)"]:::search
-        TS["⏳ Temporal Index (Time)"]:::search
-        CS["🌍 Geo Index (Coordinates)"]:::search
+    subgraph Phase1 [1. Query Resolution]
+        OS[Omni Index<br>Text-based]:::search
+        AS[Astro Index<br>Celestial]:::search
+        TS[Temporal Index<br>Time-based]:::search
+        CS[Geo Index<br>Coordinates]:::search
     end
 
     User --> OS
@@ -22,37 +21,34 @@ flowchart LR
     User -.-> TS
     User -.-> CS
 
-    Q((("💠 QID (Entity Hub)"))):::core
+    Q(((QID<br>Entity Hub))):::core
     
     OS --> Q
     AS --> Q
     TS --> Q
     CS --> Q
 
-    subgraph Phase2 ["2. O(1) Memory Routing"]
-        direction LR
-        HM{"Primary HashMap"}:::memory
-        PTR["📝 Offset + Row Count"]:::memory
+    subgraph Phase2 [2. O 1 Memory Routing]
+        HM{Primary<br>HashMap}:::memory
+        PTR[Memory Offset<br>& Row Count]:::memory
     end
 
     Q --> HM
-    HM -->|Yields pointer| PTR
+    HM -->|Yields| PTR
 
-    subgraph Phase3 ["3. Multi-Project Routing"]
-        direction TB
-        IDX[["QID Row Table"]]:::memory
-        R1("Row: enwiki")
-        R2("Row: dewiki")
-        R3("Row: enwikiquote")
+    subgraph Phase3 [3. Multi-Project Routing]
+        IDX[[QID Row Table]]:::memory
+        R1(Row: enwiki)
+        R2(Row: dewiki)
+        R3(Row: enwikiquote)
     end
 
     PTR --> IDX
     IDX --> R1 & R2 & R3
 
-    subgraph Phase4 ["4. Storage Layer"]
-        direction TB
-        MD[("🏷️ Metadata")]:::storage
-        DAT[("📦 Encrypted & Compressed Payload")]:::storage
+    subgraph Phase4 [4. Storage Layer]
+        MD[(Metadata)]:::storage
+        DAT[(Encrypted &<br>Compressed Payload)]:::storage
     end
 
     R1 -->|Reads| MD
@@ -60,6 +56,6 @@ flowchart LR
     R2 -.-> MD & DAT
     R3 -.-> MD & DAT
 
-    ZDICT>"📚 Pre-trained Zstd Dictionary"]:::tool
+    ZDICT>Pre-trained<br>Zstd Dictionary]:::tool
     ZDICT -.->|Decompresses| DAT
 ```
