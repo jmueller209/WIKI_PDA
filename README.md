@@ -1,4 +1,21 @@
-# Title
+# [Project Name]
+
+> High-performance, offline Wikipedia retrieval engine with O(1) lookups and custom Zstd compression.
+
+**📖 [Full Documentation & Detailed Guides](link-to-docs)**
+
+---
+
+## ⚡ Core Functionality
+
+*   **Multi-Index Search:** Omni (text), Astro (celestial), Temporal (time), and Geo (coordinates).
+*   **$O(1)$ Lookups:** Direct HashMap routing from Wikidata QID to memory offsets.
+*   **Unified Routing:** Single QID points to all languages and projects (Wikipedia, Wiktionary, etc.).
+*   **Optimized Storage:** Custom-trained Zstandard dictionary compression.
+
+---
+
+## 🏗️ Architecture Overview
 
 ```mermaid
 flowchart TD
@@ -61,4 +78,27 @@ flowchart TD
     ZDICT>Pre-trained<br>Zstd Dictionary]:::tool
     ZDICT -.->|Decompresses| DAT
 ```
-Here more text will be written
+
+---
+
+## 🚀 Quick Start Outline
+
+*(See [Documentation](link) for detailed steps)*
+
+### 1. Build
+```bash
+git clone [https://github.com/yourusername/project-name.git](https://github.com/yourusername/project-name.git)
+cd project-name
+cargo build --release
+```
+
+### 2. Setup Database & Dictionary
+```bash
+cargo run --release -- --generate-dictionary
+cargo run --release -- --build-db /path/to/zim/files
+```
+
+### 3. Run
+```bash
+cargo run --release -- --serve
+```
