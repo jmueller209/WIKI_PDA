@@ -94,9 +94,13 @@ flowchart TD
 
 
 
-In order to build and run this project you will need `cargo` and `gcc` for compiling Rust and C
+In order to build and run this project you will need `cargo` and `gcc` for compiling Rust and C:
+
+*On Linux*:
+curl https://sh.rustup.rs -sSf | sh
+
 ```bash
-git clone [https://github.com/yourusername/project-name.git](https://github.com/yourusername/project-
+
 ```
 
 ### 1. Build
