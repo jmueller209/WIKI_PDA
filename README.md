@@ -1,14 +1,15 @@
 # [Project Name]
 
-> High-performance, offline Wikipedia retrieval engine with O(1) lookups and custom Zstd compression.
+A customable Wiki database generator optimized for embedded and low power devices like the ESP32.
 
 **📖 [Full Documentation & Detailed Guides](link-to-docs)**
 
 ---
 
-## ⚡ Core Functionality
-
+## Core Functionality
+*   Support for **Wikipedia**, **Wiktionary**, **Wikiquotes**, **Wikiversity**, **Wikibooks**, 
 *   **Multi-Index Search:** Omni (text), Astro (celestial), Temporal (time), and Geo (coordinates).
+*   - Omni
 *   **$O(1)$ Lookups:** Direct HashMap routing from Wikidata QID to memory offsets.
 *   **Unified Routing:** Single QID points to all languages and projects (Wikipedia, Wiktionary, etc.).
 *   **Optimized Storage:** Custom-trained Zstandard dictionary compression.
