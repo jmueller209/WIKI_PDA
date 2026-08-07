@@ -147,7 +147,7 @@ To configure which languages you want to include, take a look at the [The offici
 *Note*: There might be several language codes for a given language that refer to different dialects or *difficulties*. E.g. There is `en` referring to standard German and `nds` referring to a specific low German dialect. 
 
 ### 3. Run The Generator
-To run the entire generator, you can run the following command from the repository root:
+To run the entire generator, use the following command from the repository root:
 ```
 make db
 ```
@@ -157,4 +157,7 @@ This will first download the necessary database dumps and then start processing 
 3. Uncompressing, parsing, processing and recompressing Data archives (For each Wikipedia article, wiki book, etc. we need to decompress its data in the dump file which contains raw html, process the data (remove html tags, etc.), compress the processed data and save it).
 
 Even though some of the steps that require heavy compute are multithreaded, processing will still take many hours. To avoid having to run your computer for 30 hours straight, the generator creates checkpoints from which it can resume when you rerun the `make db` command. Downloads will be resumed automatically at the point where they were stopped. Keep in mind though that some of the larger processing steps that require heavy decompression must be run in one go. Exiting the generator early will not result in data corruption; however, a lot of progress might be lost. 
+
+### 4. Test The Database
+TODO:
 
