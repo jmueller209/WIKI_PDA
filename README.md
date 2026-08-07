@@ -134,7 +134,7 @@ make all
 ```
 
 ### 2. Customize Configuration
-Before running the database generator you can customize the configuration [here](“config/config.toml“). The file contains comments explaining what each setting does. A more detailed explanation for some of the setting will be given in the detailed [documentation](””). If you only want to get started quickly and not spend much time reading docs you might only want to consider the following settings:
+Before running the database generator you can customize the configuration [here](config/config.toml). The file contains comments explaining what each setting does. A more detailed explanation for some of the setting will be given in the detailed [documentation](””). If you only want to get started quickly and not spend much time reading docs you might only want to consider the following settings:
 *    `wikis_to_include`
 *    `
 
