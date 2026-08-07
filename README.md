@@ -122,16 +122,22 @@ sudo pacman -S gcc
 ```
 
 ### 1. Clone this repository and build
+To get started, clone this directory using the following commands:
+TODO: Change repo_name
 ```bash
-git clone 
-cd project-name
+git clone https://github.com/jmueller209/repo_name.git
+cd repo_name
+```
+Once you are in this projects local directory you can compile the project using:
+```
+make all
 ```
 
-### 2. Setup Database & Dictionary
-```bash
-cargo run --release -- --generate-dictionary
-cargo run --release -- --build-db /path/to/zim/files
-```
+### 2. Customize Configuration
+Before running the database generator you can customize the configuration [here](“/config/config.toml“). The file contains comments explaining what each setting does. A more detailed explanation for some of the setting will be given in the detailed [documentation](””). If you only want to get started quickly and not spend much time reading docs you might only want to consider the following settings:
+*    `wikis_to_include`
+*    `
+
 
 ### 3. Run
 ```bash
