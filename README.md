@@ -121,11 +121,10 @@ sudo pacman -Syu
 sudo pacman -S gcc
 ```
 
-### 1. Build
+### 1. Clone this repository and build
 ```bash
-git clone [https://github.com/yourusername/project-name.git](https://github.com/yourusername/project-name.git)
+git clone 
 cd project-name
-cargo build --release
 ```
 
 ### 2. Setup Database & Dictionary
