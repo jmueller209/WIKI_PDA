@@ -85,9 +85,19 @@ flowchart TD
 
 ---
 
-## 🚀 Quick Start Outline
+## Quick Start
+*Note*: As of right now, this project has only been tested on Fedora. Other Linux distributions should work as well but it will probably break under Windows/Mac. 
 
 *(See [Documentation](link) for detailed steps)*
+
+### 0. Prerequisites
+
+
+
+In order to build and run this project you will need `cargo` and `gcc` for compiling Rust and C
+```bash
+git clone [https://github.com/yourusername/project-name.git](https://github.com/yourusername/project-
+```
 
 ### 1. Build
 ```bash
