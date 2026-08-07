@@ -96,11 +96,29 @@ flowchart TD
 
 In order to build and run this project you will need `cargo` and `gcc` for compiling Rust and C:
 
-*On Linux*:
-curl https://sh.rustup.rs -sSf | sh
-
+*cargo*:
 ```bash
+curl https://sh.rustup.rs -sSf | sh
+```
 
+*Development Tools including gcc:*
+
+*Fedora:*
+```
+TODO: update system
+sudo dnf group install "Development Tools"
+```
+
+*Ubuntu/Debian:*
+```
+sudo apt update
+sudo apt install build-essential
+```
+
+*Arch:*
+```
+sudo pacman -Syu
+sudo pacman -S gcc
 ```
 
 ### 1. Build
