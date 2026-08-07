@@ -2,21 +2,24 @@
 
 A customable Wiki database generator optimized for embedded and low power devices like the ESP32.
 
-**📖 [Full Documentation & Detailed Guides](link-to-docs)**
+**📖 [Full Documentation](link-to-docs)**
 
 ---
 
 ## Core Functionality
-*   Support for **Wikipedia**, **Wiktionary**, **Wikiquotes**, **Wikiversity**, **Wikibooks**, 
-*   **Multi-Index Search:** Omni (text), Astro (celestial), Temporal (time), and Geo (coordinates).
-*   - Omni
-*   **$O(1)$ Lookups:** Direct HashMap routing from Wikidata QID to memory offsets.
-*   **Unified Routing:** Single QID points to all languages and projects (Wikipedia, Wiktionary, etc.).
-*   **Optimized Storage:** Custom-trained Zstandard dictionary compression.
+*   Support for **Wikipedia**, **Wiktionary**, **Wikiquotes**, **Wikiversity**, **Wikibooks**, **Wikisource** and **Wikivoyage** in any or multiple languages.
+*   **Multi-Index Search:**:
+    - Omni Search Index: Search wiki concepts by text.
+    - Global Search Index (optional): Search wiki concepts based on their globe coordinates (Might be     useful in combination with Open Street Maps).
+    - Astronomical Search Index (optional): Search astronomical objects like Galaxies, Stars, Planets, Comets and     more using their celestial coordinates.
+    - Temporal Search Index (optional): Search Search wiki concepts based on their data (e.g. data of     birth/death for people, start/end dates for historical concepts.
+*   **Fast Lookups** optimized for SD Cards and low RAM usage.
+*   **Z-Standard Compression** using a pre trained dictionary with customable performance metrics.
+*   **Customable Metadata** based on wiki properties.
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```mermaid
 flowchart TD
