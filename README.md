@@ -87,7 +87,9 @@ flowchart TD
 *   **Fast Lookups** optimized for SD Cards and low RAM usage using custom data structures and streaming compression, ensuring even large articles that do not fit into RAM can be read. 
 *   **Z-Standard Compression** using a pre-trained dictionary with customizable performance metrics such as compression level and size.
 *   **Interface to customize article processing:** Turn raw HTML into the format you'd like to have in your database while keeping redirects between articles intact.
-*   **Interface to port the Query API to any platform.** 
+*   **Interface to port the Query API to any platform.**
+*   Tools to flash database to SD card with custom (or no) filesystem.
+*   Examples on how to use the API (on PC and ESP32).
 
 ## Current Functionality:
 ### Generator:
@@ -113,6 +115,7 @@ flowchart TD
 ## Priority Feature List
 *(Please open an issue if you think there is something you would like added to this list)*
 * Fixing bugs that I don't know about yet.
+* Actual tests on MCUs + development of required tooling.
 * Add API support for the **Temporal Search Index**, **Global Search Index**, **Astronomical Search Index**, direct **QID Search Index**, and **PID Search Index**.
 * **Wiktionary** support.
 * Decide whether to properly support other wikis such as **Wikibooks**. This is a pain in the a** because, unlike Wikipedia articles, a Wiki Book consists of multiple chapters that need to be individually parsed and linked. This prevents me from using the same pipeline as Wikipedia articles, and considering the small size of those other wikis compared to Wikipedia, it might not be worth it.
