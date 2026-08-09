@@ -22,7 +22,7 @@ The entire database is bundled into a single binary file. While the exact byte-o
 To allow fast lookups without loading massive tree structures into RAM, the primary search indexes are implemented as **Flat k-trees**. These are laid out contiguously on disk, allowing the ESP32 to seek and read only the necessary nodes during a traversal.
 
 ### 2.1 Omni Search Index
-* **Purpose:** The primary text-based index for searching concepts by name/title.
+* **Purpose:** The primary text-based index for searching concepts by title/alias/lable.
 * **Structure Details:** *(To be documented)*
 
 ### 2.2 Temporal Search Index
@@ -63,7 +63,7 @@ This section contains the actual payloads returned to the user after a successfu
 
 ### 4.2 Content
 * **Purpose:** The actual article text/HTML, stripped and formatted. 
-* **Compression:** Stored in heavily compressed chunks using ZSTD.
+* **Compression:** Stored in compressed chunks using ZSTD.
 * **Structure Details:** *(To be documented)*
 
 ---
@@ -71,5 +71,5 @@ This section contains the actual payloads returned to the user after a successfu
 ## 5. Compression
 
 ### 5.1 ZSTD Dictionary
-* **Purpose:** A pre-trained Z-Standard dictionary stored at the beginning of the file. By training a dictionary on Wiki data during the generation phase, the engine can decompress tiny data chunks (like individual articles) with extremely high compression ratios.
+* **Purpose:** A pre-trained Z-Standard dictionary By training a dictionary on Wiki data during the generation phase, the engine can decompress tiny data chunks (like individual articles) with extremely high compression ratios.
 * **Structure Details:** *(To be documented)*
