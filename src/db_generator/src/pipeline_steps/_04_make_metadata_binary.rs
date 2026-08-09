@@ -3,11 +3,30 @@ use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
+use crate::utils::checkpoints;
 use crate::utils::constants;
+use crate::utils::logs;
 use crate::utils::settings::Settings;
-use crate::utils::txt_file_processing::{SortMode, external_merge_sort};
+use crate::utils::txt_file_processing::{self, SortMode};
 
 pub fn make_metadata_binary(settings: &Settings) -> Result<(), String> {
+    match checkpoints::checkpoint_exists(&settings, 4) {
+        checkpoints::CheckpointState::exists_empty => {
+            println!("Checkpoint found: Generating metadata binary has already finished");
+            return Ok(());
+        }
+        checkpoints::CheckpointState::exists_with_data(data) => {
+            return Err(format!(
+                "Checkpoint should not contain any data, but contains: \n {}",
+                data
+            ));
+        }
+        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+            let _ = checkpoints::clear_checkpoints(&settings, i);
+            return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
+        }
+        checkpoints::CheckpointState::does_not_exist => (),
+    }
     let txt_delimiter = &settings.other.text_delimiter;
     let thread_count = settings.performance.thread_count;
     let ram_limit_mb = settings.performance.ram_limit_mb;
@@ -81,9 +100,12 @@ pub fn make_metadata_binary(settings: &Settings) -> Result<(), String> {
     bin_writer.flush().map_err(|e| e.to_string())?;
     index_writer.flush().map_err(|e| e.to_string())?;
 
+    drop(index_writer);
+    drop(bin_writer);
+
     println!("Successfully processed metadata and updated QID index.");
 
-    external_merge_sort(
+    txt_file_processing::external_merge_sort(
         qid_index_txt_path.to_str().unwrap(),
         qid_index_txt_path.to_str().unwrap(),
         SortMode::XId,
@@ -92,6 +114,21 @@ pub fn make_metadata_binary(settings: &Settings) -> Result<(), String> {
         &txt_delimiter,
     )
     .expect("Failed to sort QID Index");
+
+    checkpoints::make_checkpoint(&settings, 4, "create_metadata_binary", None).map_err(|e| {
+        format!(
+            "Finished creating metadata binary, but failed to create checkpoint: {}",
+            e
+        )
+    })?;
+
+    let summary_string = "No summary available";
+    logs::write_summary_to_log(
+        &summary_string,
+        &settings,
+        true,
+        constants::MAKE_METADATA_BINARY_LOG,
+    )?;
 
     Ok(())
 }

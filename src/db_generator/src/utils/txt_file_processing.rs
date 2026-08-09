@@ -52,6 +52,7 @@ pub enum SortMode {
     XId,
 }
 
+// TODO: Make this platform independent
 pub fn external_merge_sort(
     input_path: &str,
     output_path: &str,

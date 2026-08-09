@@ -1,0 +1,56 @@
+## Table of Contents
+
+─────────────────────────────────────────────────────────────────
+A **[printable version][1]** of Chess is available. ([edit       
+it][2])                                                          
+─────────────────────────────────────────────────────────────────
+1.  [Introduction][3]
+2.  [Arranging The Board][4]
+3.  [Playing The Game][5]
+4.  [Notating The Game][6]
+5.  [Tactics][7]
+6.  [Tactics Exercises][8]
+7.  [Strategy][9]
+8.  [Basic Openings][10]
+9.  [Sample chess game][11]
+10. [The Endgame][12]
+11. [Variants][13]
+12. [Tournaments][14]
+13. [Famous Games][15]
+14. [Puzzles][16]
+15. [Computer Chess][17]
+16. [Optional homework][18]
+17. [Tempo][19]
+
+## Related Wikibooks
+* [Chess Opening Theory][20] treats the chess openings in much more detail.
+* [Chess Strategy][21] provides a more detailed understanding of chess strategy.
+
+
+
+
+
+
+
+[1]: Chess/Print_version
+[2]: https://en.wikibooks.org/w/index.php?title=Chess/Print_version&action=edit&preload=Template%3AP
+rint+version%2FPreload
+[3]: Chess/Introduction
+[4]: Chess/Arranging_The_Board
+[5]: Chess/Playing_The_Game
+[6]: Chess/Notating_The_Game
+[7]: Chess/Tactics
+[8]: Chess/Tactics_Exercises
+[9]: Chess/Strategy
+[10]: Chess/Basic_Openings
+[11]: Chess/Sample_chess_game
+[12]: Chess/The_Endgame/King_and_Queen_vs._King
+[13]: Chess/Variants
+[14]: Chess/Tournaments
+[15]: Chess/Famous_Games
+[16]: Chess/Puzzles
+[17]: Chess/Computer_Chess
+[18]: Chess/Optional_homework
+[19]: Chess/Tempo
+[20]: Chess_Opening_Theory
+[21]: Chess_Strategy

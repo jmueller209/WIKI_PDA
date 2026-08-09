@@ -12,7 +12,7 @@
 # - wikibooks 
 #
 # wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
-wikis_to_include = ["wiki", "wikiquote"]
+wikis_to_include = ["wiki"]
 
 # All entries that have at least one entry in one of the included wikis will be added to the 
 # omni search index automatically. If you want to add any concepts that do not have an entry 
@@ -164,7 +164,7 @@ wikibooks_zim_file_match_pattern   = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.
 
 # These are the local paths where the downloaded files will be stored. Keeping the default ones should work.
 [paths]
-wikidata_dump_path   = "./backups/data/wikidata/latest-all.json.gz"
+wikidata_dump_path   = "./data/wikidata/latest-all.json.gz"
 # language_config_path = "./config/languages.config"
 language_config_path = "./config/languages_backup.config"
 data_dir             = "./data"
@@ -172,6 +172,7 @@ bin_dir              = "./bin"
 log_dir              = "./logs"
 tmp_dir              = "./tmp"
 checkpoint_dir       = "./checkpoints"
+example_articles_dir = "./example_articles"
 
 
 # Here you can specify some performance-related metrics for parsing the large data files. 
@@ -199,7 +200,7 @@ ram_limit_mb = 12000
 # can improve compression rate but will use more RAM. If you plan to use this database on a 
 # microcontroller or another system with very limited RAM, make sure to set this to a value 
 # that is supported.
-zstd_dict_size_kb = 128 
+zstd_dict_size_kb = 32 
 
 # Size of the sample data used to train the Zstandard dictionary. A larger sample size can 
 # improve compression rate but will also cause the training process to take longer. This will 
@@ -227,10 +228,13 @@ zstd_window_size_kb = 32
 omni_search_index_term_encoding_bytes = 20
 
 # Specify the maximum amount of RAM in kilobytes that the top-level sparse index of the 
-# omni search index is allowed to use. This affects the performance of the database while 
+# each search index is allowed to use. This affects the performance of the database while 
 # searching. Increasing the size here is generally better for performance if you have enough 
 # RAM available. If you set this to 0, no sparse index will be created.
 omni_search_sparse_index_ram_limit_kb = 32
+globe_coordinate_search_index_ram_limit_kb = 32
+temporal_serach_index_ram_limit_kb = 32
+astronomical_search_index_ram_limit_kb = 32
 
 # Specify the chunk size in bytes for the omni search index. This will affect how many 
 # sparse index levels are created. A smaller chunk size will create more levels which will 
@@ -239,12 +243,11 @@ omni_search_sparse_index_ram_limit_kb = 32
 # this to the largest possible value that fits into the cache of your SD card or hard drive 
 # to avoid slow random reads while ensuring a minimum number of sparse index levels.
 omni_search_chunk_size_bytes = 8192
-
+globe_coordinate_search_chunk_size_bytes = 8192
+temporal_search_chunk_size_bytes = 8192
+astronomical_search_chunk_size_bytes = 8192
 
 [other]
-# This pattern is used to match the ZIM files for Wikipedia articles in different languages. 
-# You only need to change this if the pattern changes in the future. Make sure to use single quotes here.
-
 # Text Delimiter used in temporary text files. Make sure to use a character that is not used 
 # in any of the data.
 # We need to use double quotes here, otherwise '\' and 't' are read as two individual characters.

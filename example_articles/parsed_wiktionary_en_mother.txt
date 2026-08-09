@@ -1,0 +1,83 @@
+See also: **[mother][1]** and **[moth-er][2]**
+
+## English
+
+### Etymology
+
+See [mother][3].
+
+### Pronunciation
+
+### Proper noun
+
+**Mother**
+1. (dated) One's [mother][4].
+2. ([Wicca][5]) One of the [triune][6] goddesses of the [Lady][7] in [Wicca][8] alongside the
+   [Crone][9] and [Maiden][10] and representing a woman older than a girlish Maiden but younger than
+   an aged Crone.
+   * **2002**, A.J. Drew, Wicca for Couples: Making Magick Together‎^{[[1]][11]}, page 90:
+     
+       ...different stages of life as represented by our Lady as Maiden, **Mother**, and Crone, as
+       well as our Lord as Master, Father, and Sage.
+   * **2004**, Aurora Greenbough, Cathy Jewell, The Complete Idiot's Guide to Spells and Spellcraft,
+     [page 9][12]:
+     
+       The Lady is often thought of as having three aspects: Maiden, **Mother**, and Crone.
+
+#### Synonyms
+* [Mom][13], [Mum][14], [Mummy][15]
+* [Goddess][16]
+
+#### Antonyms
+* [Father][17]
+
+### Noun
+
+**Mother** (plural **[Mothers][18]**)
+1. A title given to a [nun][19] or a [priestess][20].
+   * **2009**, Mary Ryllis Clark, Loreto in Australia, [University of New South Wales Press][21],
+     →ISBN, page 129:
+     
+       **Mother** Teresa Gertrude O’Sullivan, then Provincial, did not give higher education for
+       Loreto nuns the same priority as had **Mothers** Gonzaga and Stanislaus.
+2. A title given to the personification of a force of nature or abstract concept, such as [Mother
+   Nature][22], [Mother Russia][23], or [Mother Earth][24].
+
+#### See also
+* [Father][25]
+* [Mother Nature][26]
+* [Mother Russia][27]
+
+### Anagrams
+* [thermo-][28]
+
+[1]: mother
+[2]: moth-er
+[3]: mother#English
+[4]: mother
+[5]: Wicca
+[6]: triune
+[7]: Lady
+[8]: Wicca
+[9]: Crone
+[10]: Maiden
+[11]: http://books.google.com/books?id=93ba5Pox0zUC&pg=PA90&dq=Lady+Wicca+Maiden+Mother+Crone&hl=en&
+ei=VTHcTtLPKKKliQL5mqGvCg&sa=X&oi=book_result&ct=result&resnum=16&ved=0CIMBEOgBMA8
+[12]: http://books.google.com/books?id=npDUCtfYxMMC&pg=PA9&dq=Lady+Wicca+Maiden+Mother+Crone&hl=en&e
+i=VTHcTtLPKKKliQL5mqGvCg&sa=X&oi=book_result&ct=result&resnum=9&ved=0CF8Q6AEwCA
+[13]: Mom#English
+[14]: Mum#English
+[15]: Mummy#English
+[16]: Goddess#English
+[17]: Father#English
+[18]: Mothers#English
+[19]: nun
+[20]: priestess
+[21]: https://en.wikipedia.org/wiki/University_of_New_South_Wales_Press
+[22]: Mother_Nature
+[23]: Mother_Russia
+[24]: Mother_Earth
+[25]: Father#English
+[26]: Mother_Nature#English
+[27]: Mother_Russia#English
+[28]: thermo-#English

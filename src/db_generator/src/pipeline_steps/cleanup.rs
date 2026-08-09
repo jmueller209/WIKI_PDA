@@ -1,41 +1,45 @@
-use shared::constants;
-use shared::load_config::Paths;
 use std::fs;
+use std::io;
 use std::path::Path;
 
-pub fn remove_old_binaries(paths: &Paths) -> Result<(), std::io::Error> {
-    println!("Restart flag detected. Deleting old binary and log files...");
+use crate::utils::checkpoints;
+use crate::utils::settings::Settings;
 
-    // 1. Delete the main binary file holding the content
-    let content_bin_path = Path::new(&paths.bin_dir).join(constants::CONTENT_BIN);
-    if Path::new(&content_bin_path).exists() {
-        println!("  -> Removing {:?}", content_bin_path);
-        fs::remove_file(content_bin_path)?;
+pub fn clean(settings: &Settings) -> Result<(), String> {
+    let tmp_dir = &settings.paths.tmp_dir;
+    let log_dir = &settings.paths.log_dir;
+    let bin_dir = &settings.paths.bin_dir;
+
+    let dirs = [tmp_dir, log_dir, bin_dir];
+
+    for dir in &dirs {
+        remove_directory_safely(dir).map_err(|e| format!("Failed to remove directory: {}", e))?;
     }
 
-    // 2. Delete the unsorted index file
-    let qid_idx_unsorted_txt_path =
-        Path::new(&paths.tmp_dir).join(constants::QID_INDEX_TXT.replace(".txt", "_unsorted.txt"));
-    if Path::new(&qid_idx_unsorted_txt_path).exists() {
-        println!("  -> Removing {:?}", qid_idx_unsorted_txt_path);
-        fs::remove_file(qid_idx_unsorted_txt_path)?;
-    }
+    checkpoints::clear_checkpoints(&settings, 0)?;
 
-    // 3. Delete the progression log
-    let zim_progression_txt_path =
-        Path::new(&paths.cache_dir).join(constants::ZIM_PROGRESSION_CACHE);
-    if Path::new(&zim_progression_txt_path).exists() {
-        println!("  -> Removing {:?}", zim_progression_txt_path);
-        fs::remove_file(zim_progression_txt_path)?;
-    }
-
-    // 4. Delete the Zstd dictionary
-    let zstd_dictionary_bin_path = Path::new(&paths.bin_dir).join(constants::ZSTD_DICTIONARY_BIN);
-    if Path::new(&zstd_dictionary_bin_path).exists() {
-        println!("  -> Removing {:?}", zstd_dictionary_bin_path);
-        fs::remove_file(zstd_dictionary_bin_path)?;
-    }
-
-    println!("Cleanup finished. Starting fresh.\n");
     Ok(())
+}
+
+pub fn purge(settings: &Settings) -> Result<(), String> {
+    clean(&settings)?;
+
+    let data_dir = &settings.paths.data_dir;
+    let checkpoint_dir = &settings.paths.checkpoint_dir;
+
+    let dirs = [data_dir, checkpoint_dir];
+
+    for dir in &dirs {
+        remove_directory_safely(dir).map_err(|e| format!("Failed to remove directory: {}", e))?;
+    }
+
+    Ok(())
+}
+
+fn remove_directory_safely<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    match fs::remove_dir_all(path) {
+        Ok(_) => Ok(()),
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(e),
+    }
 }

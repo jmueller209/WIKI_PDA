@@ -2,23 +2,36 @@ use html2text::from_read;
 use kuchikiki::traits::*;
 use std::panic::catch_unwind;
 
-pub fn process_article(article_kind: &str, qid: &str, article_string: &str) -> Vec<u8> {
-    let document = kuchikiki::parse_html().one(article_string);
+// =====================================================================
+// PROJECT-SPECIFIC PARSERS
+// =====================================================================
 
+/// Processes standard Wikipedia HTML articles and converts them to plain text.
+pub fn process_wiki(raw_html: &str) -> String {
+    // Parse the raw HTML string into a queryable DOM tree
+    let document = kuchikiki::parse_html().one(raw_html);
+
+    // Isolate the actual article content. MediaWiki wraps article text in "div.mw-parser-output".
+    // If it doesn't exist (e.g., in malformed HTML), fallback to the whole document.
     let content_node = match document.select_first("div.mw-parser-output") {
         Ok(node) => node.as_node().clone(),
         Err(_) => document.clone(),
     };
 
+    // =====================================================================
+    // HTML STRIPPING
+    // =====================================================================
+
     let selectors_to_remove = [
-        "table",
-        "div.navbox",
-        "div.metadata",
-        "div.printfooter",
-        "div.mw-editsection",
-        "sup.reference",
+        "table",              // Removes all tables (infoboxes, data tables, etc.)
+        "div.navbox",         // Removes navigation boxes usually found at the bottom
+        "div.metadata",       // Removes article metadata/warning boxes
+        "div.printfooter",    // Removes print-specific footers
+        "div.mw-editsection", // Removes "[edit]" links next to headers
+        "sup.reference",      // Removes citation numbers like [1], [2]
     ];
 
+    // Find and delete all matching elements from the DOM tree
     for selector in selectors_to_remove.iter() {
         if let Ok(elements) = content_node.select(selector) {
             for element in elements {
@@ -27,13 +40,65 @@ pub fn process_article(article_kind: &str, qid: &str, article_string: &str) -> V
         }
     }
 
+    // Serialize the cleaned DOM tree back into an HTML string
     let mut cleaned_html = Vec::new();
     let _ = content_node.serialize(&mut cleaned_html);
     let cleaned_html_string = String::from_utf8_lossy(&cleaned_html);
 
+    // Convert the cleaned HTML into plain text using html2text.
+    // Wrap width is set to 100 characters.
+    // We use catch_unwind because html2text can occasionally panic on highly malformed HTML.
     let plain_text = catch_unwind(|| from_read(cleaned_html_string.as_bytes(), 100))
         .unwrap_or_else(|_| Ok(cleaned_html_string.to_string()))
         .unwrap_or_else(|_| cleaned_html_string.to_string());
+
+    plain_text
+}
+
+/// Processes Wiktionary dictionary entries.
+pub fn process_wiktionary(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+/// Processes Wikiquote entries.
+pub fn process_wikiquote(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+/// Processes Wikisource original texts.
+pub fn process_wikisource(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+/// Processes Wikivoyage travel guides.
+pub fn process_wikivoyage(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+/// Processes Wikiversity materials.
+pub fn process_wikiversity(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+/// Processes Wikibooks instructional books.
+pub fn process_wikibooks(raw_html: &str) -> String {
+    process_wiki(raw_html)
+}
+
+// =====================================================================
+
+// Wrapper function: Do NOT change this!
+pub fn process_article(article_kind: &str, qid: &str, article_string: &str) -> Vec<u8> {
+    let plain_text = match article_kind {
+        "wiki" => process_wiki(article_string),
+        "wiktionary" => process_wiktionary(article_string),
+        "wikiquote" => process_wikiquote(article_string),
+        "wikisource" => process_wikisource(article_string),
+        "wikivoyage" => process_wikivoyage(article_string),
+        "wikiversity" => process_wikiversity(article_string),
+        "wikibooks" => process_wikibooks(article_string),
+        w => panic!("{w} is not a valid wiki"),
+    };
 
     let formatted_output = format!(
         "--- WIKI KIND: {} | QID: {} ---\n\n{}\n\n",

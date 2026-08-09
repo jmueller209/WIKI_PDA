@@ -1,0 +1,107 @@
+**Software engineering** is a field of computer science, concerned with [designing][1] and writing
+programs for [computers][2].
+
+Today it is mostly done in a team. Software engineering can broadly be split into the following:
+* Requirements say what the software should do. Note that the requirements can change over time.
+* Software design is usually done on paper. It says what the different components of the software
+  are, and how they interact.
+* When the design phase is done, engineers program the software in a phase known as implementation.
+* At the end of implementation, engineers test their code to see if its components meet the
+  requirements.
+
+Programming is definitely the blood of almost all [software][3]. And just like calculus is to
+engineering, programming is to software engineering.
+
+## Overview
+
+There are four generic phases in Software Engineering which are Analysis, Design, Coding and
+Testing.
+
+## Concepts
+
+### Coding
+* implement system routines
+* construct / traverse data structures
+* distil large data sets to single values
+* transform one data set to another
+* language familiarity
+* core libraries
+* idioms
+* performance issues
+* readable, well-written, and efficient code
+
+### Algorithm design and analysis
+* complexity analysis
+* sorting and hashing, searching
+* large amounts of data
+
+### Data structures
+* tables
+* trees
+* graphs
+* lists
+
+### Systems design
+* feature sets
+* interfaces
+* class hierarchies
+* designing a system under certain constraints
+* simplicity and robustness
+* trade-offs
+
+### Problem-solving
+* collaboration
+* classes of NP-complete problems
+* listening and comprehension
+* asking the right questions
+* don't use brute force solutions
+* don't assume things
+* find multiple solutions and choose the best
+* be open to new ideas and ways of solving the problem
+* ask questions to move to a more complex answer
+
+### Mathematics
+* matrices
+* discrete math
+* probability
+* combinatorics
+
+## Becoming a software engineer
+* How to prepare for a software engineering technical interview
+
+## Printed resources
+* Laplante, Phillip (2007). [What Every Engineer Should Know about Software Engineering][4]. Boca
+  Raton: CRC. ISBN 9780849372285.
+  [http://books.google.com/books?id=pFHYk0KWAEgC&lpg=PP1&ots=bqe_WFF-gi&dq=What%20Every%20Engineer%2
+  0Should%20Know%20about%20Software%20Engineering.&pg=PA1#v=onepage&q&f=false][5]. Retrieved
+  2011-01-21. 
+
+## Other websites
+* [The British Computer Society][6]
+* [The Institution of Electrical and Electronics Engineers][7]
+* [Computer Degrees and Careers][8]
+
+## See also
+
+─────────────────────────────────────────────────────────
+Search for **[Software engineering][9]** on              
+[Wikipedia][10].                                         
+─────────────────────────────────────────────────────────
+Wikimedia Commons has media related to [Software engineering][11].
+* Topic:Software engineering
+
+## References
+
+[1]: https://en.wiktionary.org/wiki/design
+[2]: Computer
+[3]: Software
+[4]: http://books.google.com/books?id=pFHYk0KWAEgC&lpg=PP1&ots=bqe_WFF-gi&dq=What%20Every%20Engineer
+%20Should%20Know%20about%20Software%20Engineering.&pg=PA1#v=onepage&q&f=false
+[5]: http://books.google.com/books?id=pFHYk0KWAEgC&lpg=PP1&ots=bqe_WFF-gi&dq=What%20Every%20Engineer
+%20Should%20Know%20about%20Software%20Engineering.&pg=PA1#v=onepage&q&f=false
+[6]: http://www.bcs.org
+[7]: http://www.ieee.org/
+[8]: http://computingcareers.acm.org/?page_id=12
+[9]: https://en.wikipedia.org/wiki/Special:Search/Software_engineering
+[10]: https://meta.wikimedia.org/wiki/Wikipedia
+[11]: https://commons.wikimedia.org/wiki/Category:Software_engineering

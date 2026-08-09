@@ -10,11 +10,13 @@ use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 use std::time::Instant;
 
-use crate::utils::article_processing::process_article;
-use crate::utils::compression::{compress_data_zstd, load_zstd_encoder_dictionary};
+use crate::utils::article_processing;
+use crate::utils::checkpoints;
+use crate::utils::compression;
 use crate::utils::constants;
+use crate::utils::logs;
 use crate::utils::settings::Settings;
-use crate::utils::txt_file_processing::{SortMode, external_merge_sort};
+use crate::utils::txt_file_processing::{self, SortMode};
 
 #[derive(Default, Debug)]
 struct ZimMetrics {
@@ -28,6 +30,10 @@ struct ZimMetrics {
     total_compress: std::time::Duration,
     total_overhead: std::time::Duration,
     total_worker_wall_time: std::time::Duration,
+
+    pub program_total_duration: std::time::Duration,
+    pub final_offset: u64,
+    pub max_valid_offset: u64,
 }
 
 impl ZimMetrics {
@@ -50,6 +56,83 @@ impl ZimMetrics {
         self.total_overhead += other.total_overhead;
         self.total_worker_wall_time += other.total_worker_wall_time;
     }
+
+    pub fn make_summary(&self) -> String {
+        let new_data_mb =
+            (self.final_offset.saturating_sub(self.max_valid_offset)) as f64 / 1_048_576.0;
+        let total_data_mb = self.final_offset as f64 / 1_048_576.0;
+
+        let total_wall_secs = self.total_worker_wall_time.as_secs_f64().max(0.0001);
+
+        let pct_setup = (self.total_setup.as_secs_f64() / total_wall_secs) * 100.0;
+        let pct_db = (self.total_db.as_secs_f64() / total_wall_secs) * 100.0;
+        let pct_read = (self.total_zim_read.as_secs_f64() / total_wall_secs) * 100.0;
+        let pct_proc = (self.total_process.as_secs_f64() / total_wall_secs) * 100.0;
+        let pct_comp = (self.total_compress.as_secs_f64() / total_wall_secs) * 100.0;
+        let pct_over = (self.total_overhead.as_secs_f64() / total_wall_secs) * 100.0;
+
+        let mut summary = format!(
+            "==================================================\n\
+             =                ZIM PROCESSING SUMMARY          =\n\
+             ==================================================\n\
+             Total duration:                {:.2?}\n\
+             Total ZIM files processed:     {} (Lifetime)\n\
+             Binary data written (New):     {:.2} MB\n\
+             Binary data total size:        {:.2} MB\n\
+             \n\
+             Worker Thread Time Profiling (Cumulative):\n\
+             - String Setup:                {:<10.2?} ({:05.2}%)\n\
+             - Database Lookup:             {:<10.2?} ({:05.2}%)\n\
+             - ZIM Read & Decode:           {:<10.2?} ({:05.2}%)\n\
+             - Article Processing:          {:<10.2?} ({:05.2}%)\n\
+             - ZSTD Compression:            {:<10.2?} ({:05.2}%)\n\
+             - Sync/Channel/Overhead:       {:<10.2?} ({:05.2}%)\n\
+             --------------------------------------------------\n\
+             - Total Worker Wall Time:      {:.2?}\n\
+             \n\
+             Breakdown by Wiki:\n",
+            self.program_total_duration,
+            self.total_zim_files_processed,
+            new_data_mb,
+            total_data_mb,
+            self.total_setup,
+            pct_setup,
+            self.total_db,
+            pct_db,
+            self.total_zim_read,
+            pct_read,
+            self.total_process,
+            pct_proc,
+            self.total_compress,
+            pct_comp,
+            self.total_overhead,
+            pct_over,
+            self.total_worker_wall_time
+        );
+
+        let mut wikis: Vec<&String> = self.articles_found_per_wiki.keys().collect();
+        wikis.sort();
+
+        for wiki_lang in wikis {
+            let found = self.articles_found_per_wiki.get(wiki_lang).unwrap_or(&0);
+            let fails = self
+                .article_lookup_fails_per_wiki
+                .get(wiki_lang)
+                .unwrap_or(&0);
+
+            writeln!(&mut summary, "   - {:<18}", wiki_lang).unwrap();
+            writeln!(&mut summary, "       Articles found:        {}", found).unwrap();
+            writeln!(&mut summary, "       Article lookup fails:  {}", fails).unwrap();
+        }
+
+        writeln!(
+            &mut summary,
+            "=================================================="
+        )
+        .unwrap();
+
+        summary
+    }
 }
 
 enum WorkItem {
@@ -67,6 +150,33 @@ pub fn process_directories(
     settings: &Settings,
     max_test_articles: Option<usize>,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let mut completed_zims = HashSet::new();
+    let mut checkpoint_data = String::new();
+
+    match checkpoints::checkpoint_exists(&settings, 3) {
+        checkpoints::CheckpointState::exists_empty => {
+            println!("Checkpoint found: Zim processing has already finished");
+            return Ok(());
+        }
+        checkpoints::CheckpointState::exists_with_data(data) => {
+            for line in data.lines() {
+                let trimmed = line.trim();
+                if !trimmed.is_empty() {
+                    completed_zims.insert(trimmed.to_string());
+                }
+            }
+            checkpoint_data = data;
+            if !checkpoint_data.ends_with('\n') && !checkpoint_data.is_empty() {
+                checkpoint_data.push('\n');
+            }
+        }
+        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+            let _ = checkpoints::clear_checkpoints(&settings, i);
+            return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".into());
+        }
+        checkpoints::CheckpointState::does_not_exist => (),
+    }
+
     let program_start_time = Instant::now();
 
     let language_conf_path = &settings.paths.language_config_path;
@@ -77,14 +187,10 @@ pub fn process_directories(
         .filter(|l| !l.is_empty() && !l.starts_with('#'))
         .collect();
 
-    let mut completed_zims = HashSet::new();
-
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
-    let log_dir = PathBuf::from(&settings.paths.log_dir);
     let data_dir = PathBuf::from(&settings.paths.data_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
 
-    let prog_file_path = tmp_dir.join(constants::ZIM_PROGRESSION_CACHE);
     let qid_idx_unsorted_txt_path =
         tmp_dir.join(constants::QID_INDEX_TXT.replace(".txt", "_unsorted.txt"));
     let qid_idx_txt_path = tmp_dir.join(constants::QID_INDEX_TXT);
@@ -95,12 +201,6 @@ pub fn process_directories(
     let text_delimiter = settings.other.text_delimiter.clone();
     let text_delim_str = text_delimiter.as_str();
     let ram_limit_mb = settings.performance.ram_limit_mb;
-
-    if let Ok(file) = File::open(&prog_file_path) {
-        for line in BufReader::new(file).lines().flatten() {
-            completed_zims.insert(line);
-        }
-    }
 
     let previously_completed_count = completed_zims.len() as u64;
     let mut zim_files_with_size: Vec<(PathBuf, u64, String, String)> = Vec::new();
@@ -199,7 +299,8 @@ pub fn process_directories(
     let mp_writer_clone = Arc::clone(&multi_progress);
     let content_bin_path_clone = content_bin_path.clone();
     let qid_idx_unsorted_path_clone = qid_idx_unsorted_txt_path.clone();
-    let prog_file_path_clone = prog_file_path.clone();
+
+    let settings_writer_clone = settings.clone();
 
     let writer_thread = thread::spawn(move || {
         let content_bin_file = OpenOptions::new()
@@ -214,15 +315,8 @@ pub fn process_directories(
             .open(&qid_idx_unsorted_path_clone)
             .unwrap();
 
-        let prog_file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&prog_file_path_clone)
-            .unwrap();
-
         let mut bin_writer = BufWriter::new(content_bin_file);
         let mut idx_writer = BufWriter::new(qid_idx_unsorted_file);
-        let mut prog_writer = BufWriter::new(prog_file);
 
         let mut current_offset = max_valid_offset;
         let mut processed_zims_this_run = 0;
@@ -251,8 +345,17 @@ pub fn process_directories(
                     bin_writer.flush().unwrap();
                     idx_writer.flush().unwrap();
 
-                    writeln!(prog_writer, "{}", zim_path).unwrap();
-                    prog_writer.flush().unwrap();
+                    checkpoint_data.push_str(&zim_path);
+                    checkpoint_data.push('\n');
+
+                    if let Err(e) = checkpoints::make_checkpoint(
+                        &settings_writer_clone,
+                        3,
+                        "zim_processing",
+                        Some(&checkpoint_data),
+                    ) {
+                        eprintln!("Warning: Failed to save progression checkpoint: {}", e);
+                    }
 
                     global_metrics.merge(local_metrics);
                     global_metrics.total_zim_files_processed += 1;
@@ -279,7 +382,6 @@ pub fn process_directories(
 
         (global_metrics, current_offset)
     });
-
     let thread_count = settings.performance.thread_count;
     let worker_thread_count = std::cmp::max(1, thread_count - 2);
 
@@ -303,7 +405,7 @@ pub fn process_directories(
                 let read_txn = db_clone.begin_read().expect("Could not begin read transaction");
                 let table = read_txn.open_table(SITELINKS_TABLE).expect("Table not found");
 
-                let encoder_dict = load_zstd_encoder_dictionary(&zstd_dictionary_bin_path_clone, settings.performance.zstd_compression_level).expect("Failed to load zstd encoder dictionary");
+                let encoder_dict = compression::load_zstd_encoder_dictionary(&zstd_dictionary_bin_path_clone, settings.performance.zstd_compression_level).expect("Failed to load zstd encoder dictionary");
 
                 let mut search_key = String::with_capacity(256);
 
@@ -450,11 +552,11 @@ pub fn process_directories(
                         dur_zim_read += t_read.elapsed();
 
                         let t_process = Instant::now();
-                        let raw_bin_data = process_article(&wiki_type, &qid, &article_text);
+                        let raw_bin_data = article_processing::process_article(&wiki_type, &qid, &article_text);
                         dur_process += t_process.elapsed();
 
                         let t_compress = Instant::now();
-                        let compressed_data = compress_data_zstd(&raw_bin_data, &encoder_dict, settings.performance.zstd_window_size_kb)
+                        let compressed_data = compression::compress_data_zstd(&raw_bin_data, &encoder_dict, settings.performance.zstd_window_size_kb)
                             .expect("Failed to compress article with zstd");
                         dur_compress += t_compress.elapsed();
 
@@ -518,9 +620,9 @@ pub fn process_directories(
 
     drop(tx);
 
-    let (global_metrics, final_offset) = writer_thread.join().expect("Writer thread crashed");
+    let (mut global_metrics, final_offset) = writer_thread.join().expect("Writer thread crashed");
 
-    external_merge_sort(
+    txt_file_processing::external_merge_sort(
         qid_idx_unsorted_txt_path.to_str().unwrap(),
         qid_idx_txt_path.to_str().unwrap(),
         SortMode::XId,
@@ -530,85 +632,20 @@ pub fn process_directories(
     )
     .expect("Failed to sort QID Index");
 
-    let mut summary = String::new();
+    global_metrics.program_total_duration = program_start_time.elapsed();
+    global_metrics.final_offset = final_offset;
+    global_metrics.max_valid_offset = max_valid_offset;
 
-    writeln!(
-        &mut summary,
-        "\n=================================================="
-    )
-    .unwrap();
-    writeln!(&mut summary, " PROCESSING SUMMARY").unwrap();
-    writeln!(
-        &mut summary,
-        "=================================================="
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Total duration:                {:.2?}",
-        program_start_time.elapsed()
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Total ZIM files processed:     {} (Lifetime)",
-        global_metrics.total_zim_files_processed
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Binary data written (New):     {:.2} MB",
-        (final_offset - max_valid_offset) as f64 / 1_048_576.0
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Binary data total size:        {:.2} MB",
-        final_offset as f64 / 1_048_576.0
-    )
-    .unwrap();
-    writeln!(&mut summary, "\n Breakdown by Wiki:").unwrap();
+    let summary = global_metrics.make_summary();
 
-    let mut wikis: Vec<&String> = global_metrics.articles_found_per_wiki.keys().collect();
-    wikis.sort();
+    logs::write_summary_to_log(&summary, &settings, true, constants::ZIM_PROCESSING_LOG)?;
 
-    for wiki_lang in wikis {
-        let found = global_metrics
-            .articles_found_per_wiki
-            .get(wiki_lang)
-            .unwrap_or(&0);
-        let fails = global_metrics
-            .article_lookup_fails_per_wiki
-            .get(wiki_lang)
-            .unwrap_or(&0);
-
-        writeln!(&mut summary, "   - {:<18}", wiki_lang).unwrap();
-        writeln!(&mut summary, "       Articles found:        {}", found).unwrap();
-        writeln!(&mut summary, "       Article lookup fails:  {}", fails).unwrap();
-    }
-
-    writeln!(
-        &mut summary,
-        "==================================================\n"
-    )
-    .unwrap();
-    print!("{}", summary);
-
-    let summary_log_path = Path::new(&log_dir).join(constants::BINARIES_LOG);
-
-    if let Some(parent) = summary_log_path.parent() {
-        fs::create_dir_all(parent).expect("Could not create logs directory!");
-    }
-
-    let mut log_file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&summary_log_path)
-        .expect("Failed to open summary log file");
-
-    log_file
-        .write_all(summary.as_bytes())
-        .expect("Failed to write summary to log file");
+    checkpoints::make_checkpoint(&settings, 3, "zim_processing", None).map_err(|e| {
+        format!(
+            "Finished zim processing, but failed to create checkpoint: {}",
+            e
+        )
+    })?;
 
     Ok(())
 }

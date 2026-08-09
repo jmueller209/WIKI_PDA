@@ -79,6 +79,7 @@ pub struct Paths {
     pub tmp_dir: String,
     pub bin_dir: String,
     pub checkpoint_dir: String,
+    pub example_articles_dir: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -92,8 +93,16 @@ pub struct Performance {
     pub zstd_compression_level: i32,
     pub zstd_window_size_kb: usize,
     pub omni_search_index_term_encoding_bytes: usize,
+
     pub omni_search_sparse_index_ram_limit_kb: usize,
+    pub globe_coordinate_search_index_ram_limit_kb: usize,
+    pub temporal_serach_index_ram_limit_kb: usize,
+    pub astronomical_search_index_ram_limit_kb: usize,
+
     pub omni_search_chunk_size_bytes: usize,
+    pub globe_coordinate_search_chunk_size_bytes: usize,
+    pub temporal_search_chunk_size_bytes: usize,
+    pub astronomical_search_chunk_size_bytes: usize,
 }
 
 #[derive(Deserialize, Debug, Clone)]

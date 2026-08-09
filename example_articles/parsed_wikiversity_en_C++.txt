@@ -1,0 +1,267 @@
+This is a placeholder for Portal:Engineering and Technology → School:Computer Science →
+Topic:Computer Programming → C++
+
+Welcome to the [C++ programming][1] course. Whether you're not certain which language to pick or
+you've already decided on C++, you've come to the right place.
+
+C++ is arguably the most versatile language in common use. C++ allows for both high-performance code
+as well as expressive abstractions and design constructs. The language is not perfect but it does
+represent an excellent compromise between these potentially conflicting language capabilities. C++
+combines "low-level" programming tailored to specific machine architectures with "high-level"
+programming, which can allow code to be completely abstracted from any particulars of the machine
+executing the program. Both approaches have pros and cons that we'll cover in this tutorial. If
+interested, [Wikibooks also has material on this subject][2].
+
+**Why should you learn C++?**
+
+The C++ language originally derives from the imperative language [C][3]. The defining feature which
+distinguishes C++ from C is support for Object-Oriented Programming (OOP). This makes C++ a
+multi-paradigm programming language. An example that can help to demonstrate what OOP means:
+
+If you were writing a program to track the statistics of a racing cyclist, you might make different
+parts of the program for their age, years of racing, wins, falls, what teams they've raced with and
+so on. In real life, though, that's not how we think. Instead, we would think of the cyclist as a
+whole, and the different statistics as being part of him. We could also apply that general "model"
+of a cyclist, maybe with a few modifications, to any cyclist, and have a complete representation of
+them. This is the essence of object-oriented programming, and as you understand it more fully, it
+will allow you to create powerful, yet easily-understood programs. Instead of relying on data that
+is scattered throughout a program, you can create a block of code that defines everything you need,
+and then reuse that throughout the program.
+
+As a further example, think of a motor car. You unlock it with the key and get in. Then, you turn
+the ignition, put the car in reverse, release the brake, and press the accelerator. As you drive,
+you use the steering wheel, the brake, and the accelerator (and maybe the clutch). You don't know or
+need to know all the specifics of the car to make it work. You just use what you need, and it's
+simple, too. Object-oriented programming is like that. You can make powerful code, but it's all
+hidden, and you can interact and reuse that code using simple controls.
+
+Other languages, such as [Java][4], [Python][5], [Smalltalk][6] and [C#][7], allow the programmer to
+write code in this object-orientated way. The key difference between C++ and these languages is that
+C++ is designed to be compiled into efficient low-level code which can run directly on the processor
+of a computer. This ability means that C++ differs in many ways from these other languages, and
+lacks many of the advanced facilities you might be familiar with if you already know one of them.
+
+## Prerequisites
+
+Having fundamental knowledge of C programming.
+
+Get an integrated development environment (IDE), generally consisting of a graphical user interface
+(GUI), a compiler (transforms C/C++ code into a machine-readable program) and a text editor. Most
+C++ IDEs use the GNU C++ compiler which is part of the GNU Compiler Collection (GCC). This is a
+program from the [Free Software Foundation][8] distributed under the GNU General Public License
+(GPL). For detailed information, check [the official GCC webpage][9].
+
+Some might say that it is important to learn to edit code using an editor and compile it manually.
+There is time for that later; the manual editing process changes depending on system and compiler,
+so put it off until you can write significant programs.
+
+Recommendations for an IDE are [Microsoft Visual Studio Community][10] C++ (freeware, Windows;
+step-into debugging), [Xcode][11] (freeware, Macintosh OS X; step-into debugging), [Eclipse][12]
+(free and open-source, cross-platform; step-into debugging) or [Code::Blocks with Mingw][13] (free
+and open-source, cross-platform; no step-into debugging). [Dev-C++][14] (free and open-source,
+Windows; step-into debugging) is often mentioned, though it hasn't seen active development in years.
+A fairly recent addition to this list is the [Open Watcom C++][15] compiler and environment
+(open-source, cross-platform; no step-into debugging).
+
+Most of the compilers/IDEs listed here are native to the Microsoft Windows operating system. C/C++
+was born on [UNIX][16], and there are several free UNIX operating systems such as [FreeBSD][17].
+C/C++ comes with most GNU/Linux variants. Any of the operating systems and compilers/IDEs listed
+above are sufficient to learn to program C/C++.
+
+Your enthusiasm is also required. This is meant for a first-time user. Every lesson will only depend
+on what has already been taught in previous lessons. All you need here is your willingness to learn,
+experiment, and have fun with computers.
+
+## Course Description
+
+This course covers most introductory & intermediate topics of C++, starting with basic principles
+and working up to more advanced concepts such as polymorphism and inheritance.
+
+### Pros and Cons of C++
+
+**Pros**
+* Is extremely popular, and therefore lots of support is available.
+* Has a large base of freely available code for download, while also supporting direct integration
+  with [ASM][18] and [C][19].
+* Is very powerful, and can be used to create just about any program, including low-level system
+  programs.
+* There is a compiler for C++ on every major operating system. C++ programs that are purposely
+  written for portability will work on many major operating systems with little change in code.
+* C++ is a language which is compiled (transformed from human readable code to low-level machine
+  code), so it can often run faster than languages such as Java, Python, and C#, as it does not
+  depend on an interpreter or a "run-time environment" which must be loaded beforehand.
+* Has a long-established usage base that likely guarantees support for the language will continue
+  for quite some time.
+* Many languages are based off of C/C++, such as Java, so knowledge in C++ will make it easier to
+  understand these languages.
+* Has a relatively small associated [C++ Standard Library][20] as compared to languages such as
+  [Java's Standard Platform SDK][21] or [C#'s .NET Framework][22], permitting greater versatility
+  and reducing the system footprint of resulting compilations.
+* Has been standardized by the International Standards Association as ISO/IEC 14882 with significant
+  versions of the standard released in 1998, 2003 and 2011.
+* Has a significant number of open source libraries available, including the [Boost][23] which are
+  freely and widely available.
+
+**Cons**
+* It is not very safe by itself, as it lacks automatic boundary checks, invalid pointer checks,
+  etc., allows for invisible side-effects (causing non-deterministic behavior) and allows implicit
+  type casting. Many security issues and memory leaks are a direct result of this, unless an extra
+  effort is made to prevent them.
+* By default, there is no built-in memory management, even if smart pointers introduced from C++11
+  allow automatic resource management.
+* Its OOP system is rather archaic, requiring explicit virtualization of methods among other things
+  usually reserved for older languages.
+* Lacks the ability to define completely custom operators. (Not to be confused with the ability to
+  define custom implementations for a hard-wired set of operators, which C++ has.)
+* Does not offer full [algebraic data types][24].
+* Functions are not first-class types. (Although pointers allow for workarounds.)
+* Has a somewhat more difficult learning curve than some other languages. For instance, C++'s most
+  powerful features, such as templates, have a very complex syntax.
+* Is very picky how code is formatted (but not quite as picky as [FORTRAN][25], [RPG][26] or
+  [Haskell][27]). For example, if you forget to add a semicolon, the program won't compile.
+* GUI, Networking aren't standardized, requiring the use of non-standard, third-party libraries
+  (though many such libraries, both free and commercial, are available, as is the possibility to use
+  C libraries), [Boost][28] being one of the preferred. The lack of a standard, however, may hamper
+  learnability and interoperability or at least require some extended investigation.
+
+## Lessons
+* [Lesson 1: Introduction to C++][29]
+* [Lesson 2: Variables and User Input][30]
+* [Lesson 3: Simple Math][31]
+* [Lesson 4: Conditional Statements][32]
+* [Lesson 5: Loops][33]
+* [Lesson 6: Functions and Recursion][34]
+* [Lesson 7: More Functions][35]
+* [Lesson 8: Pointers][36], [References and Pointers][37]
+* [Lesson 9: Classes and Inheritance][38]
+* [Lesson 10: Templates 1][39]
+* [Lesson 11: Templates 2][40]
+* [Lesson 12: The STL][41]
+* [Lesson 13: STL Algorithms][42]
+
+## Enrolled
+
+You can add your name here or on the enrolled sub-page. You should resign your enrollment each year
+about if you want to be considered an active enrollee. [Enrolled][43]
+* Mirged 00:45, 8 January 2023 (UTC) My career started from here.
+* Supernyv 13:00, 01 June 2022 (GMT+1) Ambitious and Passionate about computer programming. Adding
+  C++ to my skills.
+* Cap356 18:47, 19 October 2010 (UTC) learning to change the world!
+* Tavoricko 16:58, 1 July 2010 (UTC)
+* Zngga 22:34, 14 June 2010 (UTC)Moving from Java to C++!
+* iCyberBombzz
+* Tarif Ezaz 06:56, 5 May 2010 (UTC) I believe "sharing" Knowledge is power, and with wikiversity
+  for that reason :D
+* Zendegi 05:06, 29 November 2010 (UTC)Looking to refresh after 15 years away, with a complete lack
+  of OOP
+* KReeves 00:22, 21 January 2011 (UTC) Also taking C++ in college. Looking for a new perspective to
+  help me better understand.
+* Alex_loves_you 10:52, 25 April 2011 (UTC) Really into web development. Looking to expand my
+  programing horizon. Love this website by the way.
+* hilq 12:48, 19 June 2011 (UTC) I can also help about your C++ development at hand.
+* L1ght5h0w 16:23, 12 August 2014 (UTC)
+* Varun Tokas (discuss • contribs) 13:52, 28 February 2016 (UTC)Learning C++ to get into our school
+  computer club as youngest programmer
+* Snitch (discuss • contribs) 09:26, 28 June 2013 (UTC)Moving from VBA to c++ (beginner). WikyU
+  looks great!
+* Muhammad j yakubu (discuss • contribs) 08:52, 27 December 2016 (UTC) Looking for the way to create
+  a powerful program in c++ (Beginner)
+* Alexander 6:48, 28 May 2021 (ET) Started learning C++ (beginner)
+* Shahzad Aslam 19:38, 23-Jun-2021; Started learning programming at the age of 46!
+* Jeremiah Breval 3:07 PM 4/17/2022 (ET) I'm just a basic programmer who wanted to take my
+  superficial knowledge and develop it
+* **4Chan** (**discuss** • contribs) I like C++, [CS][44] and [VB][45]/[Net][46] (entity [Visual
+  Studio][47]) 05:31, 7 July 2024 (UTC)
+
+## Further reading
+* [Switching from C to C++][48]
+
+## Resources
+
+### Books
+* Deitel (2008), [C++ How To program][49], Pearson Prentice Hall, [ISBN][50] 9780136152507
+* Stroustrup, Bjarne (2009), [Programming: Principles and Practice Using C++][51], vol. 10,
+  Addison-Wesley, [ISBN][52] 978-0321543721
+
+### Websites
+
+───────────────────────────────────────────────────────────────────────
+**Subject classification**: this is an information technology resource.
+───────────────────────────────────────────────────────────────────────
+* Tutorial on [learncpp.com][53]
+* Tutorial on [cplusplus.com][54]
+* [https://www.cprogramming.com/][55]
+* [https://www.learnprogramz.com/][56]
+* [https://programiz.pro/learn/master-cpp][57]
+* W3 Schools:[https://www.w3schools.com/cpp/][58]
+* Codecademy: [https://www.codecademy.com/learn/learn-c-plus-plus][59]
+* [C++ Senioreas][60]
+* [C++ Tutorial][61]
+
+### External learning links
+* [What are the differences between the C programming languages: C, C++, C#, and Objective C? (on
+  Reddit)][62]
+
+[1]: https://en.wikipedia.org/wiki/C%2B%2B
+[2]: https://en.wikibooks.org/wiki/Subject:C%2B%2B_programming_language
+[3]: https://en.wikipedia.org/wiki/C_(programming_language)
+[4]: https://en.wikipedia.org/wiki/Java_(programming_language)
+[5]: https://en.wikipedia.org/wiki/Python_(programming_language)
+[6]: https://en.wikipedia.org/wiki/Smalltalk
+[7]: https://en.wikipedia.org/wiki/C_Sharp_(programming_language)
+[8]: Free_Software_Foundation
+[9]: https://gcc.gnu.org/
+[10]: https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx
+[11]: https://itunes.apple.com/us/app/xcode/id497799835
+[12]: https://www.eclipse.org/downloads/
+[13]: http://www.codeblocks.org/downloads/26
+[14]: https://orwelldevcpp.blogspot.com/
+[15]: https://en.wikipedia.org/wiki/Watcom_C/C%2B%2B
+[16]: https://en.wikipedia.org/wiki/Unix
+[17]: https://en.wikipedia.org/wiki/FreeBSD
+[18]: https://en.wikipedia.org/wiki/Assembly_language
+[19]: https://en.wikipedia.org/wiki/C
+[20]: https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library
+[21]: https://en.wikipedia.org/wiki/Java_Platform,_Standard_Edition
+[22]: https://en.wikipedia.org/wiki/.NET_Framework
+[23]: https://en.wikipedia.org/wiki/Boost_C%2B%2B_Libraries
+[24]: https://en.wikipedia.org/wiki/Algebraic_data_types
+[25]: https://en.wikipedia.org/wiki/FORTRAN
+[26]: https://en.wikipedia.org/wiki/IBM_RPG
+[27]: https://en.wikipedia.org/wiki/Haskell_(programming_language)
+[28]: https://en.wikipedia.org/wiki/Boost_C%2B%2B_Libraries
+[29]: C%2B%2B/Introduction
+[30]: C%2B%2B/Variables_and_User_Input
+[31]: C%2B%2B/Simple_Math
+[32]: C%2B%2B/Conditional_Statements
+[33]: C%2B%2B/Loops
+[34]: C%2B%2B/Functions_and_Recursion
+[35]: C%2B%2B/More_Functions
+[36]: C%2B%2B/Pointers
+[37]: References_and_Pointers
+[38]: C%2B%2B/Classes_and_Inheritance
+[39]: C%2B%2B/Templates_1
+[40]: C%2B%2B/Templates_2
+[41]: C%2B%2B/STL
+[42]: C%2B%2B/STL_Algorithms
+[43]: C%2B%2B/Enrolled
+[44]: C_Sharp
+[45]: Visual_Basic
+[46]: Visual_Basic_.NET
+[47]: Visual_Studio_Code
+[48]: Switching_from_C_to_C%2B%2B
+[49]: http://books.google.com/books?id=HhGB8fOiUy8C
+[50]: ISBN_(identifier)
+[51]: http://books.google.com/books?id=Ud7LLQAACAAJ
+[52]: ISBN_(identifier)
+[53]: https://www.learncpp.com/
+[54]: http://www.cplusplus.com/doc/tutorial/
+[55]: https://www.cprogramming.com/
+[56]: https://www.learnprogramz.com/
+[57]: https://programiz.pro/learn/master-cpp
+[58]: https://www.w3schools.com/cpp/
+[59]: https://www.codecademy.com/learn/learn-c-plus-plus
+[60]: https://cppsenioreas.wordpress.com
+[61]: https://www.wscubetech.com/resources/cpp
+[62]: https://www.reddit.com/r/explainlikeimfive/comments/5364yp/eli5_what_are_the_differences_betwe
+en_the_c/

@@ -1,0 +1,180 @@
+See also: **[house][1]**
+
+## English
+
+### Etymology
+* As an English surname, from the noun [house][2].
+* Also as an English surname, variant of [Howes][3].
+* Also as a topographic English surname, from a derivative of [Old English][4] [hyse][5] (“place
+  overgrown with water plants”), from [hos][6] (“bramble, thorn, sprout”). This may have also made
+  its way into [Hose][7], [Huss][8].
+* As a [German][9] surname, calqued from the surname [Haus][10].
+
+### Pronunciation
+
+### Proper noun
+
+**House** (countable and uncountable, plural **[Houses][11]**)
+1. ([politics][12]) A particular chamber of political representation
+   1. ([US][13] [politics][14], as "the House") Ellipsis of [House of Representatives][15].
+      * **2025** October 2, Madison Hart, “Temecula City Council declares opposition to Prop. 50”,
+        in [The Press-Enterprise][16]‎^{[[1]][17]}, archived from [the original][18] on 17 December
+        2025:
+        
+          Prop. 50 proponents, including Newsom and Democrats in the state Legislature and in
+          Congress, say the proposition is needed to counteract Texas’ recent redistricting efforts
+          to give the GOP more **House** seats.
+   2. ([politics][19], Westminsterian parliamentary systems) Ellipsis of [House of Commons][20].
+   3. ([politics][21]) Ellipsis of [House of Parliament][22].
+   4. More generally, a shortened name for any chamber of a legislature that is named "House of...",
+      especially where the other chamber(s) are not so named, or where there is no other chamber
+      (unicameral).
+2. A [placename][23]:
+   1. A [village][24] in [Quay County][25], [New Mexico][26], [United States][27].
+   2. An [unincorporated community][28] in [Pitt County][29], [North Carolina][30], [United
+      States][31].
+3. A topographic [surname][32] from Middle English for someone residing in a house (as opposed to a
+   hut) or in a religious house.
+   * **2025** February 25, Gabriel Castillo, Jenna Barnes, Ben Bradley, Michael Johnson, Erik Runge,
+     “Defeated in Dolton: Trustee Jason House beats incumbent Mayor Tiffany Henyard by landslide in
+     primary”, in [WGN-TV][33]‎^{[[2]][34]}, archived from [the original][35] on 27 February 2025:
+     
+       The incumbent and embattled Henyard lost Tuesday’s Democratic primary to Trustee Jason
+       **House** by a landslide, with **House** winning nearly 90% of the vote.
+4. ([Oxford University][36] slang, dated) [Christ Church, Oxford][37].
+
+#### Derived terms
+* [divide the House][38]
+
+#### Translations
+
+House of Representatives — see [House of Representatives][39]
+House of Commons — see [House of Commons][40]
+
+#### See also
+* [Haus][41]
+* [Hauss][42]
+
+politics
+* [Senate][43]
+
+## German
+
+### Etymology
+
+Borrowed from [English][44] [house][45]. Doublet of [Haus][46].
+
+### Pronunciation
+* IPA^{(key)}: /haʊ̯s/
+* ──────────────────────────────────┬──────
+  Audio ([Germany][47]              │(file)
+  ([Berlin][48])):                  │      
+  ──────────────────────────────────┴──────
+* Rhymes: -aʊ̯s
+
+### Noun
+
+**House** m (strong, genitive **[Houses][49]** or ****House****, no plural)
+1. ([music][50]) [house music][51], [house][52]
+   
+     Synonyms: House-Musik f, Housemusik f
+
+#### Declension
+
+Declension of House [sg-only, masculine, strong]
+
+──────────┬───────────────────────────────────────────
+          │singular                                   
+──────────┼───────────┬─────────┬─────────────────────
+          │[indef.][53│[def.][54│noun                 
+          │]          │]        │                     
+──────────┼───────────┼─────────┼─────────────────────
+nominative│[ein][55]  │[der][56]│**House**            
+──────────┼───────────┼─────────┼─────────────────────
+genitive  │[eines][57]│[des][58]│[Houses][59],        
+          │           │         │**House**            
+──────────┼───────────┼─────────┼─────────────────────
+dative    │[einem][60]│[dem][61]│**House**            
+──────────┼───────────┼─────────┼─────────────────────
+accusative│[einen][62]│[den][63]│**House**            
+──────────┴───────────┴─────────┴─────────────────────
+
+### Further reading
+* “[House][64]”, in Digitales Wörterbuch der deutschen Sprache‎^{[[3]][65]} (in German)
+* “[House][66]” in Uni Leipzig: Wortschatz-Lexikon
+* “[House][67]” in Duden online
+* **[House][68]** on the German Wikipedia.[Wikipedia ^{de}][69]
+
+[1]: house
+[2]: house#English
+[3]: Howes#English
+[4]: https://en.wikipedia.org/wiki/Old_English
+[5]: hyse#Old_English
+[6]: hos#Old_English:_bramble
+[7]: Hose#English
+[8]: Huss#English
+[9]: https://en.wikipedia.org/wiki/German_language
+[10]: Haus#English
+[11]: Houses#English
+[12]: politics
+[13]: https://en.wikipedia.org/wiki/American_English
+[14]: politics
+[15]: House_of_Representatives#English
+[16]: https://en.wikipedia.org/wiki/The_Press-Enterprise
+[17]: https://web.archive.org/web/20251217091259/https://www.pressenterprise.com/2025/10/02/temecula
+-city-council-declares-opposition-to-prop-50/
+[18]: https://www.pressenterprise.com/2025/10/02/temecula-city-council-declares-opposition-to-prop-5
+0/
+[19]: politics
+[20]: House_of_Commons#English
+[21]: politics
+[22]: House_of_Parliament#English
+[23]: placename
+[24]: village
+[25]: Quay_County#English
+[26]: New_Mexico#English
+[27]: United_States#English
+[28]: unincorporated_community
+[29]: Pitt_County#English
+[30]: North_Carolina#English
+[31]: United_States#English
+[32]: surname
+[33]: https://en.wikipedia.org/wiki/WGN-TV
+[34]: https://web.archive.org/web/20250227171322/https://wgntv.com/dolton/dolton-mayor-tiffany-henya
+rd-loses-democratic-primary-to-trustee-jason-house/
+[35]: https://wgntv.com/dolton/dolton-mayor-tiffany-henyard-loses-democratic-primary-to-trustee-jaso
+n-house/
+[36]: https://en.wikipedia.org/wiki/University_of_Oxford
+[37]: https://en.wikipedia.org/wiki/Christ_Church,_Oxford
+[38]: divide_the_House#English
+[39]: House_of_Representatives#Translations
+[40]: House_of_Commons#Translations
+[41]: Haus#English
+[42]: Hauss#English
+[43]: Senate#English
+[44]: https://en.wikipedia.org/wiki/English_language
+[45]: house#English
+[46]: Haus#German
+[47]: https://en.wikipedia.org/wiki/German_Standard_German
+[48]: https://en.wikipedia.org/wiki/Berlin
+[49]: Houses#German
+[50]: music
+[51]: house_music
+[52]: house
+[53]: indefinite_article
+[54]: definite_article
+[55]: ein#German
+[56]: der#German
+[57]: eines#German
+[58]: des#German
+[59]: Houses#German
+[60]: einem#German
+[61]: dem#German
+[62]: einen#German
+[63]: den#German
+[64]: https://www.dwds.de/?q=House
+[65]: https://www.dwds.de/
+[66]: https://corpora.wortschatz-leipzig.de/de/res?&word=House
+[67]: https://www.duden.de/rechtschreibung/House
+[68]: https://en.wikipedia.org/wiki/de:House
+[69]: https://en.wikipedia.org/wiki/de:House

@@ -4,7 +4,9 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
+use crate::utils::checkpoints;
 use crate::utils::constants;
+use crate::utils::logs;
 use crate::utils::settings::Settings;
 
 /* ============================================================================
@@ -59,6 +61,23 @@ use crate::utils::settings::Settings;
  */
 
 pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
+    match checkpoints::checkpoint_exists(&settings, 5) {
+        checkpoints::CheckpointState::exists_empty => {
+            println!("Checkpoint found: Creation of the QID binary index has already finished");
+            return Ok(());
+        }
+        checkpoints::CheckpointState::exists_with_data(data) => {
+            return Err(format!(
+                "Make QID binary index checkpoint should not contain any data, but contains: \n {}",
+                data
+            ));
+        }
+        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+            let _ = checkpoints::clear_checkpoints(&settings, i);
+            return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
+        }
+        checkpoints::CheckpointState::does_not_exist => (),
+    }
     let txt_delimiter = &settings.other.text_delimiter;
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
@@ -166,6 +185,21 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
     for (name, id) in project_dict {
         writeln!(dict_writer, "{}\t{}", id, name).unwrap();
     }
+
+    let summary_string = "Summary not available.";
+    logs::write_summary_to_log(
+        &summary_string,
+        &settings,
+        true,
+        constants::MAKE_QID_BINARY_INDEX_LOG,
+    )?;
+
+    checkpoints::make_checkpoint(&settings, 5, "qid_binary_index_creation", None).map_err(|e| {
+        format!(
+            "Finished creating QID binary index, but failed to create checkpoint: {}",
+            e
+        )
+    })?;
 
     Ok(())
 }

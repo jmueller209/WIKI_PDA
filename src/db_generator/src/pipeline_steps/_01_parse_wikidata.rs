@@ -10,11 +10,11 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::utils::{
-    checkpoints, constants, logs,
-    settings::Settings,
-    txt_file_processing::{self, SortMode},
-};
+use crate::utils::checkpoints;
+use crate::utils::constants;
+use crate::utils::logs;
+use crate::utils::settings::Settings;
+use crate::utils::txt_file_processing::{self, SortMode};
 
 #[derive(Default, Debug)]
 struct ParserMetrics {
@@ -363,7 +363,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
     let temporal_search_unsorted_txt_path =
         tmp_dir.join(unsorted_filename(constants::TEMPORAL_SEARCH_TXT));
     let temporal_search_txt_path = tmp_dir.join(constants::TEMPORAL_SEARCH_TXT);
-    let mut temporal_search_file = if create_globe_coordinate_search_index {
+    let mut temporal_search_file = if create_temporal_search_index {
         Some(BufWriter::with_capacity(
             write_buffer_bytes,
             File::create(&temporal_search_unsorted_txt_path).unwrap(),

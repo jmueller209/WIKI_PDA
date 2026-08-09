@@ -8,7 +8,7 @@ pub fn make_checkpoint(
     settings: &Settings,
     number: i8,
     title: &str,
-    data: Option<String>,
+    data: Option<&str>,
 ) -> Result<(), String> {
     let checkpoint_dir = Path::new(&settings.paths.checkpoint_dir);
     fs::create_dir_all(checkpoint_dir)
@@ -94,14 +94,14 @@ pub fn checkpoint_exists(settings: &Settings, number: i8) -> CheckpointState {
     }
 }
 
-pub fn clear_checkpoints(settings: &Settings, last_to_clear: i8) -> Result<(), String> {
+pub fn clear_checkpoints(settings: &Settings, last_valid_checkpoint: i8) -> Result<(), String> {
     let checkpoint_dir = Path::new(&settings.paths.checkpoint_dir);
 
     if !checkpoint_dir.exists() {
         return Ok(());
     }
 
-    if last_to_clear == 0 {
+    if last_valid_checkpoint == -1 {
         return fs::remove_dir_all(checkpoint_dir)
             .map_err(|e| format!("Failed to remove checkpoint directory: {}", e));
     }
@@ -121,7 +121,7 @@ pub fn clear_checkpoints(settings: &Settings, last_to_clear: i8) -> Result<(), S
         {
             if let Some((num_str, _title)) = core.split_once('_') {
                 if let Ok(num) = num_str.parse::<i8>() {
-                    if num >= last_to_clear {
+                    if num > last_valid_checkpoint {
                         should_delete = true;
                     }
                 } else {
