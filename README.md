@@ -186,7 +186,7 @@ Generating the database is quite computationally expensive as we have to parse v
 2. Decompressing, parsing, and processing the Metadata Archive (In its uncompressed form, the Metadata Archive is a ~1TB JSON file).
 3. Decompressing, parsing, processing, and recompressing Data archives (For each Wikipedia article, wiki book, etc., we need to decompress its data in the dump file which contains raw HTML, process the data by removing HTML tags, compress the processed data, and save it).
 
-For testing (which I highly recommend given the current state of the project), run the following command from the root of this repository:
+Before you get started make sure you have enough free space on your disk (A few hundred gigabytes). If you have multiple drives, this directory or at least the relevant configurable paths in the config should be located on the fastest disk that has enough space available since reading from and writing to disk can be a bottleneck during some steps of the generation phase. For testing (which I highly recommend given the current state of the project), run the following command from the root of this repository:
 ```bash
 make test-pipeline
 ```
