@@ -183,7 +183,7 @@ Before running the database generator you can customize the configuration [here]
 
 To configure which languages you want to include, take a look at the [The official Wikipedia Documentation](https://en.wikipedia.org/wiki/List_of_Wikipedias). Here you’ll find a table containing information about the Wikipdias in all available languages. Even though this documentation only talks about Wikipedia articles and not wiki books for example, the language codes used are the same. Open the [language configuration](config/languages.config) and add the language codes referring to the languages you want to include. 
 
-*Note*: There might be several language codes for a given language that refer to different dialects or *difficulties*. E.g. There is `en` referring to standard German and `nds` referring to a specific low German dialect. 
+*Note*: There might be several language codes for a given language that refer to different dialects or *difficulties*. E.g. There is `de` referring to standard German and `nds` referring to a specific low German dialect. 
 
 ### 3. Run The Generator
 Generating the database is quite computationally expensive as we have to parse very large files. Just to give you a short summary of the most time consuming processing steps:
