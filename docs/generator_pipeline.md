@@ -14,7 +14,7 @@ The database generator downloads the necessary wikidata dumps from [wikimedia](h
 
 ### 1.2 Compression Setup (Training ZSTD Dictionary)
 
-### 1.3 Process Data
+### 1.3 Process Data and Create Content Binary
 
 ### 1.4 Create Metadata Binary
 
