@@ -37,7 +37,7 @@ The entire database is bundled into a single binary file. While the exact byte-o
 ---
 
 ## 1. Header
-No header is used right now as the exact offsets, etc. are merged into the final query API binary via an automatically generated C header file. I might change this in the future and actually include a header to make the database more flexible. The disadvantage with the automatically generated header file is of course that we need to recompile the API code every time we want to use a new database. However, the advantage is that we can make the data structures and the API code as efficient as possible.
+No header is used right now as the exact offsets, etc. are merged into the final query API binary via an [automatically generated C header file](../src/query_database/src/common/generated_database_constants.h). I might change this in the future and actually include a header to make the database more flexible. The disadvantage with the automatically generated header file is of course that we need to recompile the API code every time we want to use a new database. However, the advantage is that we can make the data structures and the API code as efficient as possible.
 
 ## 2. Primary Search Indexes (Flat k-trees)
 
@@ -143,9 +143,9 @@ Once a search index yields a match, it points to a specific entity identifier (Q
 
 ### 3.1 QID Search Index
 
-The QID index bridges the gap between a generic concept identifier (QID) and the actual storage layer. When a primary search index yields a target QID, the API uses this index to find all concrete instances of that concept across different languages and projects (e.g., English Wikipedia vs. German Wikipedia).
+The QID index connects a generic concept identifier (QID) and the actual storage layer. When a primary search index yields a target QID, the API uses this index to find all concrete instances of that concept across different languages and projects (e.g., English Wikipedia vs. German Wikipedia).
 
-The QID search index consists of two distinct components laid out sequentially in the binary:
+The QID search index consists of two distinct components:
 1. **The Hash Map (Lookup Table):** Maps an integer QID to a range within the row table.
 2. **The Index Row Table:** A contiguous array of records pointing to the actual metadata and content payloads on disk.
 
@@ -154,17 +154,20 @@ Every entry in this table corresponds to a QID, pointing the engine to where its
 
 | Offset | Size (Bytes) | Type | Name | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `0` | `4` | `u32` | **Start Index** | The starting row index in the Index Row Table where this QID's entries begin. (Little Endian). |
-| `4` | `2` | `u16` | **Entry Count** | The number of consecutive rows belonging to this QID (e.g., how many languages/projects exist for it). (Little Endian). |
+| `0` | `4` | `u32` | **Start Index** | The starting row index in the Index Row Table where this QID's entries begin. |
+| `4` | `2` | `u16` | **Entry Count** | The number of consecutive rows belonging to this QID (e.g., how many languages/projects exist for it). |
 
 #### 2. Index Row Table Entry (`IndexRow`)
-Once the Hash Map yields a start index and count, the engine reads these rows to find the physical storage locations. Because a single concept (QID) can exist in multiple languages or projects, a single QID can point to multiple `IndexRow` entries.
+Once the Hash Map yields a start index and count, the API reads these rows to find the physical storage locations. Because a single concept (QID) can exist in multiple languages or projects, a single QID can point to multiple `IndexRow` entries.
 
 | Offset | Size (Bytes) | Type | Name | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `0` | `8` | `u64` | **Offset** | The absolute byte offset of the data chunk on disk. (Little Endian). |
-| `8` | `4` | `u32` | **Length** | The length of the compressed payload in bytes. (Little Endian). |
-| `12` | `2` | `u16` | **Project ID** | Identifies the language and wiki project (e.g., enwiki, dewiki). (Little Endian). |
+| `0` | `8` | `u64` | **Offset** | The byte offset of the data chunk on disk. |
+| `8` | `4` | `u32` | **Length** | The length of the compressed payload in bytes. |
+| `12` | `2` | `u16` | **Project ID** | Identifies the language and wiki project (e.g., enwiki, dewiki). |
+
+- Note 1: Project ID 0 always refers to metadata. How the other IDs refer to different languages and concepts depends on your specific database setup. The generator will create a `wiki_lang_mapping.txt` file in the ⚙️ `tmp_dir`, where you can check which project maps to which ID. I might change this in the future and include the mapping directly in the database header for easier access.
+- Note 2: The **Offset** is to be understood relative to the begin of the metadata (Project ID = 0) or Content (Project ID >= 0). To get the absolute offsets inside the binary, the API adds a global metadata/content offset which is specified in the [automatically generated C header file](../src/query_database/src/common/generated_database_constants.h).
 
 ### 3.2 PID Search Index
 * **Purpose:** Stores property definitions (e.g., `P31` = "instance of"). Used to interpret and correctly render the compressed metadata.
