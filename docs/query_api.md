@@ -60,7 +60,7 @@ To find an article, you populate a `SearchQuery` struct and pass it to `search_b
 SearchQuery query = {0};                 // Initialize everything to zero/NULL
 query.type = SEARCH_TYPE_OMNI;           // Standard text-based search
 query.target.term = "universe";          // The search term
-query.article_type = 1;                  // 0 = metadata, check docs for other than 0
+query.article_type = 1;                  // 0 = metadata, check /tmp/wiki_lang_mapping.txt for other than 0
 
 // Note: You can also set tags here to filter results. Just pass the bit mask as a uint32_t:
 // query.exact_tags = ...
