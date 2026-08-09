@@ -167,7 +167,7 @@ Once the Hash Map yields a start index and count, the API reads these rows to fi
 | `12` | `2` | `u16` | **Project ID** | Identifies the language and wiki project (e.g., enwiki, dewiki). |
 
 - Note 1: Project ID 0 always refers to metadata. How the other IDs refer to different languages and concepts depends on your specific database setup. The generator will create a `wiki_lang_mapping.txt` file in the ⚙️ `tmp_dir`, where you can check which project maps to which ID. I might change this in the future and include the mapping directly in the database header for easier access.
-- Note 2: The **Offset** is to be understood relative to the begin of the metadata (Project ID = 0) or Content (Project ID >= 0). To get the absolute offsets inside the binary, the API adds a global metadata/content offset which is specified in the [automatically generated C header file](../src/query_database/src/common/generated_database_constants.h).
+- Note 2: The **Offset** is to be understood relative to the begin of the metadata (Project ID = 0) or Content (Project ID >= 1). To get the absolute offsets inside the binary, the API adds a global metadata/content offset which is specified in the [automatically generated C header file](../src/query_database/src/common/generated_database_constants.h).
 
 ### 3.2 PID Search Index
 * **Purpose:** Stores property definitions (e.g., `P31` = "instance of"). Used to interpret and correctly render the compressed metadata.
