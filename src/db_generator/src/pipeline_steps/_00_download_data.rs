@@ -8,7 +8,10 @@ use std::fs::OpenOptions;
 use std::io::copy;
 use std::path::Path;
 
-use crate::utils::{checkpoints, constants, logs, settings::Settings, txt_file_processing};
+use crate::utils::checkpoints;
+use crate::utils::constants;
+use crate::utils::logs;
+use crate::utils::settings::Settings;
 
 struct DownloadMetrics {
     finished_downloads: Vec<String>,
