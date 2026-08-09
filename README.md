@@ -56,7 +56,8 @@ NOTE: This project is under construction and some of the features are either not
 *  **Wiktionary** support.
 *  Decide on whether to properly support other wikis such as **Wikibooks**. This is a pain in the a** because other than **Wikipedia** articles, a Wiki Book for example consists of multiple chapters that need to be individually parsed and linked. This prevents me from using the same pipeline as for **Wikipedia** Articles and considering the small size of those other wikis compared to **Wikipedia**, it might not be worth it.
 *  Making the generator work on windows (or maybe not because people should switch to Linux anyways)
-*  Implementing a better default processing function for articles.
+*  Implementing a better default processing function for articles. Additionally, an easy way to turn redirects into QIDs would be nice so offline redirecting can be implemented (Using the QID Index).
+  
 *  Performance Improvements (focus on API).
 
 ---
