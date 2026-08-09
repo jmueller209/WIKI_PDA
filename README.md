@@ -44,22 +44,21 @@ flowchart TD
     CS -.-> HM
 
     subgraph Phase2 [2. Multi-Language / Project Routing]
-        R1(Row: enwiki)
-        R2(Row: dewiki)
-        R3(Row: zhwiki)
+        R1(Row: Metadata)
+        R2(Row: enwiki)
+        R3(Row: dewiki)
     end
 
     HM -- Yields multiple rows<br>per QID --> R1 & R2 & R3
 
     subgraph Phase3 [4. Storage Layer]
         MD[(Metadata)]:::storage
-        DAT[(Encrypted &<br>Compressed Payload)]:::storage
+        DAT[(Compressed<br>Payload)]:::storage
     end
 
     R1 -->|Reads| MD
-    R1 -->|Reads| DAT
-    R2 -.-> MD & DAT
-    R3 -.-> MD & DAT
+    R2 -->|Reads| DAT
+    R3 -->|Reads| DAT
 
     PID{PID Index HashMap<br>Property Descriptions}:::meta
     MD -. Looks up properties .-> PID
