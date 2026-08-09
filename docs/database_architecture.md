@@ -6,7 +6,7 @@ This document outlines the internal structure and binary layout of the generated
 ## Table of Contents
 
 - [0. High-Level Binary Layout](#0-high-level-binary-layout)
-- [1. Header Design Philosophy](#1-high-level-binary-layout) *(Note: Header section duplication)*
+- [1. Header Design Philosophy](#1-header)
 - [2. Primary Search Indexes (Flat k-trees)](#2-primary-search-indexes-flat-k-trees)
   - [2.1 Universal Row Structure](#21-universal-row-structure)
   - [2.2 The Specific Indexes](#22-the-specific-indexes)
@@ -36,7 +36,7 @@ The entire database is bundled into a single binary file. While the exact byte-o
 
 ---
 
-## 1. High-Level Binary Layout
+## 1. Header
 No header is used right now as the exact offsets, etc. are merged into the final query API binary via an automatically generated C header file. I might change this in the future and actually include a header to make the database more flexible. The disadvantage with the automatically generated header file is of course that we need to recompile the API code every time we want to use a new database. However, the advantage is that we can make the data structures and the API code as efficient as possible.
 
 ## 2. Primary Search Indexes (Flat k-trees)
