@@ -57,7 +57,7 @@ While all indexes share the universal structure above, the data stored inside th
 
 #### Omni Search Index
 * **Purpose:** The primary text-based index for searching concepts by name/title (e.g., "Albert Einstein").
-* **Term Size:** Configurable via generator settings (e.g., 16 or 32 bytes). Truncated strings are matched via prefix.
+* **Term Size:** Configurable via <kbd>omni_search_index_term_encoding_bytes</kbd> setting.
 
 #### Temporal Search Index
 * **Purpose:** Time-based index for querying concepts by specific dates or timespans.
