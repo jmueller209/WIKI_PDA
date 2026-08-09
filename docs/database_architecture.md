@@ -57,26 +57,38 @@ While all indexes share the universal structure above, the data stored inside th
 
 #### Omni Search Index
 * **Purpose:** The primary text-based index for searching concepts by name/title (e.g., "Albert Einstein").
-* **Term Size:** Configurable via ⚙️ `omni_search_index_term_encoding_bytes`. However, if you provide a number of bytes so that the entire size of a row is not a power of 2, the generator will round up to the next power of 2 so you actually get a larger Term Size unless your provided Term Size is of the form `power_of_two - 8`.
+* **Term Size:** Configurable via ⚙️ `omni_search_index_term_encoding_bytes`. However, if you provide a number of bytes so that the entire size of a row is not a power of 2, the generator will round up to the next power of 2 so you actually get a larger Term Size unless your provided a Term Size is of the form `power_of_two - 8`.
+* **Row Size:** N (Term) + 4 (QID) + 4 (Tags) = N + 8 Bytes $\rightarrow$ Rounded to next power of 2.
+* **Tags**: Bitmask created based on ⚙️ `omni_search_index_tags`  
+* **Search strategy**: Use UTF-8 encoded text as search term. Case sensitivity is determined by ⚙️ `omni_search_index_case_sensitive`.
 
 #### Temporal Search Index
 * **Purpose:** Time-based index for querying concepts by specific dates or timespans.
 * **Term Size:** 4 Bytes (`u32`).
-* **Row Size:** 4 (Term) + 8 (Metadata) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**. *(Actual usable term space becomes 8 bytes).*
+* **Row Size:** 4 (Term) + 4 (QID) + 4 (Tags) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**. *(Actual usable term space becomes 8 bytes).*
+* * **Tags**: Bitmask created based on ⚙️ `temporal_search_index_tags`  
+* **Search strategy**: TODO
 
 #### Global Search Index
 * **Purpose:** Spatial index for querying locations based on standard Earth coordinates.
 * **Term Size:** 4 Bytes (`u32` encoded Latitude/Longitude).
-* **Row Size:** 4 (Term) + 8 (Metadata) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**.
+* **Row Size:** 4 (Term) + 4 (QID) + 4 (Tags) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**.
+* * **Tags**: Bitmask created based on ⚙️ `globe_coordinate_search_index_tags`  
+* **Search strategy**: TODO
 
 #### Astronomical Search Index
 * **Purpose:** Celestial spatial index for querying stars, galaxies, and astronomical bodies.
 * **Term Size:** 4 Bytes (`u32` encoded Right Ascension/Declination).
-* **Row Size:** 4 (Term) + 8 (Metadata) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**.
+* **Row Size:** 4 (Term) + 4 (QID) + 4 (Tags) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**.
+* * **Tags**: Bitmask created based on ⚙️ `astronomical_search_index_tags  `  
+* **Search strategy**: TODO
+
+### 2.4 Creation of tags based on configuration
+TODO
 
 ---
 
-### 2.3 Flat k-tree Traversal Visualization
+### 2.5 Flat k-tree Traversal Visualization
 
 When searching for a term, the C API loads the highest level (Top Level) into RAM. It performs a binary search to find the correct chunk, reads that chunk's `Child Row Index`, and calculates the absolute disk offset for the level below. 
 
