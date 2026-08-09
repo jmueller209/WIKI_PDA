@@ -50,6 +50,7 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
         }
         checkpoints::CheckpointState::does_not_exist => (),
     }
+    println!("Starting Download");
 
     let data_dir_path = &settings.paths.data_dir;
 
