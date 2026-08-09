@@ -3,6 +3,26 @@ This document outlines the internal structure and binary layout of the generated
 
 ---
 
+## Table of Contents
+
+- [0. High-Level Binary Layout](#0-high-level-binary-layout)
+- [1. Header Design Philosophy](#1-high-level-binary-layout) *(Note: Header section duplication)*
+- [2. Primary Search Indexes (Flat k-trees)](#2-primary-search-indexes-flat-k-trees)
+  - [2.1 Universal Row Structure](#21-universal-row-structure)
+  - [2.2 The Specific Indexes](#22-the-specific-indexes)
+  - [2.3 Creation of tags based on configuration](#24-creation-of-tags-based-on-configuration)
+  - [2.4 Flat k-tree Traversal Visualization](#25-flat-k-tree-traversal-visualization)
+- [3. Entity Indexes](#3-entity-indexes)
+  - [3.1 QID Search Index](#31-qid-search-index)
+  - [3.2 PID Search Index](#32-pid-search-index)
+- [4. Data Storage](#4-data-storage)
+  - [4.1 Metadata](#41-metadata)
+  - [4.2 Content](#42-content)
+- [5. Compression](#5-compression)
+  - [5.1 ZSTD Dictionary](#51-zstd-dictionary)
+
+ ---
+
 ## 0. High-Level Binary Layout
 
 The entire database is bundled into a single binary file. While the exact byte-offsets depend on the generated content, the general structural sequence is as follows (Order might change / might not be accurate)
