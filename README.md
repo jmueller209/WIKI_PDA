@@ -28,7 +28,7 @@ flowchart TD
         OS[Omni Index<br>Text-based]:::search
         AS[Astro Index<br>Celestial]:::search
         TS[Temporal Index<br>Time-based]:::search
-        CS[Geo Index<br>Coordinates]:::search
+        CS[Globe Index<br>Coordinates]:::search
     end
 
     User --> OS
