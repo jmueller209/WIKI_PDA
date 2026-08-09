@@ -32,15 +32,17 @@ Because this engine is designed for embedded systems (like the ESP32), it does n
 For standard PC testing, the API provides a built-in PC file wrapper.
 
 ```c
-// 1. Open the file using standard C I/O (PC only)
+// Open the file using standard C I/O (PC only)
 FILE* db_file = fopen("data_base.bin", "rb");
 if (!db_file) return -1;
 
-// 2. Bind the file to the Platform interface
+// Bind the file to the Platform interface
 DatabasePlatform pc_platform = platform_pc_file(db_file);
 
-// 3. Initialize the Database Context
-// We specify which indexes to load into RAM. Omni is the primary text search.
+// Initialize the Database Context
+// Specify which indexes to load into RAM. Omni is the primary text search.
+// You can load multiple indexes at once using db_init(INDEX_OMNI | OTHER_INDEX | .. , pc_platform);
+// Currently available indexes: INDEX_OMNI
 DatabaseContext* ctx = db_init(INDEX_OMNI, pc_platform);
 if (ctx == NULL) {
     printf("Failed to initialize database!\n");
@@ -54,22 +56,22 @@ if (ctx == NULL) {
 To find an article, you populate a `SearchQuery` struct and pass it to `search_begin`. This returns a `SearchCursor` which you can use to iterate over the results.
 
 ```c
-// 1. Setup the query
-SearchQuery query = {0};
+// Setup the query
+SearchQuery query = {0};                 // Initialize everything to zero/NULL
 query.type = SEARCH_TYPE_OMNI;           // Standard text-based search
-query.target.term = "Albert Einstein";   // The search term
-query.article_type = 1;                  // Typically represents the Language ID (e.g., 1 = English)
+query.target.term = "universe";          // The search term
+query.article_type = 1;                  // 0 = metadata, check docs for other than 0
 
-// Note: You can also set query.include_tags or query.exclude_tags here to filter results!
+// Note: You can also set query.include_tags or query.exclude_tags here to filter results.
 
-// 2. Begin the search
+// Begin the search
 SearchCursor* cursor = search_begin(ctx, &query);
 if (cursor == NULL) {
     printf("No results found.\n");
     // Handle no results...
 }
 
-// 3. Iterate over the results
+// Iterate over the results
 SearchResult result;
 while (search_next(cursor, &result)) {
     printf("Found: %s (QID: Q%u)\n", result.title, result.qid);
@@ -80,26 +82,26 @@ while (search_next(cursor, &result)) {
     break; 
 }
 
-// 4. Free the cursor when done
+// Free the cursor when done (important to avoid memory leaks)
 search_end(cursor);
 ```
 
 ### Step 3: Reading an Article (`DataStream`)
 
-Because articles can be huge and memory is limited, you **cannot** load an entire article into RAM at once. Instead, you initialize a `DataStream`. The stream handles the ZSTD decompression dynamically as you request chunks of bytes.
+Because articles can be huge and memory is limited, you might not want to load an entire article into RAM at once. Instead, you initialize a `DataStream`. The stream handles the ZSTD decompression dynamically as you request chunks of bytes.
 
 ```c
 // Ensure we actually have an article with data
 if (result.data_length > 0) {
     
-    // 1. Open the decompression stream pointing to the article's location
+    // Open the decompression stream pointing to the article's location
     DataStream* stream = data_stream_begin(ctx, result.data_offset, result.data_length);
     if (stream != NULL) {
         
         char text_buffer[512]; // Small RAM buffer!
         uint32_t bytes_read = 0;
 
-        // 2. Stream the article in 512-byte chunks
+        // Stream the article in 512-byte chunks
         while (data_stream_read(stream, text_buffer, sizeof(text_buffer) - 1, &bytes_read)) {
             if (bytes_read == 0) break; // End of article
             
@@ -108,7 +110,7 @@ if (result.data_length > 0) {
             printf("%s", text_buffer);
         }
 
-        // 3. Close the stream
+        // Close the stream (Important to avoid memory leaks)
         data_stream_end(stream);
     }
 }
@@ -116,11 +118,11 @@ if (result.data_length > 0) {
 
 ### Step 4: Cleanup
 
-When your application shuts down, cleanly free the database context to prevent memory leaks.
+When your application shuts down free the database context to prevent memory leaks.
 
 ```c
 db_end(ctx);
-fclose(db_file); // Don't forget to close your file handle!
+fclose(db_file); // Don't forget to close your file handle
 ```
 
 ---
@@ -129,33 +131,29 @@ fclose(db_file); // Don't forget to close your file handle!
 
 To run this API on an ESP32 or custom hardware, you do **not** use `platform_pc_file()`. Instead, you define your own `DatabasePlatform` struct by writing a single function that tells the engine how to read raw bytes from your specific storage medium (like an SD card via SPI).
 
-Here is a conceptual example for an ESP32 using the standard `esp_vfs_fat` SD card library:
+Here is a conceptual example:
 
 ```c
 #include "database_platform.h"
 
-// 1. Write a custom read function for your hardware
-bool esp32_sd_read(uint64_t absolute_offset, uint8_t* buffer, uint32_t num_bytes, void* user_data) {
-    FILE* sd_file = (FILE*)user_data;
-    
-    // Seek to the exact byte offset in the database file
-    fseek(sd_file, absolute_offset, SEEK_SET);
-    
-    // Read the requested bytes directly into the engine's buffer
-    size_t read = fread(buffer, 1, num_bytes, sd_file);
-    return read == num_bytes;
+// Write a custom read function for your hardware (must have this specific header)
+bool platform_specific_read(uint64_t absolute_offset, uint8_t* buffer, uint32_t num_bytes, void* user_data) {
+    // Implement Custom read logic here.
+    // Cou can use the user_data to pass file handles for example
+    return was_success;
 }
 
-// 2. Inside your ESP32 main routine:
+// Inside your main function:
 void app_main() {
+    // Say your custom function needs a file handle like this one:
     FILE* f = fopen("/sdcard/data_base.bin", "rb");
     
-    // 3. Bind your custom function to the platform interface
-    DatabasePlatform esp_platform;
-    esp_platform.read_fn = esp32_sd_read;
+    // Bind your custom function to the platform interface
+    DatabasePlatform custom_platform;
+    esp_platform.read_fn = platform_specific_read;
     esp_platform.user_data = f; // Pass the file pointer as the context
     
-    // 4. Initialize the DB exactly as normal!
+    // Initialize the DB exactly as normal.
     DatabaseContext* ctx = db_init(INDEX_OMNI, esp_platform);
     
     // ... run queries ...
