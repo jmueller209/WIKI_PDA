@@ -28,7 +28,7 @@
 // OFFSETS
 // =========================================
 #define OFFSETS_CONTENT 347414ULL
-#define OFFSETS_METADATA 46521603ULL
+#define OFFSETS_METADATA 46490466ULL
 
 static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
     0ULL,	// level_0
@@ -37,7 +37,7 @@ static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
 
 #define OFFSETS_QID_HASHMAP 192928ULL
 #define OFFSETS_QID_INDEX 294130ULL
-#define OFFSETS_ZSTD_DICTIONARY 47677620ULL
+#define OFFSETS_ZSTD_DICTIONARY 47646483ULL
 
 // =========================================
 // OMNI_SEARCH
@@ -51,7 +51,7 @@ static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
 // =========================================
 // SIZES
 // =========================================
-#define SIZES_CONTENT 46174189ULL
+#define SIZES_CONTENT 46143052ULL
 #define SIZES_METADATA 1156017ULL
 
 static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {

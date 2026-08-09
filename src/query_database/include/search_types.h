@@ -20,9 +20,6 @@ typedef enum {
 
 typedef uint32_t DatabaseIndexMask;
 
-// ---------------------------------------------------------
-// Search Types & Tags
-// ---------------------------------------------------------
 typedef enum {
     SEARCH_TYPE_OMNI,
     SEARCH_TYPE_TEMPORAL,
@@ -34,22 +31,15 @@ typedef enum {
 
 typedef uint32_t SearchTagMask;
 
-// ---------------------------------------------------------
-// Article Types
-// ---------------------------------------------------------
 typedef uint32_t ArticleType; 
 
-// ---------------------------------------------------------
-// Query Configuration
-// ---------------------------------------------------------
 typedef struct {
     SearchType type;
     
-    // Clean Public Union: Just pointers and primitives!
     union {
-        const char* term;         // For OMNI, TEMPORAL
-        uint32_t target_qid;      // For QID
-        uint32_t target_pid;      // For PID
+        const char* term;
+        uint32_t target_qid;
+        uint32_t target_pid;
         
         struct {
             uint32_t lat;
@@ -62,25 +52,19 @@ typedef struct {
         } globe_coordinate_term;
     } target;
     
-    // Tag Filters (Applies to the Search Index phase, e.g., Omni)
     SearchTagMask exact_tags;
     SearchTagMask include_tags;
     SearchTagMask exclude_tags;
     
-    // Article Filter (Applies to the QID data retrieval phase)
     ArticleType article_type;
 } SearchQuery;
 
 
-// ---------------------------------------------------------
-// Results & Iteration
-// ---------------------------------------------------------
 typedef struct {
     uint32_t qid;
     SearchTagMask tags;
     ArticleType article_type;
     const char* title;
-    // "Pointer to the data" on the SD card:
     uint64_t data_offset; 
     uint32_t data_length; 
 } SearchResult;
@@ -90,4 +74,4 @@ typedef struct SearchCursor_t SearchCursor;
 
 typedef struct DataStream_t DataStream;
 
-#endif // SEARCH_TYPES_H
+#endif

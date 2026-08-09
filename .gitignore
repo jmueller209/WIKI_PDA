@@ -1,10 +1,12 @@
 *.zim
+*.gz
 
 bin/
 data/
 logs/
 tmp/
 cache/
+example_articles/
 *.log
 
 **/target/
