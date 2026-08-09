@@ -3,7 +3,7 @@ The database generator will create a database binary based on the architecture e
 Throughout this documentation ⚙️ `some_setting` is used to indicate that something is configurable via the [config_file](../config/config.toml).
 
 ## 0. High level overview
-TODO: explain checkpoints, explain corruption through the change of settings during the generation phase, explain project folder structure
+TODO: explain checkpoints, explain corruption through the change of settings during the generation phase, explain project folder structure, temporary files, etc.
 
 ## 1. The Generator Pipeline
 
