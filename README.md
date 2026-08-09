@@ -21,9 +21,6 @@ flowchart TD
     classDef storage fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#1b5e20
     classDef meta fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#4a148c
     classDef tool fill:#ffebee,stroke:#e53935,stroke-width:2px,color:#b71c1c
-    
-    %% The fix: Force 0px borders and transparent backgrounds
-    classDef transparent fill:transparent,stroke:transparent,stroke-width:0px,color:inherit
 
     User([User Query])
 
@@ -51,9 +48,6 @@ flowchart TD
         R2(Row: enwiki)
         R3(Row: dewiki)
     end
-
-    %% Apply the text-only style
-    class R1,R2,R3 transparent
 
     HM -- Yields multiple rows<br>per QID --> R1 & R2 & R3
 
