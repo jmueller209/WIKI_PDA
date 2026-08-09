@@ -72,8 +72,8 @@ flowchart TD
 ---
 
 ## This project includes:
-- ***[Database Generator](docs/generator_pipeline)***
-- ***[API for querying the database](docs/query_api)***
+- ***[Database Generator](docs/generator_pipeline.md)***
+- ***[API for querying the database](docs/query_api.md)***
 
 ## Future Core Functionality (Not everything is implemented right now)
 *   Support for **Wikipedia**, **Wiktionary**, (and perhaps **Wikiquotes**, **Wikiversity**, **Wikibooks**, **Wikisource**, and **Wikivoyage**) in any or multiple languages.
