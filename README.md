@@ -163,10 +163,9 @@ sudo pacman -S gcc
 
 ### 1. Clone this repository and build
 To get started, clone this directory using the following commands:
-*(TODO: Change repo_name)*
 ```bash
-git clone [https://github.com/jmueller209/repo_name.git](https://github.com/jmueller209/repo_name.git)
-cd repo_name
+git clone [https://github.com/jmueller209/WIKI_PDA.git](https://github.com/jmueller209/WIKI_PDA.git)
+cd WIKI_PDA
 ```
 
 ### 2. Customize Configuration
