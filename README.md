@@ -46,7 +46,7 @@ flowchart TD
     subgraph Phase2 [2. Multi-Language / Project Routing]
         R1(Row: enwiki)
         R2(Row: dewiki)
-        R3(Row: enwikiquote)
+        R3(Row: zhwiki)
     end
 
     HM -- Yields multiple rows<br>per QID --> R1 & R2 & R3
