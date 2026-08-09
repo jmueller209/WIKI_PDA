@@ -142,8 +142,29 @@ Row 250102: "Bark"      -> QID: 8080, Tags: 0b0000
 Once a search index yields a match, it points to a specific entity identifier (QID or later LID for Wiktionary). The metadata used properties (PID) to save information about a given concept (QID). The following indexes map those identifiers to their physical data locations.
 
 ### 3.1 QID Search Index
-* **Purpose:** Maps a Wikidata QID (e.g., `Q42`) to its corresponding rows. A single QID can point to multiple rows (e.g., the same article in different languages, or across different projects like Wikipedia vs. Wikiquotes).
-* **Structure Details:** TODO
+
+The QID index bridges the gap between a generic concept identifier (QID) and the actual storage layer. When a primary search index yields a target QID, the API uses this index to find all concrete instances of that concept across different languages and projects (e.g., English Wikipedia vs. German Wikipedia).
+
+The QID search index consists of two distinct components laid out sequentially in the binary:
+1. **The Hash Map (Lookup Table):** Maps an integer QID to a range within the row table.
+2. **The Index Row Table:** A contiguous array of records pointing to the actual metadata and content payloads on disk.
+
+#### 1. Hash Map Table Entry (`HashMapRow`)
+Every entry in this table corresponds to a QID, pointing the engine to where its specific instances begin.
+
+| Offset | Size (Bytes) | Type | Name | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `0` | `4` | `u32` | **Start Index** | The starting row index in the Index Row Table where this QID's entries begin. (Little Endian). |
+| `4` | `2` | `u16` | **Entry Count** | The number of consecutive rows belonging to this QID (e.g., how many languages/projects exist for it). (Little Endian). |
+
+#### 2. Index Row Table Entry (`IndexRow`)
+Once the Hash Map yields a start index and count, the engine reads these rows to find the physical storage locations. Because a single concept (QID) can exist in multiple languages or projects, a single QID can point to multiple `IndexRow` entries.
+
+| Offset | Size (Bytes) | Type | Name | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `0` | `8` | `u64` | **Offset** | The absolute byte offset of the data chunk on disk. (Little Endian). |
+| `8` | `4` | `u32` | **Length** | The length of the compressed payload in bytes. (Little Endian). |
+| `12` | `2` | `u16` | **Project ID** | Identifies the language and wiki project (e.g., enwiki, dewiki). (Little Endian). |
 
 ### 3.2 PID Search Index
 * **Purpose:** Stores property definitions (e.g., `P31` = "instance of"). Used to interpret and correctly render the compressed metadata.
