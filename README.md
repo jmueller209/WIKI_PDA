@@ -122,7 +122,7 @@ flowchart TD
 
 ---
 
-## Quick Start ⚙️
+## Quick Start
 *Note*: As of right now, this project has only been tested on Fedora. Other Linux distributions should work as well, but it will break under Windows/macOS natively. 
 
 ### 0. Prerequisites
@@ -161,20 +161,16 @@ To get started, clone this directory using the following commands:
 git clone [https://github.com/jmueller209/repo_name.git](https://github.com/jmueller209/repo_name.git)
 cd repo_name
 ```
-Once you are in this project's local directory, you can compile the project using:
-```bash
-make build
-```
 
 ### 2. Customize Configuration
-Before running the database generator, you can customize the configuration [here](config/config.toml). The file contains comments explaining what each setting does. A more detailed explanation for some of the settings will be given in the detailed [documentation](""). If you only want to get started quickly and do not want to spend much time reading docs, you might only want to consider the following settings:
+Before running the database generator, you can customize the configuration [here](config/config.toml). The file contains comments explaining what each setting does. If you only want to get started quickly and do not want to spend much time reading docs, you might only want to consider the following settings:
 *   `create_globe_coordinate_search_index` // Supported by generator but not by API as of right now
 *   `create_temporal_search_index` // Supported by generator but not by API as of right now
 *   `create_astronomical_search_index` // Supported by generator but not by API as of right now
 *   `ram_limit_mb`  // RAM your computer is allowed to use for the database generation
 *   `thread_count` // Number of threads/cores the generator is allowed to use
 
-To configure which languages you want to include, take a look at the [official Wikipedia Documentation](https://en.wikipedia.org/wiki/List_of_Wikipedias). Here you’ll find a table containing information about the Wikipedias in all available languages. Even though this documentation only talks about Wikipedia articles and not Wiki Books, the language codes used are the same. Open the [language configuration](config/languages.config) and add the language codes referring to the languages you want to include. 
+To configure which languages you want to include, take a look at the [official Wikipedia Documentation](https://en.wikipedia.org/wiki/List_of_Wikipedias). Here you’ll find a table containing information about the Wikipedias in all available languages. Even though this documentation only talks about Wikipedia articles and no other Wikis, the language codes used are the same. Open the [language configuration](config/languages.config) and add the language codes referring to the languages you want to include. 
 
 *Note*: There might be several language codes for a given language that refer to different dialects or standardizations. E.g., there is `de` referring to standard German and `nds` referring to a specific Low German dialect. 
 
