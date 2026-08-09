@@ -62,7 +62,10 @@ query.type = SEARCH_TYPE_OMNI;           // Standard text-based search
 query.target.term = "universe";          // The search term
 query.article_type = 1;                  // 0 = metadata, check docs for other than 0
 
-// Note: You can also set query.include_tags or query.exclude_tags here to filter results.
+// Note: You can also set tags here to filter results. Just pass the bit mask as a uint32_t:
+// query.exact_tags = ...
+// query.include_tags = ...
+// query.exclude_tags = ...
 
 // Begin the search
 SearchCursor* cursor = search_begin(ctx, &query);
