@@ -7,7 +7,7 @@ The C Query API is designed to be ultra-lightweight, memory-efficient, and platf
 To use the API, simply include the main header in your C/C++ files and link the compiled static/shared library (and ZSTD) during compilation.
 
 ```c
-#include "wiki_db_api.h" // Or whatever your main umbrella header is named
+#include "wiki_db_api.h"
 ```
 
 **Compiler Flags (Example):**
