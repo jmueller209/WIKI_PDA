@@ -84,7 +84,7 @@ While all indexes share the universal structure above, the data stored inside th
 #### Temporal Search Index
 * **Purpose:** Time-based index for querying concepts by specific dates or timespans.
 * **Term Size:** 4 Bytes (`u32`).
-* **Row Size:** 4 (Term) + 4 (QID) + 4 (Tags) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**. *(Actual usable term space becomes 8 bytes).*
+* **Row Size:** 4 (Term) + 4 (QID) + 4 (Tags) = 12 Bytes $\rightarrow$ Padded to **16 Bytes**.
 * * **Tags**: Bitmask created based on ⚙️ `temporal_search_index_tags`  
 * **Search strategy**: TODO
 
