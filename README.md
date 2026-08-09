@@ -145,7 +145,7 @@ curl [https://sh.rustup.rs](https://sh.rustup.rs) -sSf | sh
 
 *Fedora:*
 ```bash
-# TODO: update system
+sudo dnf upgrade --refresh
 sudo dnf group install "Development Tools"
 ```
 
@@ -158,7 +158,7 @@ sudo apt install build-essential
 *Arch:*
 ```bash
 sudo pacman -Syu
-sudo pacman -S gcc
+sudo pacman -S base-devel
 ```
 
 ### 1. Clone this repository and build
