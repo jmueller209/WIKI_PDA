@@ -1,12 +1,12 @@
 # [Project Name]
 
-A customizable Wiki database generator and query API optimized for embedded and low-power devices like the ESP32. 🚀
+A customizable Wiki database generator and query API optimized for embedded and low-power devices like the ESP32.
 
 **NOTE:** This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Native Windows and macOS will not work right now as the database generator currently uses the GNU Coreutils `sort` function. I will implement a platform-independent fallback sorting method in the future. For now, if you are on Windows, you can run the generator inside WSL (Windows Subsystem for Linux). Keep in mind that the query API might change in the future.  
 
 ---
 
-## Architecture Overview 🏗️
+## Architecture Overview
 
 ```mermaid
 flowchart TD
