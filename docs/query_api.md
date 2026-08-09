@@ -10,7 +10,7 @@ To use the API, simply include the main header in your C/C++ files and link the 
 #include "wiki_db_api.h"
 ```
 
-**Compiler Flags (Example):**
+**Compiler Flags (Not tested):**
 ```bash
 gcc main.c -o my_app -I./include -L./target -lwiki_query_api -lzstd
 ```
