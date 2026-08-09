@@ -223,6 +223,4 @@ If you want to profile heap memory usage, run:
 ```bash
 make test-db-api-valgrind
 ```
-make test-db-api-valgrind
-```
 
