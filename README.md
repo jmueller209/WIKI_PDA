@@ -138,7 +138,7 @@ In order to build and run this project, you will need `cargo` and `gcc` for comp
 
 *Cargo*:
 ```bash
-curl [https://sh.rustup.rs](https://sh.rustup.rs) -sSf | sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 *Development Tools including gcc:*
