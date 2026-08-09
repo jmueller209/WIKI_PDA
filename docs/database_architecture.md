@@ -57,7 +57,7 @@ While all indexes share the universal structure above, the data stored inside th
 
 #### Omni Search Index
 * **Purpose:** The primary text-based index for searching concepts by name/title (e.g., "Albert Einstein").
-* **Term Size:** Configurable via ⚙️ `omni_search_index_term_encoding_bytes`
+* **Term Size:** Configurable via ⚙️ `omni_search_index_term_encoding_bytes`. However, if you provide a number of bytes so that the entire size of a row is not a power of 2, the generator will round up to the next power of 2 so you actually get a larger Term Size unless your provided Term Size is of the form `power_of_two - 8`.
 
 #### Temporal Search Index
 * **Purpose:** Time-based index for querying concepts by specific dates or timespans.
