@@ -10,8 +10,6 @@
 # - wikivoyage
 # - wikiversity
 # - wikibooks 
-#
-# wikis_to_include = ["wiki", "wiktionary", "wikiquote", "wikisource", "wikivoyage", "wikiversity", "wikibooks"]
 wikis_to_include = ["wiki"]
 
 # All entries that have at least one entry in one of the included wikis will be added to the 
@@ -165,8 +163,7 @@ wikibooks_zim_file_match_pattern   = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.
 # These are the local paths where the downloaded files will be stored. Keeping the default ones should work.
 [paths]
 wikidata_dump_path   = "./data/wikidata/latest-all.json.gz"
-# language_config_path = "./config/languages.config"
-language_config_path = "./config/languages_backup.config"
+language_config_path = "./config/languages.config"
 data_dir             = "./data"
 bin_dir              = "./bin"
 log_dir              = "./logs"
@@ -216,7 +213,6 @@ zstd_compression_level = 3
 # The maximum sliding window size in kilobytes used by Zstandard during compression. 
 # As this is also used for decompression, make sure this fits in the RAM of the system 
 # you plan to use the database on. 
-# zstd_window_size_kb = 32
 zstd_window_size_kb = 32
 
 # Specify how many bytes should be used to encode the search term in the omni search index. 
