@@ -161,7 +161,7 @@ sudo pacman -Syu
 pacman -S devtools
 ```
 
-### 1. Clone this repository and build
+### 1. Clone this repository
 To get started, clone this directory using the following commands:
 ```bash
 git clone https://github.com/jmueller209/WIKI_PDA.git
