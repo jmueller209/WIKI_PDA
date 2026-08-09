@@ -10,7 +10,7 @@ A customizable Wiki database generator + lightweight C Query API optimized for m
 
 ---
 
-## Architecture Overview
+## Architecture Overview (See [docs](docs) for more details)
 
 ```mermaid
 flowchart TD
