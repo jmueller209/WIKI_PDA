@@ -11,7 +11,7 @@ def explore_bin(index_path, bin_path, decode_zstd=False, zstd_dict_path=None):
         print(f"Error: Binary file not found at '{bin_path}'")
         return
 
-    # Setup zstd decompressor if requested
+
     dctx = None
     if decode_zstd:
         if zstd is None:
@@ -55,24 +55,20 @@ def explore_bin(index_path, bin_path, decode_zstd=False, zstd_dict_path=None):
 
             count += 1
 
-            # Seek and read the exact chunk from content.bin
             bin_file.seek(offset)
             raw_bytes = bin_file.read(length)
 
-            # Display metadata header
             print("\n" + "=" * 80)
-            print(f"📄 Article #{count} | QID: {qid} | Wiki: {wiki_lang}")
-            print(f"📍 Offset: {offset} | Length: {length} bytes (Compressed/Raw)")
+            print(f"Article #{count} | QID: {qid} | Wiki: {wiki_lang}")
+            print(f"Offset: {offset} | Length: {length} bytes (Compressed/Raw)")
             print("=" * 80)
 
-            # 1. Always show compressed view information
             num_raw_bytes = len(raw_bytes)
             print(f"[COMPRESSED / RAW BYTES] ({len(raw_bytes)} bytes):")
-            print(raw_bytes[:300])  # Print first 300 bytes safely as snippet
+            print(raw_bytes[:300])
             if len(raw_bytes) > 300:
                 print(f"... [Truncated, total raw size: {len(raw_bytes)} bytes]")
 
-            # 2. Decode zstd if enabled and show uncompressed content
             if decode_zstd:
                 print("-" * 80)
                 try:
@@ -88,7 +84,7 @@ def explore_bin(index_path, bin_path, decode_zstd=False, zstd_dict_path=None):
                         f"Compression Ratio: {num_raw_bytes / num_decompressed_bytes:.2f}"
                     )
                 except Exception as e:
-                    print(f"❌ Failed to decompress block with Zstd: {e}")
+                    print(f"Failed to decompress block with Zstd: {e}")
 
             print("-" * 80)
             user_input = input(

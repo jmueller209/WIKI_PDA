@@ -12,7 +12,7 @@ rayon = "1.8"
 crossbeam-channel = "0.5.16"
 shared = {path = "../shared"}
 regex = "1.10.0"
-zim = "-1.5.0"
+zim = "1.5.0"
 indicatif = "0.17"
 rand = "0.8"
 urlencoding = "2.1.3"

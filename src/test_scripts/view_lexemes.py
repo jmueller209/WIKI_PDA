@@ -1,9 +1,9 @@
 import gzip
 import json
 
-# Path to your downloaded lexeme dump
+
 dump_path = "latest-lexemes.json.gz"
-max_entries_to_inspect = 50  # Adjust as needed
+max_entries_to_inspect = 50
 
 print(f"Opening {dump_path} and inspecting summary info...")
 
@@ -20,10 +20,10 @@ with gzip.open(dump_path, "rt", encoding="utf-8") as f:
         try:
             entry = json.loads(stripped)
             if entry.get("type") == "lexeme":
-                # Extract main components safely
+
                 lexeme_id = entry.get("id", "Unknown")
 
-                # Get the first available lemma language and value
+
                 lemmas = entry.get("lemmas", {})
                 lemma_text = "N/A"
                 lang_code = "N/A"
@@ -33,14 +33,14 @@ with gzip.open(dump_path, "rt", encoding="utf-8") as f:
 
                 lexical_category = entry.get("lexicalCategory", "N/A")
 
-                # Collect surface forms if any
+
                 forms = [
                     f.get("representations", {}).get(lang_code, {}).get("value")
                     for f in entry.get("forms", [])
                 ]
                 forms_str = ", ".join([f for f in forms if f]) or "None"
 
-                # Print compact summary (4 lines)
+
                 print(
                     f"[{lexeme_id}] ({lang_code}) Lemma: '{lemma_text}' | Category: {lexical_category}"
                 )
