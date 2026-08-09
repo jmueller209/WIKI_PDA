@@ -1,6 +1,5 @@
 # Database Architecture
-
-This document outlines the internal structure and binary layout of the generated Wiki database (`data_base.bin`). The database is designed as a single, contiguous binary file optimized for low-memory environments. You can look at the diagram [here](../README.md).
+This document outlines the internal structure and binary layout of the generated Wiki database. The database is designed as a single, contiguous binary file optimized for low-memory environments. You can look at the diagram [here](../README.md) to get a high level overview. Throughout this documentation ⚙️ `some_setting` is used to indicate that something is configurable via the [config_file](../config/config.toml).
 
 ---
 
@@ -120,15 +119,15 @@ Row 250102: "Bark"      -> QID: 8080, Tags: 0b0000
 
 ## 3. Entity Indexes
 
-Once a search index yields a match, it points to a specific entity identifier (QID or PID). These indexes map those identifiers to their physical data locations.
+Once a search index yields a match, it points to a specific entity identifier (QID or later LID for Wiktionary). The metadata used properties (PID) to save information about a given concept (QID). The following indexes map those identifiers to their physical data locations.
 
 ### 3.1 QID Search Index
 * **Purpose:** Maps a Wikidata QID (e.g., `Q42`) to its corresponding rows. A single QID can point to multiple rows (e.g., the same article in different languages, or across different projects like Wikipedia vs. Wikiquotes).
-* **Structure Details:** *(To be documented)*
+* **Structure Details:** TODO
 
 ### 3.2 PID Search Index
 * **Purpose:** Stores property definitions (e.g., `P31` = "instance of"). Used to interpret and correctly render the compressed metadata.
-* **Structure Details:** *(To be documented)*
+* **Structure Details:** TODO
 
 ---
 
@@ -138,12 +137,12 @@ This section contains the actual payloads returned to the user after a successfu
 
 ### 4.1 Metadata
 * **Purpose:** Stores the wiki properties (PIDs) and tags associated with an article (e.g., coordinate data, categorization flags).
-* **Structure Details:** *(To be documented)*
+* **Structure Details:** TODO
 
 ### 4.2 Content
 * **Purpose:** The actual article text/HTML, stripped and formatted. 
 * **Compression:** Stored in compressed chunks using ZSTD.
-* **Structure Details:** *(To be documented)*
+* **Structure Details:** TODO
 
 ---
 
@@ -151,4 +150,4 @@ This section contains the actual payloads returned to the user after a successfu
 
 ### 5.1 ZSTD Dictionary
 * **Purpose:** A pre-trained Z-Standard dictionary By training a dictionary on Wiki data during the generation phase, the engine can decompress tiny data chunks (like individual articles) with extremely high compression ratios.
-* **Structure Details:** *(To be documented)*
+* **Structure Details:** TODO
