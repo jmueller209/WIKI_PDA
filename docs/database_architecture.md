@@ -1,19 +1,19 @@
 # Database Architecture
 
-This document outlines the internal structure and binary layout of the generated Wiki database (`data_base.bin`). The database is designed as a single, contiguous binary file optimized for low-memory environments, utilizing custom data structures and streaming compression.
+This document outlines the internal structure and binary layout of the generated Wiki database (`data_base.bin`). The database is designed as a single, contiguous binary file optimized for low-memory environments. You can look at the diagram [here](../README.md).
 
 ---
 
 ## 1. High-Level Binary Layout
 
-The entire database is bundled into a single binary file. While the exact byte-offsets depend on the generated content, the general structural sequence is as follows:
+The entire database is bundled into a single binary file. While the exact byte-offsets depend on the generated content, the general structural sequence is as follows (Order might change / might not be accurate)
 
-1. **Header / Magic Bytes** (Optional/Planned)
+1. **Header** (Optional/Planned)
 2. **Compression Dictionary** (ZSTD)
 3. **Primary Search Indexes** (Flat k-trees)
-4. **Entity Indexes** (QID & PID)
-5. **Metadata Storage**
-6. **Compressed Content Payload**
+4. **Entity Indexes** (QID & PID: Hashmaps)
+5. **Metadata Storage** (Uncompressed entries that differ in size)
+6. **Compressed Content Payload** (Compressed entries that differ in size)
 
 ---
 
