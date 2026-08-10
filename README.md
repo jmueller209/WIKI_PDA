@@ -94,6 +94,7 @@ flowchart TD
 *   **Interface to port the Query API to any platform.**
 *   Tools to flash database to SD card with custom (or no) filesystem.
 *   Examples on how to use the API (on PC and ESP32).
+*   Preconfigured Databases (avoid running the heavy generator)
 
 ## Current Functionality:
 ### Generator:
