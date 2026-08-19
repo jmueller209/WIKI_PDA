@@ -7,7 +7,7 @@ A customizable Wiki database generator + lightweight C Query API optimized for m
 
 
 > [!Warning]  
-> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Native Windows and macOS will not work right now as the database generator currently uses the GNU Coreutils `sort` function. I will implement a platform-independent fallback sorting method in the future. For now, if you are on Windows, you can run the generator inside WSL (Windows Subsystem for Linux). Keep in mind that the query API might change in the future.  
+> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Linux Subsystem for Windows (WSL). MacOS is not supported as of right now. Keep in mind that the query API might change in the future.  
 
 ---
 
