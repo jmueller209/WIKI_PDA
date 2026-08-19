@@ -1,0 +1,17 @@
+{
+  "name": "wiki_pda_api",
+  "version": "1.0.0",
+  "build": {
+    "srcDir": ".",
+    "flags": [
+      "-Iinclude",
+      "-Ilib/zstd/src",
+      "-DZSTD_DISABLE_ASM"
+    ],
+    "srcFilter": [
+      "+<src/>",
+      "+<lib/zstd/src/common/>",
+      "+<lib/zstd/src/decompress/>"
+    ]
+  }
+}

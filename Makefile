@@ -1,10 +1,16 @@
+ifeq ($(OS),Windows_NT)
+    ELEVATE := 
+else
+    ELEVATE := sudo
+endif
+
 GENERATOR_DIR  = ./src/db_generator
-QUERY_LIB_DIR  = ./src/query_database
+QUERY_LIB_DIR  = ./src/wiki_pda_api/
 SHARED_LIB_DIR = ./src/shared
 CONFIG_FILE    = ./config/config.toml
 GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/db_generator
 
-.PHONY: download parse-wikidata train-dict process-zim qid-bin assemble clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind
+.PHONY: download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind
 
 compile-shared-lib: 
 	cargo build --manifest-path $(SHARED_LIB_DIR)/Cargo.toml --release
@@ -29,6 +35,9 @@ qid-bin: $(GENERATOR_BIN)
 
 assemble: $(GENERATOR_BIN)
 	$(GENERATOR_BIN) $(CONFIG_FILE) --assemble
+
+flash: $(GENERATOR_BIN)
+	$(ELEVATE) $(GENERATOR_BIN) $(CONFIG_FILE) --flash
 
 clean: $(GENERATOR_BIN)
 	$(GENERATOR_BIN) $(CONFIG_FILE) --clean
@@ -69,7 +78,7 @@ test-db-api-valgrind:
 
 _build_test_api: compile-shared-lib
 	mkdir -p $(QUERY_LIB_DIR)/target
-	cd $(QUERY_LIB_DIR) && gcc tests/pc_test_api.c src/api/*.c src/indexes/*.c src/storage/*.c -o ./target/$(TARGET_NAME) -I./include $(CFLAGS_DEBUG) -lzstd
+	cd $(QUERY_LIB_DIR) && gcc tests/pc_test_api.c src/api/*.c src/indexes/*.c src/storage/*.c src/platforms/desktop.c lib/zstd/src/common/*.c lib/zstd/src/decompress/*.c -o ./target/$(TARGET_NAME) -I./include -I./lib/zstd/src $(CFLAGS_DEBUG) -DZSTD_DISABLE_ASM
 	$(QUERY_LIB_DIR)/target/$(TARGET_NAME)
 
 

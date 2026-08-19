@@ -1,0 +1,18 @@
+{
+  "name": "zstd_embedded",
+  "version": "1.0.0",
+  "build": {
+    "srcDir": "src",
+    "flags": [
+      "-O3",
+      "-DZSTD_DISABLE_ASM"
+    ],
+    "srcFilter": [
+      "+<*>",
+      "-<common/pool.c>",
+      "-<common/threading.c>",
+      "-<compress/>",
+      "-<dictBuilder/>"
+    ]
+  }
+}

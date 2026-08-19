@@ -5,7 +5,7 @@ use crate::tests::test_article_processing;
 use crate::pipeline_steps::{
     _00_download_data, _01_parse_wikidata, _02_compression_setup, _03_process_zim_data,
     _04_make_metadata_binary, _05_make_qid_index_binary, _06_make_search_indexes_binary,
-    _07_merge_binaries, _08_make_c_header_file, cleanup,
+    _07_merge_binaries, _08_make_c_header_file, cleanup, disk_flasher,
 };
 use crate::utils::settings::Settings;
 
@@ -27,6 +27,10 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
         }
         RunMode::ResumeAll => {
             run_all(&settings, None)?;
+        }
+
+        RunMode::FlashDisk => {
+            disk_flasher::cli(&settings)?;
         }
 
         RunMode::TestPipeline => {
