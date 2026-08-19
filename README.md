@@ -7,7 +7,7 @@ A customizable Wiki database generator + lightweight C Query API optimized for m
 
 
 > [!Warning]  
-> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Native Windows and macOS will not work right now as the database generator currently uses the GNU Coreutils `sort` function. I will implement a platform-independent fallback sorting method in the future. For now, if you are on Windows, you can run the generator inside WSL (Windows Subsystem for Linux). Keep in mind that the query API might change in the future.  
+> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Linux Subsystem for Windows (WSL). MacOS is not supported as of right now. Keep in mind that the query API might change in the future.  
 
 ---
 
@@ -119,7 +119,7 @@ flowchart TD
 
 ## Priority Feature List
 *(Please open an issue if you think there is something you would like added to this list)*
-* Fixing bugs that I don't know about yet.
+* Fixing bugs.
 * Actual tests on MCUs + development of required tooling.
 * Add API support for the **Temporal Search Index**, **Global Search Index**, **Astronomical Search Index**, direct **QID Search Index**, and **PID Search Index**.
 * **Wiktionary** support.
@@ -137,28 +137,29 @@ flowchart TD
 
 In order to build and run this project, you will need `cargo` and `gcc` for compiling Rust and C:
 
-*Cargo*:
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
 
-*Development Tools including gcc:*
+*Windows*:
+
+Install Linux Subsystem for Windows (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once the installation has finished, close Powershell and open the WSL-Shell (You can just search for WSL). Once you are inside WSL, continue with the setup process by following the instructions for your installed Linux distribution below. From now on all the documented commands should be run from the WSL-Shell.
 
 *Fedora:*
 ```bash
 sudo dnf upgrade --refresh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 sudo dnf install @development-tools   
 ```
 
 *Ubuntu/Debian:*
 ```bash
 sudo apt update
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 sudo apt install build-essential
 ```
 
 *Arch:*
 ```bash
 sudo pacman -Syu
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 pacman -S devtools
 ```
 
