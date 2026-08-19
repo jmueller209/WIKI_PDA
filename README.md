@@ -119,7 +119,7 @@ flowchart TD
 
 ## Priority Feature List
 *(Please open an issue if you think there is something you would like added to this list)*
-* Fixing bugs that I don't know about yet.
+* Fixing bugs.
 * Actual tests on MCUs + development of required tooling.
 * Add API support for the **Temporal Search Index**, **Global Search Index**, **Astronomical Search Index**, direct **QID Search Index**, and **PID Search Index**.
 * **Wiktionary** support.
