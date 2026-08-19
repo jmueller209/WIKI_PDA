@@ -7,105 +7,93 @@
 #include <stdint.h>
 
 // =========================================
+// OMNI_SEARCH
+// =========================================
+#define OMNI_SEARCH_TOTAL_ROW_SIZE 32ULL
+#define OMNI_SEARCH_TERM_SIZE 24ULL
+#define OMNI_SEARCH_CHUNK_SIZE_ROWS 256ULL
+#define OMNI_SEARCH_NUM_SPARSE_LEVELS 1ULL
+#define OMNI_SEARCH_TOP_LEVEL_ROWS 24ULL
+
+// =========================================
+// TEMPORAL_SEARCH
+// =========================================
+#define TEMPORAL_SEARCH_TOTAL_ROW_SIZE 16ULL
+#define TEMPORAL_SEARCH_TERM_SIZE 8ULL
+#define TEMPORAL_SEARCH_CHUNK_SIZE_ROWS 512ULL
+#define TEMPORAL_SEARCH_NUM_SPARSE_LEVELS 1ULL
+#define TEMPORAL_SEARCH_TOP_LEVEL_ROWS 3ULL
+
+// =========================================
 // ASTRONOMICAL_SEARCH
 // =========================================
-#define ASTRONOMICAL_SEARCH_CHUNK_SIZE_ROWS 512ULL
-#define ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define ASTRONOMICAL_SEARCH_TERM_SIZE 8ULL
-#define ASTRONOMICAL_SEARCH_TOP_LEVEL_ROWS 1ULL
-#define ASTRONOMICAL_SEARCH_TOTAL_ROW_SIZE 16ULL
+#define ASTRONOMICAL_SEARCH_TOTAL_ROW_SIZE 0ULL
+#define ASTRONOMICAL_SEARCH_TERM_SIZE 0ULL
+#define ASTRONOMICAL_SEARCH_CHUNK_SIZE_ROWS 0ULL
+#define ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS 0ULL
+#define ASTRONOMICAL_SEARCH_TOP_LEVEL_ROWS 0ULL
 
 // =========================================
 // GLOBE_COORDINATE_SEARCH
 // =========================================
+#define GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE 16ULL
+#define GLOBE_COORDINATE_SEARCH_TERM_SIZE 8ULL
 #define GLOBE_COORDINATE_SEARCH_CHUNK_SIZE_ROWS 512ULL
 #define GLOBE_COORDINATE_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define GLOBE_COORDINATE_SEARCH_TERM_SIZE 8ULL
 #define GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS 2ULL
-#define GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE 16ULL
 
 // =========================================
 // OFFSETS
 // =========================================
-
-static const uint64_t OFFSETS_ASTRONOMICAL_SEARCH_LEVEL[] = {
-    208896ULL,	// level_0
-    209408ULL,	// level_1
-};
-
-#define OFFSETS_CONTENT 384512ULL
+#define OFFSETS_QID_HASHMAP 228352ULL
+#define OFFSETS_ZSTD_DICTIONARY 47858688ULL
+#define OFFSETS_CONTENT 383488ULL
+#define OFFSETS_METADATA 46703104ULL
+#define OFFSETS_QID_INDEX 329728ULL
 
 static const uint64_t OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
     193536ULL,	// level_0
     208384ULL,	// level_1
 };
 
-#define OFFSETS_METADATA 46552576ULL
 
 static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
     0ULL,	// level_0
     192512ULL,	// level_1
 };
 
-#define OFFSETS_QID_HASHMAP 229376ULL
-#define OFFSETS_QID_INDEX 330752ULL
 
 static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
-    209920ULL,	// level_0
-    228864ULL,	// level_1
+    208896ULL,	// level_0
+    227840ULL,	// level_1
 };
 
-#define OFFSETS_ZSTD_DICTIONARY 47709184ULL
-
-// =========================================
-// OMNI_SEARCH
-// =========================================
-#define OMNI_SEARCH_CHUNK_SIZE_ROWS 256ULL
-#define OMNI_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define OMNI_SEARCH_TERM_SIZE 24ULL
-#define OMNI_SEARCH_TOP_LEVEL_ROWS 24ULL
-#define OMNI_SEARCH_TOTAL_ROW_SIZE 32ULL
 
 // =========================================
 // SIZES
 // =========================================
-
-static const uint64_t SIZES_ASTRONOMICAL_SEARCH_LEVEL[] = {
-    272ULL,	// level_0
-    16ULL,	// level_1
-};
-
-#define SIZES_CONTENT 46167565ULL
+#define SIZES_QID_HASHMAP 101202ULL
+#define SIZES_ZSTD_DICTIONARY 32768ULL
+#define SIZES_CONTENT 46319249ULL
+#define SIZES_METADATA 1155194ULL
+#define SIZES_QID_INDEX 53256ULL
 
 static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
     14704ULL,	// level_0
     32ULL,	// level_1
 };
 
-#define SIZES_METADATA 1156217ULL
-
-static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
-    192224ULL,	// level_0
-    768ULL,	// level_1
-};
-
-#define SIZES_QID_HASHMAP 101202ULL
-#define SIZES_QID_INDEX 53284ULL
 
 static const uint64_t SIZES_TEMPORAL_SEARCH_LEVEL[] = {
     18544ULL,	// level_0
     48ULL,	// level_1
 };
 
-#define SIZES_ZSTD_DICTIONARY 32768ULL
 
-// =========================================
-// TEMPORAL_SEARCH
-// =========================================
-#define TEMPORAL_SEARCH_CHUNK_SIZE_ROWS 512ULL
-#define TEMPORAL_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define TEMPORAL_SEARCH_TERM_SIZE 8ULL
-#define TEMPORAL_SEARCH_TOP_LEVEL_ROWS 3ULL
-#define TEMPORAL_SEARCH_TOTAL_ROW_SIZE 16ULL
+static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
+    192224ULL,	// level_0
+    768ULL,	// level_1
+};
+
 
 #endif // DATABASE_CONSTANTS_H

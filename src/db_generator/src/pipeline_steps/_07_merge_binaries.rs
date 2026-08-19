@@ -24,7 +24,7 @@ pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
 
     let mut info_json = load_json(&info_json_path)?;
 
-    let files_to_merge = build_file_list(&bin_dir, &info_json)?;
+    let files_to_merge = build_file_list(&bin_dir, &info_json, &settings)?;
 
     let file_info = merge_files(&files_to_merge, &master_db_path)?;
 
@@ -38,7 +38,11 @@ pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
     Ok(())
 }
 
-fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>, String> {
+fn build_file_list(
+    bin_dir: &Path,
+    info_json: &Value,
+    settings: &Settings,
+) -> Result<Vec<FileToMerge>, String> {
     let mut files = Vec::new();
 
     let mut add_file = |key: &str, filename: &str| {
@@ -48,7 +52,6 @@ fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>
         });
     };
 
-    // OMNI SEARCH
     let num_sparse_levels = extract_sparse_levels(info_json, "omni_search")?;
     add_file("omni_search_level_0", constants::OMNI_SEARCH_BIN);
     for i in 1..=num_sparse_levels {
@@ -57,8 +60,10 @@ fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>
         add_file(&format!("omni_search_level_{}", i), &filename);
     }
 
-    // GEO SEARCH
-    if info_json.get("globe_coordinate_search").is_some() {
+    if settings
+        .database_content
+        .create_globe_coordinate_search_index
+    {
         let geo_levels = extract_sparse_levels(info_json, "globe_coordinate_search")?;
         add_file(
             "globe_coordinate_search_level_0",
@@ -71,8 +76,7 @@ fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>
         }
     }
 
-    // ASTRO SEARCH
-    if info_json.get("astronomical_search").is_some() {
+    if settings.database_content.create_astronomical_search_index {
         let astro_levels = extract_sparse_levels(info_json, "astronomical_search")?;
         add_file(
             "astronomical_search_level_0",
@@ -85,8 +89,7 @@ fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>
         }
     }
 
-    // TEMPORAL SEARCH
-    if info_json.get("temporal_search").is_some() {
+    if settings.database_content.create_temporal_search_index {
         let temporal_levels = extract_sparse_levels(info_json, "temporal_search")?;
         add_file("temporal_search_level_0", constants::TEMPORAL_SEARCH_BIN);
         for i in 1..=temporal_levels {

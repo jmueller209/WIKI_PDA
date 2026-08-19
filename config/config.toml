@@ -103,7 +103,7 @@ include_all_matches_in_temporal_search_index = true
 temporal_search_index_tags                   = ["is_in_wiki", "Q5"]
 
 # Set this to true if you want to create an additional search index for astronomical objects. 
-create_astronomical_search_index                 = true
+create_astronomical_search_index                 = false
 include_all_matches_in_astronomical_search_index = true
 astronomical_search_index_tags                   = ["Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
 

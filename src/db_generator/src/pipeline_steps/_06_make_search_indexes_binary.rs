@@ -1,5 +1,6 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Read, Seek, SeekFrom, Write};
@@ -18,20 +19,26 @@ pub struct IndexMetadata {
     pub top_level_rows: u32,
 }
 
-#[derive(Debug)]
-enum IndexType {
-    Omni(String),
-    GlobeCoordinate(String),
-    Temporal(String),
-    Astronomical(String),
+impl IndexMetadata {
+    pub fn empty() -> Self {
+        Self {
+            total_row_size: 0,
+            term_size: 0,
+            chunk_size_rows: 0,
+            num_sparse_levels: 0,
+            top_level_rows: 0,
+        }
+    }
 }
+
 #[derive(Debug)]
-struct IndexSettings<'a> {
-    name: String,
+struct IndexConfig<'a> {
+    name: &'a str,
+    json_key: &'a str,
+    is_enabled: bool,
     term_encoding_bytes: usize,
     txt_path: PathBuf,
     bin_path: PathBuf,
-    do_not_skip: bool,
     tags: &'a [String],
     ram_limit_kb: usize,
     chunk_size_bytes: usize,
@@ -46,241 +53,216 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
         }
         checkpoints::CheckpointState::exists_with_data(data) => {
             return Err(format!(
-                "Binary index checkpoint should not contain any data, but contains: \n {}",
+                "Binary index checkpoint should not contain data: \n {}",
                 data
             ));
         }
         checkpoints::CheckpointState::exists_in_bad_state(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
-            return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
+            return Err("Checkpoint found in bad state. Cleaned up checkpoints.".into());
         }
         checkpoints::CheckpointState::does_not_exist => (),
     }
 
-    let txt_delimiter = &settings.other.text_delimiter;
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
-
-    let omni_search_index_txt_path = tmp_dir.join(constants::OMNI_SEARCH_TXT);
-    let omni_search_index_bin_path = bin_dir.join(constants::OMNI_SEARCH_BIN);
-
-    let temporal_search_index_txt_path = tmp_dir.join(constants::TEMPORAL_SEARCH_TXT);
-    let temporal_search_index_bin_path = bin_dir.join(constants::TEMPORAL_SEARCH_BIN);
-
-    let astronomical_search_index_txt_path = tmp_dir.join(constants::ASTRONOMICAL_SEARCH_TXT);
-    let astronomical_search_index_bin_path = bin_dir.join(constants::ASTRONOMICAL_SEARCH_BIN);
-
-    let globe_coordinate_search_index_txt_path =
-        tmp_dir.join(constants::GLOBE_COORDINATE_SEARCH_TXT);
-    let globe_coordinate_search_index_bin_path =
-        bin_dir.join(constants::GLOBE_COORDINATE_SEARCH_BIN);
-
     let info_json_path = tmp_dir.join(constants::INFO_JSON);
 
-    let omni_search_term_bytes = settings.performance.omni_search_index_term_encoding_bytes;
-    let temporal_search_term_bytes = 4 as usize;
-    let globel_coordiante_search_term_bytes = 4 as usize;
-    let astronomical_search_term_bytes = 4 as usize;
+    let mut info_json = load_json(&info_json_path)?;
 
-    let omni_search_index_settings = IndexSettings {
-        name: "Omni Search".to_string(),
-        term_encoding_bytes: omni_search_term_bytes,
-        txt_path: omni_search_index_txt_path,
-        bin_path: omni_search_index_bin_path,
-        do_not_skip: true,
-        tags: &settings.database_content.omni_search_index_tags,
-        ram_limit_kb: settings.performance.omni_search_sparse_index_ram_limit_kb,
-        chunk_size_bytes: settings.performance.omni_search_chunk_size_bytes,
-        sparse_index_template: constants::OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
-    };
-
-    let temporal_search_index_settings = IndexSettings {
-        name: "Temporal Search".to_string(),
-        term_encoding_bytes: temporal_search_term_bytes,
-        txt_path: temporal_search_index_txt_path,
-        bin_path: temporal_search_index_bin_path,
-        do_not_skip: settings.database_content.create_temporal_search_index,
-        tags: &settings.database_content.temporal_search_index_tags,
-        ram_limit_kb: settings.performance.temporal_serach_index_ram_limit_kb,
-        chunk_size_bytes: settings.performance.temporal_search_chunk_size_bytes,
-        sparse_index_template: constants::TEMPORAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
-    };
-
-    let astronomical_search_index_settings = IndexSettings {
-        name: "Astronomical Search".to_string(),
-        term_encoding_bytes: astronomical_search_term_bytes,
-        txt_path: astronomical_search_index_txt_path,
-        bin_path: astronomical_search_index_bin_path,
-        do_not_skip: settings.database_content.create_astronomical_search_index,
-        tags: &settings.database_content.astronomical_search_index_tags,
-        ram_limit_kb: settings.performance.astronomical_search_index_ram_limit_kb,
-        chunk_size_bytes: settings.performance.astronomical_search_chunk_size_bytes,
-        sparse_index_template: constants::ASTRONOMICAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
-    };
-
-    let globe_coordinate_search_index_settings = IndexSettings {
-        name: "Globe Coordinate Search".to_string(),
-        term_encoding_bytes: globel_coordiante_search_term_bytes,
-        txt_path: globe_coordinate_search_index_txt_path,
-        bin_path: globe_coordinate_search_index_bin_path,
-        do_not_skip: settings
-            .database_content
-            .create_globe_coordinate_search_index,
-        tags: &settings.database_content.globe_coordinate_search_index_tags,
-        ram_limit_kb: settings
-            .performance
-            .globe_coordinate_search_index_ram_limit_kb,
-        chunk_size_bytes: settings
-            .performance
-            .globe_coordinate_search_chunk_size_bytes,
-        sparse_index_template: constants::GLOBE_COORDINATE_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
-    };
-
-    let index_settings_array: [IndexSettings; 4] = [
-        omni_search_index_settings,
-        temporal_search_index_settings,
-        astronomical_search_index_settings,
-        globe_coordinate_search_index_settings,
+    let index_configs = vec![
+        IndexConfig {
+            name: "Omni Search",
+            json_key: "omni_search",
+            is_enabled: true, // Omni is always generated
+            term_encoding_bytes: settings.performance.omni_search_index_term_encoding_bytes,
+            txt_path: tmp_dir.join(constants::OMNI_SEARCH_TXT),
+            bin_path: bin_dir.join(constants::OMNI_SEARCH_BIN),
+            tags: &settings.database_content.omni_search_index_tags,
+            ram_limit_kb: settings.performance.omni_search_sparse_index_ram_limit_kb,
+            chunk_size_bytes: settings.performance.omni_search_chunk_size_bytes,
+            sparse_index_template: constants::OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
+        },
+        IndexConfig {
+            name: "Temporal Search",
+            json_key: "temporal_search",
+            is_enabled: settings.database_content.create_temporal_search_index,
+            term_encoding_bytes: 4,
+            txt_path: tmp_dir.join(constants::TEMPORAL_SEARCH_TXT),
+            bin_path: bin_dir.join(constants::TEMPORAL_SEARCH_BIN),
+            tags: &settings.database_content.temporal_search_index_tags,
+            ram_limit_kb: settings.performance.temporal_serach_index_ram_limit_kb,
+            chunk_size_bytes: settings.performance.temporal_search_chunk_size_bytes,
+            sparse_index_template: constants::TEMPORAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
+        },
+        IndexConfig {
+            name: "Astronomical Search",
+            json_key: "astronomical_search",
+            is_enabled: settings.database_content.create_astronomical_search_index,
+            term_encoding_bytes: 4,
+            txt_path: tmp_dir.join(constants::ASTRONOMICAL_SEARCH_TXT),
+            bin_path: bin_dir.join(constants::ASTRONOMICAL_SEARCH_BIN),
+            tags: &settings.database_content.astronomical_search_index_tags,
+            ram_limit_kb: settings.performance.astronomical_search_index_ram_limit_kb,
+            chunk_size_bytes: settings.performance.astronomical_search_chunk_size_bytes,
+            sparse_index_template: constants::ASTRONOMICAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
+        },
+        IndexConfig {
+            name: "Globe Coordinate Search",
+            json_key: "globe_coordinate_search",
+            is_enabled: settings
+                .database_content
+                .create_globe_coordinate_search_index,
+            term_encoding_bytes: 4,
+            txt_path: tmp_dir.join(constants::GLOBE_COORDINATE_SEARCH_TXT),
+            bin_path: bin_dir.join(constants::GLOBE_COORDINATE_SEARCH_BIN),
+            tags: &settings.database_content.globe_coordinate_search_index_tags,
+            ram_limit_kb: settings
+                .performance
+                .globe_coordinate_search_index_ram_limit_kb,
+            chunk_size_bytes: settings
+                .performance
+                .globe_coordinate_search_chunk_size_bytes,
+            sparse_index_template: constants::GLOBE_COORDINATE_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
+        },
     ];
 
-    for index_setting in &index_settings_array {
-        if index_setting.do_not_skip == false {
-            println!(
-                "Skipping creation of {} Index as it was not requested.",
-                index_setting.name
-            );
+    for config in &index_configs {
+        if !config.is_enabled {
+            println!("Skipping {} (Writing default 0s to info.json)", config.name);
+            info_json[config.json_key] =
+                serde_json::to_value(&IndexMetadata::empty()).map_err(|e| e.to_string())?;
             continue;
         }
-        println!("Index Setting: {:?}", index_setting);
-        let mut total_row_size = index_setting.term_encoding_bytes + 8;
 
-        if !total_row_size.is_power_of_two() {
-            total_row_size = total_row_size.next_power_of_two();
-        }
+        println!("\n--- Processing {} ---", config.name);
 
-        let actual_term_bytes = total_row_size - 8;
+        let meta_data = process_index_pipeline(config, &bin_dir, &settings.other.text_delimiter)?;
 
-        println!("Requested term bytes for {} Index", &index_setting.name);
-        println!(
-            "Actual term bytes used to pad row size to a power of 2: {}",
-            actual_term_bytes
-        );
-
-        let mut tag_to_bit: HashMap<String, u32> = HashMap::new();
-        for (index, tag) in index_setting.tags.iter().enumerate() {
-            if index >= 32 {
-                return Err("Cannot 1-hot encode more than 32 tags into a u32!".into());
-            }
-            tag_to_bit.insert(tag.clone(), 1 << index);
-        }
-
-        let input_file = File::open(&index_setting.txt_path).map_err(|e| e.to_string())?;
-        let file_size = input_file.metadata().map_err(|e| e.to_string())?.len();
-        let reader = BufReader::new(input_file);
-        let mut writer =
-            BufWriter::new(File::create(&index_setting.bin_path).map_err(|e| e.to_string())?);
-
-        let pb = ProgressBar::new(file_size);
-
-        pb.set_style(
-            ProgressStyle::default_bar()
-                .template(
-                    "[{elapsed_precise}] [{wide_bar:.green/blue}] {bytes}/{total_bytes} ({eta})",
-                )
-                .unwrap()
-                .progress_chars("#>-"),
-        );
-
-        println!("Building {} Binary...", index_setting.name);
-
-        for line_result in reader.lines() {
-            let line = line_result.unwrap();
-            pb.inc((line.len() + 1) as u64);
-
-            let parts: Vec<&str> = line.split(txt_delimiter).collect();
-            if parts.len() < 2 {
-                pb.println(format!("Warning: Skipping malformed line: {}", line));
-                continue;
-            }
-
-            let search_term = parts[0];
-            let qid_str = parts[1];
-            let tags_str = if parts.len() > 2 { parts[2] } else { "" };
-
-            let qid: u32 = if qid_str.starts_with('Q') {
-                qid_str[1..].parse().unwrap_or(0)
-            } else {
-                qid_str.parse().unwrap_or(0)
-            };
-
-            let mut encoded_tags: u32 = 0;
-            if !tags_str.is_empty() {
-                for tag in tags_str.split(',') {
-                    if let Some(&bitmask) = tag_to_bit.get(tag.trim()) {
-                        encoded_tags |= bitmask;
-                    }
-                }
-            }
-
-            let mut term_bytes = vec![0u8; actual_term_bytes];
-            let raw_bytes = search_term.as_bytes();
-
-            let copy_len = raw_bytes.len().min(actual_term_bytes);
-            term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
-
-            writer.write_all(&term_bytes).unwrap();
-            writer.write_all(&qid.to_le_bytes()).unwrap();
-            writer.write_all(&encoded_tags.to_le_bytes()).unwrap();
-        }
-
-        pb.finish_and_clear();
-        println!("Successfully built {} Binary!", index_setting.name);
-
-        writer.flush().map_err(|e| e.to_string())?;
-        drop(writer);
-
-        let (num_levels, top_level_rows) = build_sparse_indexes(
-            &index_setting.bin_path,
-            &bin_dir,
-            index_setting.sparse_index_template,
-            total_row_size,
-            index_setting.chunk_size_bytes,
-            index_setting.ram_limit_kb,
-        )?;
-
-        let meta_data = IndexMetadata {
-            total_row_size,
-            term_size: actual_term_bytes,
-            chunk_size_rows: (index_setting.chunk_size_bytes / total_row_size) as u32,
-            num_sparse_levels: num_levels,
-            top_level_rows,
-        };
-
-        let mut root_json: serde_json::Value = if info_json_path.exists() {
-            let file = File::open(&info_json_path).map_err(|e| e.to_string())?;
-            serde_json::from_reader(file).unwrap_or_else(|_| serde_json::json!({}))
-        } else {
-            serde_json::json!({})
-        };
-
-        let root_name = index_setting.name.to_lowercase().replace(" ", "_");
-        root_json[root_name] = serde_json::to_value(&meta_data).map_err(|e| e.to_string())?;
-        let metadata_file = File::create(&info_json_path).map_err(|e| e.to_string())?;
-        serde_json::to_writer_pretty(metadata_file, &root_json).map_err(|e| e.to_string())?;
-
-        println!(
-            "Metadata for {} index successfully updated in {:?}",
-            index_setting.name, info_json_path
-        );
+        info_json[config.json_key] = serde_json::to_value(&meta_data).map_err(|e| e.to_string())?;
     }
 
-    checkpoints::make_checkpoint(&settings, 6, "binary_index_creation", None).map_err(|e| {
-        format!(
-            "Finished creating binary indexes, but failed to create checkpoint: {}",
-            e
-        )
-    })?;
+    save_json(&info_json_path, &info_json)?;
+    println!(
+        "\nMetadata for all indexes successfully updated in {:?}",
+        info_json_path
+    );
 
+    checkpoints::make_checkpoint(&settings, 6, "binary_index_creation", None)
+        .map_err(|e| format!("Failed to create checkpoint: {}", e))?;
+
+    Ok(())
+}
+
+fn process_index_pipeline(
+    config: &IndexConfig,
+    bin_dir: &Path,
+    txt_delimiter: &str,
+) -> Result<IndexMetadata, String> {
+    let mut total_row_size = config.term_encoding_bytes + 8;
+    if !total_row_size.is_power_of_two() {
+        total_row_size = total_row_size.next_power_of_two();
+    }
+    let actual_term_bytes = total_row_size - 8;
+
+    println!(
+        "Requested term bytes: {} | Actual term bytes padded to power of 2: {}",
+        config.term_encoding_bytes, actual_term_bytes
+    );
+
+    build_primary_binary(config, txt_delimiter, actual_term_bytes)?;
+
+    let (num_levels, top_level_rows) = build_sparse_indexes(
+        &config.bin_path,
+        bin_dir,
+        config.sparse_index_template,
+        total_row_size,
+        config.chunk_size_bytes,
+        config.ram_limit_kb,
+    )?;
+
+    Ok(IndexMetadata {
+        total_row_size,
+        term_size: actual_term_bytes,
+        chunk_size_rows: (config.chunk_size_bytes / total_row_size) as u32,
+        num_sparse_levels: num_levels,
+        top_level_rows,
+    })
+}
+
+fn build_primary_binary(
+    config: &IndexConfig,
+    txt_delimiter: &str,
+    actual_term_bytes: usize,
+) -> Result<(), String> {
+    let mut tag_to_bit: HashMap<String, u32> = HashMap::new();
+    for (index, tag) in config.tags.iter().enumerate() {
+        if index >= 32 {
+            return Err("Cannot 1-hot encode more than 32 tags into a u32!".into());
+        }
+        tag_to_bit.insert(tag.clone(), 1 << index);
+    }
+
+    let input_file = File::open(&config.txt_path)
+        .map_err(|e| format!("Failed to open {:?}: {}", config.txt_path, e))?;
+    let file_size = input_file.metadata().map_err(|e| e.to_string())?.len();
+
+    let reader = BufReader::new(input_file);
+    let mut writer = BufWriter::new(File::create(&config.bin_path).map_err(|e| e.to_string())?);
+
+    let pb = ProgressBar::new(file_size);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("[{elapsed_precise}] [{wide_bar:.green/blue}] {bytes}/{total_bytes} ({eta})")
+            .unwrap()
+            .progress_chars("#>-"),
+    );
+
+    println!("Compiling {} Binary...", config.name);
+
+    for line_result in reader.lines() {
+        let line = line_result.unwrap();
+        pb.inc((line.len() + 1) as u64);
+
+        let parts: Vec<&str> = line.split(txt_delimiter).collect();
+        if parts.len() < 2 {
+            pb.println(format!("Warning: Skipping malformed line: {}", line));
+            continue;
+        }
+
+        let search_term = parts[0];
+        let qid_str = parts[1];
+        let tags_str = if parts.len() > 2 { parts[2] } else { "" };
+
+        let qid: u32 = if qid_str.starts_with('Q') {
+            qid_str[1..].parse().unwrap_or(0)
+        } else {
+            qid_str.parse().unwrap_or(0)
+        };
+
+        let mut encoded_tags: u32 = 0;
+        if !tags_str.is_empty() {
+            for tag in tags_str.split(',') {
+                if let Some(&bitmask) = tag_to_bit.get(tag.trim()) {
+                    encoded_tags |= bitmask;
+                }
+            }
+        }
+
+        let mut term_bytes = vec![0u8; actual_term_bytes];
+        let raw_bytes = search_term.as_bytes();
+        let copy_len = raw_bytes.len().min(actual_term_bytes);
+        term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
+
+        writer.write_all(&term_bytes).unwrap();
+        writer.write_all(&qid.to_le_bytes()).unwrap();
+        writer.write_all(&encoded_tags.to_le_bytes()).unwrap();
+    }
+
+    pb.finish_and_clear();
+    writer.flush().map_err(|e| e.to_string())?;
+
+    println!("Successfully built {} Binary!", config.name);
     Ok(())
 }
 
@@ -299,11 +281,10 @@ fn build_sparse_indexes(
 
     let ram_limit_bytes = (ram_limit_kb * 1024) as u64;
     let string_bytes_len = total_row_size - 8;
-
     let chunk_size_rows = (chunk_size_bytes / total_row_size).max(1) as u32;
+
     let mut current_level = 1;
     let mut current_input_path: PathBuf = initial_input_path.to_path_buf();
-
     let final_top_level_rows: u32;
 
     println!(
@@ -319,7 +300,6 @@ fn build_sparse_indexes(
         let output_filename =
             output_filename_template.replace(".bin", &format!("_level_{}.bin", current_level));
         let output_path = bin_dir.join(output_filename);
-
         let mut output_file =
             BufWriter::new(File::create(&output_path).map_err(|e| e.to_string())?);
 
@@ -355,7 +335,6 @@ fn build_sparse_indexes(
                 .map_err(|e| e.to_string())?;
 
             row_index += chunk_size_rows;
-
             pb.set_position((row_index as u64).min(total_input_rows));
         }
 
@@ -365,7 +344,6 @@ fn build_sparse_indexes(
         let output_size = std::fs::metadata(&output_path)
             .map_err(|e| e.to_string())?
             .len();
-
         let current_level_rows = (output_size / (total_row_size as u64)) as u32;
 
         println!(
@@ -388,3 +366,18 @@ fn build_sparse_indexes(
 
     Ok((current_level, final_top_level_rows))
 }
+
+fn load_json(path: &Path) -> Result<Value, String> {
+    if path.exists() {
+        let file = File::open(path).map_err(|e| format!("Failed to open {:?}: {}", path, e))?;
+        Ok(serde_json::from_reader(file).unwrap_or_else(|_| serde_json::json!({})))
+    } else {
+        Ok(serde_json::json!({}))
+    }
+}
+
+fn save_json(path: &Path, data: &Value) -> Result<(), String> {
+    let file = File::create(path).map_err(|e| format!("Failed to create JSON: {}", e))?;
+    serde_json::to_writer_pretty(file, data).map_err(|e| format!("Failed to write JSON: {}", e))
+}
+
