@@ -139,7 +139,7 @@ In order to build and run this project, you will need `cargo` and `gcc` for comp
 
 
 *Windows*:
-- 1. Install Rust by following the instructions at `https://rust-lang.org/tools/install/`
+Install Linux Subsystem for Windows (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once you are inside WSL, just continue with the setup process by following the instructions for your installed Linux distribution below.
 
 *Fedora:*
 ```bash
