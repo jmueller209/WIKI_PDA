@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../common/generated_database_constants.h"
+#include "../../include/database_platform.h"
 
 typedef struct __attribute__((packed)) {
     uint32_t term;
@@ -17,7 +18,7 @@ typedef struct __attribute__((packed)) {
     uint8_t _padding[OMNI_SEARCH_TOTAL_ROW_SIZE - OMNI_SEARCH_TERM_SIZE - 4]; 
 } TemporalSparseRow;
 
-bool load_temporal_top_index(TemporalSparseRow** out_top_level_index);
+bool load_temporal_top_index(TemporalSparseRow** out_top_level_index, DatabasePlatform platform);
 void free_temporal_top_index(TemporalSparseRow* top_level_index);
 
 // bool omni_search(

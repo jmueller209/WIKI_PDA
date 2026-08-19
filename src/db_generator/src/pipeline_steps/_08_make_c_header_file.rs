@@ -9,8 +9,7 @@ use crate::utils::settings::Settings;
 pub fn make_c_header_file(settings: &Settings) -> Result<(), String> {
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let info_json_path = tmp_dir.join(constants::INFO_JSON);
-    let header_path =
-        PathBuf::from("./src/query_database/src/common/generated_database_constants.h");
+    let header_path = PathBuf::from("./src/wiki_pda_api/src/common/generated_database_constants.h");
 
     let mut file =
         File::open(&info_json_path).map_err(|e| format!("Failed to open info.json: {}", e))?;

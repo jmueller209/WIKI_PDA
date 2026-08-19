@@ -19,6 +19,9 @@ pub const QID_HASHMAP_BIN: &str = "qid_hashmap.bin";
 pub const META_DATA_BIN: &str = "meta_data.bin";
 pub const WIKI_LANG_MAPPING_BIN: &str = "wiki_lang_mapping.bin";
 pub const OMNI_SEARCH_BIN: &str = "omni_search.bin";
+pub const TEMPORAL_SEARCH_BIN: &str = "temporal_search.bin";
+pub const ASTRONOMICAL_SEARCH_BIN: &str = "astronomical_search.bin";
+pub const GLOBE_COORDINATE_SEARCH_BIN: &str = "globe_coordinate_search.bin";
 
 pub const OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN: &str = "omni_search_sparse_index.bin";
 pub const TEMPORAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN: &str = "temporal_search_sparse_index.bin";

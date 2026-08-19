@@ -90,9 +90,9 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
 
     API_DEBUG("Loading requested indexes...");
     if ((indexes_to_load & INDEX_OMNI) && !load_omni_top_index(&(ctx->omni_top_index), ctx->platform)) goto cleanup_and_fail;
-    if ((indexes_to_load & INDEX_ASTRONOMICAL) && !load_astronomical_top_index(&(ctx->astronomical_top_index))) goto cleanup_and_fail;
-    if ((indexes_to_load & INDEX_TEMPORAL) && !load_temporal_top_index(&(ctx->temporal_top_index))) goto cleanup_and_fail;
-    if ((indexes_to_load & INDEX_GLOBE_COORDINATE) && !load_globe_coordinate_top_index(&(ctx->globe_coordinate_top_index))) goto cleanup_and_fail;
+    if ((indexes_to_load & INDEX_ASTRONOMICAL) && !load_astronomical_top_index(&(ctx->astronomical_top_index), ctx->platform)) goto cleanup_and_fail;
+    if ((indexes_to_load & INDEX_TEMPORAL) && !load_temporal_top_index(&(ctx->temporal_top_index), ctx->platform)) goto cleanup_and_fail;
+    if ((indexes_to_load & INDEX_GLOBE_COORDINATE) && !load_globe_coordinate_top_index(&(ctx->globe_coordinate_top_index), ctx->platform)) goto cleanup_and_fail;
 
     API_DEBUG("db_init completed successfully.");
     return ctx;

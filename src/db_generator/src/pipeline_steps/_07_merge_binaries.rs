@@ -1,5 +1,5 @@
 // use indicatif::{ProgressBar, ProgressStyle};
-use serde_json::Value;
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use crate::utils::constants;
 use crate::utils::settings::Settings;
 
+const SD_CARD_SECTOR_SIZE: u64 = 512;
 
 pub struct FileToMerge {
     pub key_name: String,
@@ -19,161 +20,103 @@ pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
 
     let info_json_path = tmp_dir.join(constants::INFO_JSON);
-    let data_base_bin_path = bin_dir.join(constants::DATA_BASE_BIN);
+    let master_db_path = bin_dir.join(constants::DATA_BASE_BIN);
 
-    let file = File::open(&info_json_path)
-        .map_err(|e| format!("Failed to open info.json at {:?}: {}", info_json_path, e))?;
-    let json_val: Value =
-        serde_json::from_reader(file).map_err(|e| format!("Failed to parse info.json: {}", e))?;
+    let mut info_json = load_json(&info_json_path)?;
 
+    let files_to_merge = build_file_list(&bin_dir, &info_json)?;
 
-    let num_sparse_levels = json_val
-        .get("omni_search")
-        .and_then(|v| v.get("num_sparse_levels"))
-        .and_then(|v| v.as_u64())
-        .ok_or_else(|| {
-            "Could not find 'num_sparse_levels' under 'omni_search' in info.json".to_string()
-        })? as u32;
+    let file_info = merge_files(&files_to_merge, &master_db_path)?;
 
-
-    let mut files_to_merge = Vec::new();
-
-
-    let omni_search_index_bin_path = bin_dir.join(constants::OMNI_SEARCH_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "omni_search_level_0".to_string(),
-        path: omni_search_index_bin_path,
-    });
-
-
-    for i in 1..=num_sparse_levels {
-        let level_filename = constants::OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN
-            .replace(".bin", &format!("_level_{}.bin", i));
-
-        let path = bin_dir.join(level_filename);
-
-        files_to_merge.push(FileToMerge {
-            key_name: format!("omni_search_level_{}", i),
-            path,
-        });
-    }
-
-
-    let qid_hashmap_bin_path = bin_dir.join(constants::QID_HASHMAP_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "qid_hashmap".to_string(),
-        path: qid_hashmap_bin_path,
-    });
-
-
-    let qid_index_bin_path = bin_dir.join(constants::QID_INDEX_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "qid_index".to_string(),
-        path: qid_index_bin_path,
-    });
-
-
-    let content_bin_path = bin_dir.join(constants::CONTENT_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "content".to_string(),
-        path: content_bin_path,
-    });
-
-
-    let metadata_bin_path = bin_dir.join(constants::META_DATA_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "metadata".to_string(),
-        path: metadata_bin_path,
-    });
-
-
-    let zstd_dict_bin_path = bin_dir.join(constants::ZSTD_DICTIONARY_BIN);
-    files_to_merge.push(FileToMerge {
-        key_name: "zstd_dictionary".to_string(),
-        path: zstd_dict_bin_path,
-    });
-
-
-    let file_info = merge_files(&files_to_merge, &data_base_bin_path)?;
-
-
-    let mut root_obj = json_val
-        .as_object()
-        .cloned()
-        .ok_or_else(|| "info.json root is not an object".to_string())?;
-
-
-    let mut offsets_json_obj = serde_json::Map::new();
-    let mut sizes_json_obj = serde_json::Map::new();
-
-    let mut omni_search_level_offsets = serde_json::Map::new();
-    let mut omni_search_level_sizes = serde_json::Map::new();
-
-
-    for (key, (offset, size)) in file_info {
-        if key.starts_with("omni_search_level_") {
-            let nested_key = key.replace("omni_search_level_", "level_");
-
-            omni_search_level_offsets
-                .insert(nested_key.clone(), serde_json::Value::Number(offset.into()));
-            omni_search_level_sizes.insert(nested_key, serde_json::Value::Number(size.into()));
-        } else {
-            offsets_json_obj.insert(key.clone(), serde_json::Value::Number(offset.into()));
-            sizes_json_obj.insert(key, serde_json::Value::Number(size.into()));
-        }
-    }
-
-    offsets_json_obj.insert(
-        "omni_search_level".to_string(),
-        serde_json::Value::Object(omni_search_level_offsets),
-    );
-    sizes_json_obj.insert(
-        "omni_search_level".to_string(),
-        serde_json::Value::Object(omni_search_level_sizes),
-    );
-
-    root_obj.insert(
-        "offsets".to_string(),
-        serde_json::Value::Object(offsets_json_obj),
-    );
-    root_obj.insert(
-        "sizes".to_string(),
-        serde_json::Value::Object(sizes_json_obj),
-    );
-
-    let out_file =
-        File::create(&info_json_path).map_err(|e| format!("Failed to update info.json: {}", e))?;
-    serde_json::to_writer_pretty(out_file, &root_obj)
-        .map_err(|e| format!("Failed to write info.json: {}", e))?;
+    update_info_json(&mut info_json, file_info)?;
+    save_json(&info_json_path, &info_json)?;
 
     println!(
         "Master offsets and sizes successfully saved to {:?}",
         info_json_path
     );
-
     Ok(())
+}
+
+fn build_file_list(bin_dir: &Path, info_json: &Value) -> Result<Vec<FileToMerge>, String> {
+    let mut files = Vec::new();
+
+    let mut add_file = |key: &str, filename: &str| {
+        files.push(FileToMerge {
+            key_name: key.to_string(),
+            path: bin_dir.join(filename),
+        });
+    };
+
+    // OMNI SEARCH
+    let num_sparse_levels = extract_sparse_levels(info_json, "omni_search")?;
+    add_file("omni_search_level_0", constants::OMNI_SEARCH_BIN);
+    for i in 1..=num_sparse_levels {
+        let filename = constants::OMNI_SEARCH_SPARSE_INDEX_TEMPLATE_BIN
+            .replace(".bin", &format!("_level_{}.bin", i));
+        add_file(&format!("omni_search_level_{}", i), &filename);
+    }
+
+    // GEO SEARCH
+    if info_json.get("globe_coordinate_search").is_some() {
+        let geo_levels = extract_sparse_levels(info_json, "globe_coordinate_search")?;
+        add_file(
+            "globe_coordinate_search_level_0",
+            constants::GLOBE_COORDINATE_SEARCH_BIN,
+        );
+        for i in 1..=geo_levels {
+            let filename = constants::GLOBE_COORDINATE_SEARCH_SPARSE_INDEX_TEMPLATE_BIN
+                .replace(".bin", &format!("_level_{}.bin", i));
+            add_file(&format!("globe_coordinate_search_level_{}", i), &filename);
+        }
+    }
+
+    // ASTRO SEARCH
+    if info_json.get("astronomical_search").is_some() {
+        let astro_levels = extract_sparse_levels(info_json, "astronomical_search")?;
+        add_file(
+            "astronomical_search_level_0",
+            constants::ASTRONOMICAL_SEARCH_BIN,
+        );
+        for i in 1..=astro_levels {
+            let filename = constants::ASTRONOMICAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN
+                .replace(".bin", &format!("_level_{}.bin", i));
+            add_file(&format!("astronomical_search_level_{}", i), &filename);
+        }
+    }
+
+    // TEMPORAL SEARCH
+    if info_json.get("temporal_search").is_some() {
+        let temporal_levels = extract_sparse_levels(info_json, "temporal_search")?;
+        add_file("temporal_search_level_0", constants::TEMPORAL_SEARCH_BIN);
+        for i in 1..=temporal_levels {
+            let filename = constants::TEMPORAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN
+                .replace(".bin", &format!("_level_{}.bin", i));
+            add_file(&format!("temporal_search_level_{}", i), &filename);
+        }
+    }
+
+    add_file("qid_hashmap", constants::QID_HASHMAP_BIN);
+    add_file("qid_index", constants::QID_INDEX_BIN);
+    add_file("content", constants::CONTENT_BIN);
+    add_file("metadata", constants::META_DATA_BIN);
+    add_file("zstd_dictionary", constants::ZSTD_DICTIONARY_BIN);
+
+    Ok(files)
 }
 
 fn merge_files(
     files_to_merge: &[FileToMerge],
-    output_combined_path: &Path,
+    output_path: &Path,
 ) -> Result<HashMap<String, (u64, u64)>, String> {
-    let output_file = File::create(output_combined_path).map_err(|e| e.to_string())?;
+    let output_file = File::create(output_path).map_err(|e| e.to_string())?;
     let mut writer = BufWriter::new(output_file);
+    let mut file_info_map = HashMap::new();
 
-    let mut file_info = HashMap::new();
     let mut current_offset: u64 = 0;
+    let total_bytes = calculate_total_bytes(files_to_merge)?;
 
-    let mut total_bytes_to_merge: u64 = 0;
-    for item in files_to_merge {
-        if !item.path.exists() {
-            return Err(format!("File to merge does not exist: {:?}", item.path));
-        }
-        let metadata = std::fs::metadata(&item.path).map_err(|e| e.to_string())?;
-        total_bytes_to_merge += metadata.len();
-    }
-
-    let pb = indicatif::ProgressBar::new(total_bytes_to_merge);
+    let pb = indicatif::ProgressBar::new(total_bytes);
     pb.set_style(
         indicatif::ProgressStyle::default_bar()
             .template("[{elapsed_precise}] [{wide_bar:.green/blue}] {bytes}/{total_bytes} ({eta})")
@@ -181,15 +124,16 @@ fn merge_files(
             .progress_chars("#>-"),
     );
 
-    println!("Stitching databases into {:?}...", output_combined_path);
+    println!("Stitching databases into {:?}...", output_path);
 
     for item in files_to_merge {
-        let input_file = File::open(&item.path).map_err(|e| e.to_string())?;
-        let file_size = input_file.metadata().map_err(|e| e.to_string())?.len();
+        let input_file =
+            File::open(&item.path).map_err(|e| format!("Failed to open {:?}: {}", item.path, e))?;
+        let actual_size = input_file.metadata().map_err(|e| e.to_string())?.len();
+
+        file_info_map.insert(item.key_name.clone(), (current_offset, actual_size));
+
         let mut reader = BufReader::new(input_file);
-
-        file_info.insert(item.key_name.clone(), (current_offset, file_size));
-
         let mut buffer = [0u8; 8192];
         loop {
             let n = reader.read(&mut buffer).map_err(|e| e.to_string())?;
@@ -197,17 +141,102 @@ fn merge_files(
                 break;
             }
             writer.write_all(&buffer[..n]).map_err(|e| e.to_string())?;
-
             pb.inc(n as u64);
         }
 
-        current_offset += file_size;
+        let padding_needed =
+            (SD_CARD_SECTOR_SIZE - (actual_size % SD_CARD_SECTOR_SIZE)) % SD_CARD_SECTOR_SIZE;
+        if padding_needed > 0 {
+            let padding = vec![0u8; padding_needed as usize];
+            writer.write_all(&padding).map_err(|e| e.to_string())?;
+        }
+
+        current_offset += actual_size + padding_needed;
     }
 
     writer.flush().map_err(|e| e.to_string())?;
     pb.finish_and_clear();
-
     println!("Successfully created combined database binary!");
 
-    Ok(file_info)
+    Ok(file_info_map)
+}
+
+fn update_info_json(
+    root_json: &mut Value,
+    file_info: HashMap<String, (u64, u64)>,
+) -> Result<(), String> {
+    let mut offsets = serde_json::Map::new();
+    let mut sizes = serde_json::Map::new();
+
+    let mut nested_offsets: HashMap<String, serde_json::Map<String, Value>> = HashMap::new();
+    let mut nested_sizes: HashMap<String, serde_json::Map<String, Value>> = HashMap::new();
+
+    for (key, (offset, size)) in file_info {
+        if key.contains("_level_") {
+            let parts: Vec<&str> = key.split("_level_").collect();
+            if parts.len() == 2 {
+                let index_name = parts[0];
+                let level_num = parts[1];
+
+                let root_key = format!("{}_level", index_name);
+                let nested_key = format!("level_{}", level_num);
+
+                nested_offsets
+                    .entry(root_key.clone())
+                    .or_default()
+                    .insert(nested_key.clone(), json!(offset));
+                nested_sizes
+                    .entry(root_key)
+                    .or_default()
+                    .insert(nested_key, json!(size));
+                continue;
+            }
+        }
+
+        offsets.insert(key.clone(), json!(offset));
+        sizes.insert(key, json!(size));
+    }
+
+    for (key, map) in nested_offsets {
+        offsets.insert(key, json!(map));
+    }
+    for (key, map) in nested_sizes {
+        sizes.insert(key, json!(map));
+    }
+
+    let root_obj = root_json
+        .as_object_mut()
+        .ok_or("info.json is not an object")?;
+    root_obj.insert("offsets".to_string(), json!(offsets));
+    root_obj.insert("sizes".to_string(), json!(sizes));
+
+    Ok(())
+}
+fn load_json(path: &Path) -> Result<Value, String> {
+    let file = File::open(path).map_err(|e| format!("Failed to open {:?}: {}", path, e))?;
+    serde_json::from_reader(file).map_err(|e| format!("Failed to parse JSON: {}", e))
+}
+
+fn save_json(path: &Path, data: &Value) -> Result<(), String> {
+    let file = File::create(path).map_err(|e| format!("Failed to create JSON: {}", e))?;
+    serde_json::to_writer_pretty(file, data).map_err(|e| format!("Failed to write JSON: {}", e))
+}
+
+fn extract_sparse_levels(json_val: &Value, key: &str) -> Result<u32, String> {
+    json_val
+        .get(key)
+        .and_then(|v| v.get("num_sparse_levels"))
+        .and_then(|v| v.as_u64())
+        .map(|v| v as u32)
+        .ok_or_else(|| format!("Missing '{}.num_sparse_levels' in info.json", key))
+}
+
+fn calculate_total_bytes(files: &[FileToMerge]) -> Result<u64, String> {
+    let mut total = 0;
+    for f in files {
+        let meta =
+            std::fs::metadata(&f.path).map_err(|e| format!("Missing file {:?}: {}", f.path, e))?;
+        total += meta.len();
+    }
+    Ok(total)
 }

@@ -62,21 +62,18 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
 
     let omni_search_index_txt_path = tmp_dir.join(constants::OMNI_SEARCH_TXT);
-    let omni_search_index_bin_path =
-        bin_dir.join(constants::OMNI_SEARCH_TXT.replace(".txt", ".bin"));
+    let omni_search_index_bin_path = bin_dir.join(constants::OMNI_SEARCH_BIN);
 
     let temporal_search_index_txt_path = tmp_dir.join(constants::TEMPORAL_SEARCH_TXT);
-    let temporal_search_index_bin_path =
-        bin_dir.join(constants::TEMPORAL_SEARCH_TXT.replace(".txt", ".bin"));
+    let temporal_search_index_bin_path = bin_dir.join(constants::TEMPORAL_SEARCH_BIN);
 
     let astronomical_search_index_txt_path = tmp_dir.join(constants::ASTRONOMICAL_SEARCH_TXT);
-    let astronomical_search_index_bin_path =
-        bin_dir.join(constants::ASTRONOMICAL_SEARCH_TXT.replace(".txt", ".bin"));
+    let astronomical_search_index_bin_path = bin_dir.join(constants::ASTRONOMICAL_SEARCH_BIN);
 
     let globe_coordinate_search_index_txt_path =
         tmp_dir.join(constants::GLOBE_COORDINATE_SEARCH_TXT);
     let globe_coordinate_search_index_bin_path =
-        bin_dir.join(constants::GLOBE_COORDINATE_SEARCH_TXT.replace(".txt", ".bin"));
+        bin_dir.join(constants::GLOBE_COORDINATE_SEARCH_BIN);
 
     let info_json_path = tmp_dir.join(constants::INFO_JSON);
 
