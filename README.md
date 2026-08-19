@@ -140,7 +140,7 @@ In order to build and run this project, you will need `cargo` and `gcc` for comp
 
 *Windows*:
 
-Install Linux Subsystem for Windows (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once you are inside WSL, just continue with the setup process by following the instructions for your installed Linux distribution below. From now on all the documented commands should be run from within WSL.
+Install Linux Subsystem for Windows (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once the installation has finished, close Powershell and open the WSL-Shell (You can just search for WSL). Once you are inside WSL, continue with the setup process by following the instructions for your installed Linux distribution below. From now on all the documented commands should be run from the WSL-Shell.
 
 *Fedora:*
 ```bash
