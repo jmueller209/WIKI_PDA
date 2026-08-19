@@ -137,28 +137,28 @@ flowchart TD
 
 In order to build and run this project, you will need `cargo` and `gcc` for compiling Rust and C:
 
-*Cargo*:
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
 
-*Development Tools including gcc:*
+*Windows*:
+- 1. Install Rust by following the instructions at `https://rust-lang.org/tools/install/`
 
 *Fedora:*
 ```bash
 sudo dnf upgrade --refresh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 sudo dnf install @development-tools   
 ```
 
 *Ubuntu/Debian:*
 ```bash
 sudo apt update
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 sudo apt install build-essential
 ```
 
 *Arch:*
 ```bash
 sudo pacman -Syu
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 pacman -S devtools
 ```
 
