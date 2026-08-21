@@ -25,15 +25,6 @@
 #define TEMPORAL_SEARCH_TOP_LEVEL_ROWS 3ULL
 
 // =========================================
-// ASTRONOMICAL_SEARCH
-// =========================================
-#define ASTRONOMICAL_SEARCH_TOTAL_ROW_SIZE 0ULL
-#define ASTRONOMICAL_SEARCH_TERM_SIZE 0ULL
-#define ASTRONOMICAL_SEARCH_CHUNK_SIZE_ROWS 0ULL
-#define ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS 0ULL
-#define ASTRONOMICAL_SEARCH_TOP_LEVEL_ROWS 0ULL
-
-// =========================================
 // GLOBE_COORDINATE_SEARCH
 // =========================================
 #define GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE 16ULL
@@ -43,23 +34,25 @@
 #define GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS 2ULL
 
 // =========================================
+// WIKI_PDA_ENABLE
+// =========================================
+#define WIKI_PDA_ENABLE_OMNI_SEARCH 1
+#define WIKI_PDA_ENABLE_TEMPORAL_SEARCH 1
+#define WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH 0
+#define WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH 1
+
+// =========================================
 // OFFSETS
 // =========================================
-#define OFFSETS_QID_HASHMAP 228352ULL
-#define OFFSETS_ZSTD_DICTIONARY 47858688ULL
+#define OFFSETS_ZSTD_DICTIONARY 47727104ULL
 #define OFFSETS_CONTENT 383488ULL
-#define OFFSETS_METADATA 46703104ULL
+#define OFFSETS_METADATA 46571520ULL
+#define OFFSETS_QID_HASHMAP 228352ULL
 #define OFFSETS_QID_INDEX 329728ULL
 
 static const uint64_t OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
     193536ULL,	// level_0
     208384ULL,	// level_1
-};
-
-
-static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
-    0ULL,	// level_0
-    192512ULL,	// level_1
 };
 
 
@@ -69,14 +62,26 @@ static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
 };
 
 
+static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
+    0ULL,	// level_0
+    192512ULL,	// level_1
+};
+
+
 // =========================================
 // SIZES
 // =========================================
-#define SIZES_QID_HASHMAP 101202ULL
 #define SIZES_ZSTD_DICTIONARY 32768ULL
-#define SIZES_CONTENT 46319249ULL
+#define SIZES_CONTENT 46187733ULL
 #define SIZES_METADATA 1155194ULL
+#define SIZES_QID_HASHMAP 101202ULL
 #define SIZES_QID_INDEX 53256ULL
+
+static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
+    192224ULL,	// level_0
+    768ULL,	// level_1
+};
+
 
 static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
     14704ULL,	// level_0
@@ -87,12 +92,6 @@ static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
 static const uint64_t SIZES_TEMPORAL_SEARCH_LEVEL[] = {
     18544ULL,	// level_0
     48ULL,	// level_1
-};
-
-
-static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
-    192224ULL,	// level_0
-    768ULL,	// level_1
 };
 
 

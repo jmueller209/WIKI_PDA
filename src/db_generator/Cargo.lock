@@ -487,6 +487,7 @@ dependencies = [
 name = "db_generator"
 version = "0.1.0"
 dependencies = [
+ "cc",
  "config",
  "crossbeam-channel",
  "flate2",
@@ -501,7 +502,6 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
- "shared",
  "sysinfo",
  "urlencoding",
  "zim",
@@ -2556,13 +2556,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "170fb83ab34de17dc69aa7c67482b22218ddb85da56546f9bd6b929e32a05930"
 dependencies = [
  "stable_deref_trait",
-]
-
-[[package]]
-name = "shared"
-version = "0.1.0"
-dependencies = [
- "cc",
 ]
 
 [[package]]

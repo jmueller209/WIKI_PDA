@@ -127,22 +127,29 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
         },
     ];
 
+    let mut enable_flags = serde_json::Map::new();
     for config in &index_configs {
+        enable_flags.insert(
+            config.json_key.to_string(),
+            serde_json::Value::Bool(config.is_enabled),
+        );
+
         if !config.is_enabled {
-            println!("Skipping {} (Writing default 0s to info.json)", config.name);
-            info_json[config.json_key] =
-                serde_json::to_value(&IndexMetadata::empty()).map_err(|e| e.to_string())?;
+            println!("Skipping {} (Removing from info.json data)", config.name);
+            if let Some(obj) = info_json.as_object_mut() {
+                obj.remove(config.json_key);
+            }
             continue;
         }
 
         println!("\n--- Processing {} ---", config.name);
-
         let meta_data = process_index_pipeline(config, &bin_dir, &settings.other.text_delimiter)?;
-
         info_json[config.json_key] = serde_json::to_value(&meta_data).map_err(|e| e.to_string())?;
     }
 
+    info_json["wiki_pda_enable"] = serde_json::Value::Object(enable_flags);
     save_json(&info_json_path, &info_json)?;
+
     println!(
         "\nMetadata for all indexes successfully updated in {:?}",
         info_json_path
@@ -250,9 +257,24 @@ fn build_primary_binary(
         }
 
         let mut term_bytes = vec![0u8; actual_term_bytes];
-        let raw_bytes = search_term.as_bytes();
-        let copy_len = raw_bytes.len().min(actual_term_bytes);
-        term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
+
+        if config.json_key == "omni_search" {
+            let raw_bytes = search_term.as_bytes();
+            let copy_len = raw_bytes.len().min(actual_term_bytes);
+            term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
+        } else {
+            let parsed_int: i64 = search_term.parse().unwrap_or_else(|_| {
+                println!(
+                    "Warning: Failed to parse '{}' as i64. Defaulting to 0.",
+                    search_term
+                );
+                0
+            });
+
+            let raw_bytes = parsed_int.to_le_bytes(); // 8 bytes
+            let copy_len = raw_bytes.len().min(actual_term_bytes);
+            term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
+        }
 
         writer.write_all(&term_bytes).unwrap();
         writer.write_all(&qid.to_le_bytes()).unwrap();
@@ -380,4 +402,3 @@ fn save_json(path: &Path, data: &Value) -> Result<(), String> {
     let file = File::create(path).map_err(|e| format!("Failed to create JSON: {}", e))?;
     serde_json::to_writer_pretty(file, data).map_err(|e| format!("Failed to write JSON: {}", e))
 }
-

@@ -1,21 +1,13 @@
-ifeq ($(OS),Windows_NT)
-    ELEVATE := 
-else
-    ELEVATE := sudo
-endif
+ELEVATE := sudo
 
 GENERATOR_DIR  = ./src/db_generator
 QUERY_LIB_DIR  = ./src/wiki_pda_api/
-SHARED_LIB_DIR = ./src/shared
 CONFIG_FILE    = ./config/config.toml
 GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/db_generator
 
 .PHONY: download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind
 
-compile-shared-lib: 
-	cargo build --manifest-path $(SHARED_LIB_DIR)/Cargo.toml --release
-
-$(GENERATOR_BIN): compile-shared-lib
+$(GENERATOR_BIN):
 	cargo build --manifest-path $(GENERATOR_DIR)/Cargo.toml --release
 
 download: $(GENERATOR_BIN)
@@ -76,10 +68,9 @@ test-db-api-valgrind:
 	valgrind --tool=massif --massif-out-file=$(QUERY_LIB_DIR)/target/massif.out $(QUERY_LIB_DIR)/target/test_api_valgrind
 	@echo "Heap profiling complete! Run 'ms_print $(QUERY_LIB_DIR)/target/massif.out' to view the graph."
 
-_build_test_api: compile-shared-lib
+_build_test_api:
 	mkdir -p $(QUERY_LIB_DIR)/target
 	cd $(QUERY_LIB_DIR) && gcc tests/pc_test_api.c src/api/*.c src/indexes/*.c src/storage/*.c src/platforms/desktop.c lib/zstd/src/common/*.c lib/zstd/src/decompress/*.c -o ./target/$(TARGET_NAME) -I./include -I./lib/zstd/src $(CFLAGS_DEBUG) -DZSTD_DISABLE_ASM
 	$(QUERY_LIB_DIR)/target/$(TARGET_NAME)
-
 
 

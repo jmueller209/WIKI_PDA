@@ -1,42 +1,28 @@
+#include "../common/generated_database_constants.h"
+
+#if WIKI_PDA_ENABLE_OMNI_SEARCH
+
 #include <stdlib.h> 
 #include <stdio.h>
 #include <string.h>
 #include "omni_search.h"
+#include "../api/wiki_pda_internal.h"
+#include "generic_search.h"
 
 bool load_omni_top_index(OmniSparseRow** out_top_level_index, DatabasePlatform platform) {
-    if (out_top_level_index == NULL) return false;
-    if (OMNI_SEARCH_TOP_LEVEL_ROWS == 0) {
-        *out_top_level_index = NULL;
-        return false;
-    }
+    return load_top_level_index_generic(
+        (void**)out_top_level_index,
+        OMNI_SEARCH_TOP_LEVEL_ROWS,
+        sizeof(OmniSparseRow),
+        OFFSETS_OMNI_SEARCH_LEVEL[OMNI_SEARCH_NUM_SPARSE_LEVELS],
+        platform,
+        "Omni"
+    );
 
-    uint32_t total_bytes = OMNI_SEARCH_TOP_LEVEL_ROWS * sizeof(OmniSparseRow);
-    OmniSparseRow* ram_index = (OmniSparseRow*)malloc(total_bytes);
-    if (ram_index == NULL) {
-        *out_top_level_index = NULL;
-        return false; 
-    }
-
-    uint64_t top_offset = OFFSETS_OMNI_SEARCH_LEVEL[OMNI_SEARCH_NUM_SPARSE_LEVELS];
-
-    if (!platform.read_fn(top_offset, (uint8_t*)ram_index, total_bytes, platform.user_data)) {
-        free(ram_index);
-        *out_top_level_index = NULL;
-        return false;
-    }
-
-    #ifdef DEBUG_MODE
-        printf("[DEBUG] Loaded Top-Level RAM Index (%u rows).\n", OMNI_SEARCH_TOP_LEVEL_ROWS);
-    #endif
-
-    *out_top_level_index = ram_index;
-    return true;
 }
 
 void free_omni_top_index(OmniSparseRow* top_level_index) {
-    if (top_level_index != NULL) {
-        free(top_level_index);
-    }
+    free_top_level_index_generic((void*) top_level_index);
 }
 
 bool omni_search(
@@ -51,9 +37,7 @@ bool omni_search(
     size_t query_len = strlen(target_query);
     if (query_len > OMNI_SEARCH_TERM_SIZE) query_len = OMNI_SEARCH_TERM_SIZE;
 
-    #ifdef DEBUG_MODE
-        printf("\n[DEBUG] === STARTING SEARCH FOR: '%s' ===\n", target_query);
-    #endif
+    DEBUG_PRINT("=== STARTING SEARCH FOR: '%s' ===", target_query);
 
     uint32_t target_row = 0;
     uint32_t left = 0;
@@ -124,18 +108,4 @@ bool omni_search(
     return true; 
 }
 
-bool omni_row_passes_tags(const OmniRow* row, uint32_t exact_tags, uint32_t include_tags, uint32_t exclude_tags) {
-    if (exact_tags != 0 && row->tags != exact_tags) {
-        return false;
-    }
-
-    if (include_tags != 0 && (row->tags & include_tags) != include_tags) {
-        return false;
-    }
-
-    if (exclude_tags != 0 && (row->tags & exclude_tags) != 0) {
-        return false;
-    }
-
-    return true;
-}
+#endif

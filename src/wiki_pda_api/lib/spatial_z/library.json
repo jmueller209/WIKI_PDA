@@ -1,0 +1,13 @@
+{
+  "name": "spatial_z",
+  "version": "1.0.0",
+  "build": {
+    "srcDir": ".",
+    "flags": [
+      "-Iinclude"
+    ],
+    "srcFilter": [
+      "+<src/>"
+    ]
+  }
+}

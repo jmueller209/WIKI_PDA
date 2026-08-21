@@ -23,7 +23,7 @@ typedef uint32_t DatabaseIndexMask;
 typedef enum {
     SEARCH_TYPE_OMNI,
     SEARCH_TYPE_TEMPORAL,
-    SEARCH_TYPE_SPATIAL,
+    SEARCH_TYPE_GLOBE_COORDINATE,
     SEARCH_TYPE_ASTRONOMICAL,
     SEARCH_TYPE_QID, 
     SEARCH_TYPE_PID
@@ -35,27 +35,30 @@ typedef uint32_t ArticleType;
 
 typedef struct {
     SearchType type;
-    
+
     union {
-        const char* term;
+        const char* omni_search_term;
         uint32_t target_qid;
         uint32_t target_pid;
-        
-        struct {
-            uint32_t lat;
-            uint32_t lon;
-        } astronomical_term;
 
         struct {
-            uint32_t lat;
-            uint32_t lon;
-        } globe_coordinate_term;
+            double dec;
+            double ra;
+        } astronomical_search_term;
+
+        struct {
+            double lat;
+            double lon;
+        } globe_coordinate_search_term;
+
+        const char* temporal_iso_string;
+
     } target;
-    
+
     SearchTagMask exact_tags;
     SearchTagMask include_tags;
     SearchTagMask exclude_tags;
-    
+
     ArticleType article_type;
 } SearchQuery;
 

@@ -1,7 +1,6 @@
 use crossbeam_channel::bounded;
 use flate2::read::MultiGzDecoder;
 use rayon::prelude::*;
-use shared::encodings;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
 use std::fs::{self, File};
@@ -12,6 +11,7 @@ use std::thread;
 
 use crate::utils::checkpoints;
 use crate::utils::constants;
+use crate::utils::encoding;
 use crate::utils::logs;
 use crate::utils::settings::Settings;
 use crate::utils::txt_file_processing::{self, SortMode};
@@ -474,6 +474,8 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
 
         let global_metrics_clone = Arc::clone(&global_metrics);
 
+        let earth_ctx = encoding::safe_spatial_create_earth_ctx();
+        let celestial_ctx = encoding::safe_spatial_create_celestial_ctx();
         for batch in raw_rx {
             let batch_len = batch.len() as u64;
             let (processed_batch, batch_metrics) = batch
@@ -742,7 +744,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                         let parts: Vec<&str> = coord_str.split(',').collect();
                                         if parts.len() == 2 {
                                             if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f64>(), parts[1].parse::<f64>()) {
-                                                let encoded_coord = encodings::safe_encode_globe_coordinates(lat, lon);
+                                                let encoded_coord = encoding::safe_spatial_encode(lat, lon, earth_ctx);
                                                 let mut coord_tags = Vec::new();
                                                 for wiki_type in &found_wiki_types {
                                                     let tag_name = format!("is_in_{}", wiki_type);
@@ -781,7 +783,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 for pid in ["P569", "P570", "P571", "P580", "P582"] {
                                     if let Some(times) = grouped_claims.get(pid) {
                                         for time_val in times {
-                                            let timestamp = encodings::safe_encode_time(time_val.as_str());
+                                            let timestamp = encoding::safe_temporal_encode(time_val.as_str());
                                             let mut temp_tags = Vec::new();
                                             for wiki_type in &found_wiki_types {
                                                 let tag_name = format!("is_in_{}", wiki_type);
@@ -828,8 +830,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 if magnitude_ok {
                                     let ra = grouped_claims.get("P6257").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
                                     let dec = grouped_claims.get("P6258").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
-                                    let encoded_astro = encodings::safe_encode_astronomical_position(dec, ra);
-
+                                    let encoded_astro = encoding::safe_spatial_encode(dec, ra, celestial_ctx);
                                     let mut astro_tags = Vec::new();
 
                                     for wiki_type in &found_wiki_types {

@@ -6,6 +6,8 @@
 #include "../common/generated_database_constants.h"
 #include "../../include/database_platform.h"
 
+#if WIKI_PDA_ENABLE_OMNI_SEARCH
+
 typedef struct __attribute__((packed)) {
     char term[OMNI_SEARCH_TERM_SIZE];
     uint32_t qid;
@@ -28,7 +30,6 @@ bool omni_search(
     DatabasePlatform platform
 );
 
-bool omni_row_passes_tags(const OmniRow* row, uint32_t exact_tags, uint32_t include_tags, uint32_t exclude_tags);
-
+#endif
 
 #endif // OMNI_SEARCH_H

@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-shared = {path = "../shared"}
 flate2 = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
@@ -23,3 +22,6 @@ html2text = "0.17.1"
 reqwest = { version = "0.13.4", features = ["blocking"] }
 scraper = "0.27.0"
 sysinfo = "0.39.6"
+
+[build-dependencies]
+cc = "1.0"
