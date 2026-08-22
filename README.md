@@ -112,6 +112,7 @@ flowchart TD
 ### Query API:
 * Functionality for initializing a **DatabaseContext** and querying the following indexes based on your custom tags and language:
   - Omni Search Index
+  - Globe Coordinate Search Index
 * Initialize a **DataStream** to read articles into a buffer.
 * **DatabasePlatform** interface to define your own `read_database_function()` for your specific platform.
 * Predefined **DatabasePlatform** for desktops.
