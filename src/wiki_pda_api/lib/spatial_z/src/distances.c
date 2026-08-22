@@ -27,11 +27,11 @@ CompareCtx spatial_create_compare_ctx(double center_lat, double center_lon, doub
     return ctx;
 }
 
-bool spatial_code_is_in_local_radius(uint64_t code, CompareCtx ctx) {
+double spatial_code_is_in_local_radius(uint64_t code, CompareCtx ctx) {
     double lat1;
     double lon1;
     if (!spatial_decode(code, &lat1, &lon1, ctx.spatialCtx)) {
-        return false;
+        return -1.0;
     }
 
     double dlon = lon1 - ctx.local.lon;
@@ -41,14 +41,18 @@ bool spatial_code_is_in_local_radius(uint64_t code, CompareCtx ctx) {
     double dx = dlon * ctx.local.km_per_deg_lon;
     double dy = (lat1 - ctx.local.lat) * ctx.local.km_per_deg_lat;
 
-    return ((dx * dx + dy * dy) <= ctx.local.radius_squared);
+    double distance_squared = dx * dx + dy * dy;
+    if (distance_squared > ctx.local.radius_squared) {
+        return -1.0;
+    }
+    return distance_squared;
 }
 
-bool spatial_code_is_in_spherical_radius(uint64_t code, CompareCtx ctx) {
+double spatial_code_is_in_spherical_radius(uint64_t code, CompareCtx ctx) {
     double row_lat;
     double row_lon;
     if (!spatial_decode(code, &row_lat, &row_lon, ctx.spatialCtx)) {
-        return false;
+        return -1.0;
     }
 
     double row_lat_rad = row_lat * (M_PI / 180.0);
@@ -63,5 +67,8 @@ bool spatial_code_is_in_spherical_radius(uint64_t code, CompareCtx ctx) {
     double a = (sin_dlat * sin_dlat) + 
                (ctx.spherical.cos_center_lat * cos(row_lat_rad) * sin_dlon * sin_dlon);
 
-    return a <= ctx.spherical.max_haversine_a;
+    if (a > ctx.spherical.max_haversine_a) {
+        return -1.0;
+    }
+    return a;
 }

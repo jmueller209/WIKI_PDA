@@ -65,8 +65,8 @@ static inline uint64_t morton_encode_grid(uint32_t gx, uint32_t gy)
 
 static int compare_ranges(const void *a, const void *b)
 {
-    const SpatialRange *ra = (const SpatialRange *)a;
-    const SpatialRange *rb = (const SpatialRange *)b;
+    const MortonRange *ra = (const MortonRange *)a;
+    const MortonRange *rb = (const MortonRange *)b;
 
     if (ra->start_code < rb->start_code) return -1;
     if (ra->start_code > rb->start_code) return 1;
@@ -75,7 +75,7 @@ static int compare_ranges(const void *a, const void *b)
     return 0;
 }
 
-static int merge_ranges(SpatialRange *ranges, int count)
+static int merge_ranges(MortonRange *ranges, int count)
 {
     if (count <= 1)
         return count;
@@ -85,8 +85,8 @@ static int merge_ranges(SpatialRange *ranges, int count)
     int write = 0;
 
     for (int read = 1; read < count; ++read) {
-        SpatialRange *cur = &ranges[write];
-        const SpatialRange *next = &ranges[read];
+        MortonRange *cur = &ranges[write];
+        const MortonRange *next = &ranges[read];
 
         const bool overlaps = next->start_code <= cur->end_code;
         const bool adjacent =
@@ -503,9 +503,9 @@ static int make_children(
     return count;
 }
 
-static SpatialRange encode_block(const ZBlock *b)
+static MortonRange encode_block(const ZBlock *b)
 {
-    SpatialRange r;
+    MortonRange r;
 
     if (b->level == 32U) {
         r.start_code = 0ULL;
@@ -766,7 +766,7 @@ bool spatial_get_radius_ranges(
     double center_lat,
     double center_lon,
     double radius_km,
-    SpatialRange *out_ranges,
+    MortonRange *out_ranges,
     int *out_num_ranges,
     int max_ranges,
     SpatialzCtx ctx)

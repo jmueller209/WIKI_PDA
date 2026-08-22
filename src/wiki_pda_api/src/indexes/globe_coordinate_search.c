@@ -21,20 +21,21 @@ void free_globe_coordinate_top_index(GlobeCoordinateSparseRow* top_level_index) 
 }
 
 bool globe_coordinate_search(
-    int64_t search_term,
-    const GlobeCoordinateSparseRow* top_level_ram_index, 
-    uint64_t* out_abs_pointer, 
+    uint64_t search_term,
+    const GlobeCoordinateSparseRow* top_level_ram_index,
+    uint64_t* out_abs_pointer,
     DatabasePlatform platform
 ) {
-    return generic_int64_search(
+    return generic_uint64_search(
         search_term,
-        (const void*)top_level_ram_index,
+        top_level_ram_index,
         GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS,
         GLOBE_COORDINATE_SEARCH_NUM_SPARSE_LEVELS,
         GLOBE_COORDINATE_SEARCH_CHUNK_SIZE_ROWS,
         OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL,
-        sizeof(GlobeCoordinateSparseRow),
-        sizeof(GlobeCoordinateRow),
+        SIZES_GLOBE_COORDINATE_SEARCH_LEVEL,
+        GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE,
+        GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE,
         out_abs_pointer,
         platform
     );

@@ -262,6 +262,19 @@ fn build_primary_binary(
             let raw_bytes = search_term.as_bytes();
             let copy_len = raw_bytes.len().min(actual_term_bytes);
             term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
+        } else if config.json_key == "globe_coordinate_search"
+            || config.json_key == "astronomical_search"
+        {
+            let parsed_int: u64 = search_term.parse().unwrap_or_else(|_| {
+                println!(
+                    "Warning: Failed to parse '{}' as u64. Defaulting to 0.",
+                    search_term
+                );
+                0
+            });
+            let raw_bytes = parsed_int.to_le_bytes();
+            let copy_len = raw_bytes.len().min(actual_term_bytes);
+            term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
         } else {
             let parsed_int: i64 = search_term.parse().unwrap_or_else(|_| {
                 println!(
@@ -270,8 +283,7 @@ fn build_primary_binary(
                 );
                 0
             });
-
-            let raw_bytes = parsed_int.to_le_bytes(); // 8 bytes
+            let raw_bytes = parsed_int.to_le_bytes();
             let copy_len = raw_bytes.len().min(actual_term_bytes);
             term_bytes[..copy_len].copy_from_slice(&raw_bytes[..copy_len]);
         }

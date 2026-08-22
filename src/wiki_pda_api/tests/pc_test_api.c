@@ -6,10 +6,10 @@
 #include <ctype.h>
 #include "../include/wiki_pda.h"
 
+
 bool get_input(const char* prompt, char* buffer, size_t max_len) {
     printf("%s", prompt);
     if (fgets(buffer, max_len, stdin) == NULL) return false;
-    
     buffer[strcspn(buffer, "\r\n")] = 0;
 
     if (strcmp(buffer, "q") == 0 || strcmp(buffer, "quit") == 0 || strcmp(buffer, "exit") == 0) {
@@ -65,7 +65,7 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
         esp32_screen_buffer[total_read] = '\0';
         data_stream_end(stream);
 
-        printf("\033[H\033[J"); // Clear terminal screen
+        printf("\033[H\033[J");
         printf("=== READING Q%u ===\n\n", selected->qid);
 
         if (total_read > 0) {
@@ -90,50 +90,67 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
     }
 }
 
+
 bool build_query(SearchQuery* query) {
-    static char input_buffer[256];
+    static char temp_input[256];
+    static char omni_string_buffer[256];
+    static char temporal_string_buffer[64];
 
     printf("\n--- SELECT SEARCH INDEX ---\n");
     printf("1. Omni Search (Text)\n");
     printf("2. Globe Coordinate Search (Lat/Lon)\n");
-    printf("3. Astronomical Search (Dec/RA)\n");
-    printf("4. Temporal Search (Date)\n");
+    //printf("3. Astronomical Search (Dec/RA)\n");
+    //printf("4. Temporal Search (Date)\n");
 
-    if (!get_input("Choice (1-4) or 'q' to quit: ", input_buffer, sizeof(input_buffer))) return false;
+    // if (!get_input("Choice (1-4) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
+    if (!get_input("Choice (1-2) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
 
-    int choice = atoi(input_buffer);
+    int choice = atoi(temp_input);
     memset(query, 0, sizeof(SearchQuery));
     query->article_type = 1;
 
     switch (choice) {
         case 1:
             query->type = SEARCH_TYPE_OMNI;
-            if (!get_input("Enter search term: ", input_buffer, sizeof(input_buffer))) return false;
-            str_to_lowercase(input_buffer);
-            query->target.omni_search_term = input_buffer;
+            if (!get_input("Enter search term: ", omni_string_buffer, sizeof(omni_string_buffer))) return false;
+            str_to_lowercase(omni_string_buffer);
+            query->target.omni_text = omni_string_buffer;
             break;
 
         case 2:
             query->type = SEARCH_TYPE_GLOBE_COORDINATE;
-            if (!get_input("Enter Latitude: ", input_buffer, sizeof(input_buffer))) return false;
-            query->target.globe_coordinate_search_term.lat = atof(input_buffer);
-            if (!get_input("Enter Longitude: ", input_buffer, sizeof(input_buffer))) return false;
-            query->target.globe_coordinate_search_term.lon = atof(input_buffer);
+            if (!get_input("Enter Latitude: ", temp_input, sizeof(temp_input))) return false;
+            query->target.globe.lat = atof(temp_input);
+
+            if (!get_input("Enter Longitude: ", temp_input, sizeof(temp_input))) return false;
+            query->target.globe.lon = atof(temp_input);
+
+            if (!get_input("Enter search radius (km): ", temp_input, sizeof(temp_input))) return false;
+            query->target.globe.search_radius_km = (float)atof(temp_input);
+
+            if (!get_input("Sort by distance? (1 = Yes [Top-K], 0 = No [Fast Stream]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.globe.sort_by_distance = (atoi(temp_input) == 1);
+
+            query->target.globe.max_results = 10;
             break;
 
-        case 3:
-            query->type = SEARCH_TYPE_ASTRONOMICAL;
-            if (!get_input("Enter Declination: ", input_buffer, sizeof(input_buffer))) return false;
-            query->target.astronomical_search_term.dec = atof(input_buffer);
-            if (!get_input("Enter Right Ascension: ", input_buffer, sizeof(input_buffer))) return false;
-            query->target.astronomical_search_term.ra = atof(input_buffer);
-            break;
-
-        case 4:
-            query->type = SEARCH_TYPE_TEMPORAL;
-            if (!get_input("Enter Date (e.g. 1969-07-20 or -500-01-01): ", input_buffer, sizeof(input_buffer))) return false;
-            query->target.temporal_iso_string = input_buffer;
-            break;
+        // case 3:
+        //     query->type = SEARCH_TYPE_ASTRONOMICAL;
+        //     if (!get_input("Enter Declination: ", temp_input, sizeof(temp_input))) return false;
+        //     query->target.astronomical.dec = atof(temp_input);
+        //
+        //     if (!get_input("Enter Right Ascension: ", temp_input, sizeof(temp_input))) return false;
+        //     query->target.astronomical.ra = atof(temp_input);
+        //
+        //     if (!get_input("Enter search radius (degrees): ", temp_input, sizeof(temp_input))) return false;
+        //     query->target.astronomical.search_radius_degrees = (float)atof(temp_input);
+        //     break;
+        //
+        // case 4:
+        //     query->type = SEARCH_TYPE_TEMPORAL;
+        //     if (!get_input("Enter Date (e.g. 1969-07-20 or -500-01-01): ", temporal_string_buffer, sizeof(temporal_string_buffer))) return false;
+        //     query->target.temporal.temporal_iso_string = temporal_string_buffer;
+        //     break;
 
         default:
             printf("Invalid choice.\n");
@@ -141,6 +158,7 @@ bool build_query(SearchQuery* query) {
     }
     return true;
 }
+
 
 int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchResult* displayed_results) {
     SearchCursor* cursor = search_begin(ctx, query);
@@ -160,7 +178,8 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
         }
         match_count++;
 
-        printf("[%d] Match: %.*s\n", match_count, OMNI_SEARCH_TERM_SIZE, result.title);
+        printf("[%d] Title: %s\n", match_count, result.title);
+        printf("    Match: %s\n", result.term); 
         printf("    QID: Q%u | Length: %u bytes\n", result.qid, result.data_length);
         printf("------------------------\n");
 
@@ -168,7 +187,6 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
     }
 
     search_end(cursor);
-    
     if (match_count == 0) {
         printf("No matches found.\n");
     }
@@ -185,7 +203,6 @@ int main(int argc, char** argv) {
     }
 
     DatabasePlatform pc_platform = platform_desktop(db_file);
-
     DatabaseIndexMask mask = INDEX_OMNI | INDEX_GLOBE_COORDINATE | INDEX_ASTRONOMICAL | INDEX_TEMPORAL;
     DatabaseContext* ctx = db_init(mask, pc_platform);
 
@@ -198,7 +215,8 @@ int main(int argc, char** argv) {
     while (true) {
         SearchQuery query;
         if (!build_query(&query)) {
-            break;        }
+            break; 
+        }
 
         SearchResult displayed_results[10];
         int match_count = execute_and_display_search(ctx, &query, displayed_results);
@@ -209,7 +227,8 @@ int main(int argc, char** argv) {
             char choice_str[16];
             printf("\nEnter result number to read (1-%d), or 0 for new search: ", match_count);
 
-            if (!get_input("", choice_str, sizeof(choice_str))) break;            if (strlen(choice_str) == 0) continue;
+            if (!get_input("", choice_str, sizeof(choice_str))) break;
+            if (strlen(choice_str) == 0) continue;
 
             int choice = atoi(choice_str);
             if (choice == 0) break;

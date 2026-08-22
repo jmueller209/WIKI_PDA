@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
     uint64_t start_code;
     uint64_t end_code;
-} SpatialRange;
+} MortonRange;
 
 // Creates and initializes a SpatialzCtx with custom boundaries and unit length.
 SpatialzCtx spatial_create_ctx(double min_lat, double max_lat, double min_lon, double max_lon, double unit_length);
@@ -60,17 +60,31 @@ bool spatial_decode(uint64_t code, double* out_lat, double* out_long, SpatialzCt
 
 // Calculates 1D Morton code ranges for a radius search
 bool spatial_get_radius_ranges(double center_lat, double center_lon, double radius_km, 
-                               SpatialRange* out_ranges, int* out_num_ranges, int max_ranges, 
+                               MortonRange* out_ranges, int* out_num_ranges, int max_ranges, 
                                SpatialzCtx ctx);
 
 // Initializes the context for point-in-radius checks, pre-calculating math based on the chosen mode.
 CompareCtx spatial_create_compare_ctx(double center_lat, double center_lon, double radius_km, bool is_spherical, SpatialzCtx spatialCtx);
 
-// Fast Euclidean distance check for small radii (uses the local struct fields).
-bool spatial_code_is_in_local_radius(uint64_t code, CompareCtx ctx);
+// The following functions return -1.0 if the spatial code is further away
+// from the comparison point than the specified radius.
+// Otherwise, they return a performance-optimized, monotonically increasing
+// metric (squared distance or Haversine 'a' factor).
+//
+// Why this makes sense:
+// By avoiding expensive operations like sqrt() or asin() inside the inner loop,
+// we get a massive performance boost. Since the returned values grow strictly
+// proportional to the distance, they can be used directly for radius filtering
+// and Top-K distance sorting.
 
-// Accurate Haversine distance check for large radii (uses the spherical struct fields).
-bool spatial_code_is_in_spherical_radius(uint64_t code, CompareCtx ctx);
+// Fast Euclidean distance check for small radii (uses local struct fields).
+// Returns the squared distance in km² (or -1.0 if out of bounds).
+double spatial_code_is_in_local_radius(uint64_t code, CompareCtx ctx);
+
+// Accurate Haversine distance check for large radii (uses spherical struct fields).
+// Returns the Haversine 'a' factor (sin²(d/2R)), which scales monotonically
+// with distance (or -1.0 if out of bounds), avoiding sqrt() and asin() in the inner loop.
+double spatial_code_is_in_spherical_radius(uint64_t code, CompareCtx ctx);
 
 
 #ifdef __cplusplus

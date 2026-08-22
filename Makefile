@@ -5,7 +5,7 @@ QUERY_LIB_DIR  = ./src/wiki_pda_api/
 CONFIG_FILE    = ./config/config.toml
 GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/db_generator
 
-.PHONY: download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind
+.PHONY: $(GENERATOR_BIN) download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind
 
 $(GENERATOR_BIN):
 	cargo build --manifest-path $(GENERATOR_DIR)/Cargo.toml --release
@@ -70,7 +70,18 @@ test-db-api-valgrind:
 
 _build_test_api:
 	mkdir -p $(QUERY_LIB_DIR)/target
-	cd $(QUERY_LIB_DIR) && gcc tests/pc_test_api.c src/api/*.c src/indexes/*.c src/storage/*.c src/platforms/desktop.c lib/zstd/src/common/*.c lib/zstd/src/decompress/*.c -o ./target/$(TARGET_NAME) -I./include -I./lib/zstd/src $(CFLAGS_DEBUG) -DZSTD_DISABLE_ASM
+	cd $(QUERY_LIB_DIR) && gcc tests/pc_test_api.c \
+		src/api/*.c \
+		src/indexes/*.c \
+		src/storage/*.c \
+		src/platforms/desktop.c \
+		lib/zstd/src/common/*.c \
+		lib/zstd/src/decompress/*.c \
+		lib/spatial_z/src/*.c \
+		lib/tempus/src/*.c \
+		-o ./target/$(TARGET_NAME) \
+		-I./include -I./lib/zstd/src \
+		$(CFLAGS_DEBUG) -DZSTD_DISABLE_ASM -lm
 	$(QUERY_LIB_DIR)/target/$(TARGET_NAME)
 
 

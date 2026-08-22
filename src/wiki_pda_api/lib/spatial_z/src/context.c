@@ -17,5 +17,5 @@ SpatialzCtx spatial_create_earth_ctx(void) {
 
 
 SpatialzCtx spatial_create_celestial_ctx(void) {
-    return spatial_create_ctx(-90.0, 90.0, -180.0, 180.0, 1.0);
+    return spatial_create_ctx(-90.0, 90.0, 0, 360, 1.0);
 }

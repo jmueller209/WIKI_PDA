@@ -25,7 +25,7 @@ bool load_globe_coordinate_top_index(GlobeCoordinateSparseRow** out_top_level_in
 void free_globe_coordinate_top_index(GlobeCoordinateSparseRow* top_level_index);
 
 bool globe_coordinate_search(
-    int64_t search_term,
+    uint64_t search_term,
     const GlobeCoordinateSparseRow* top_level_ram_index, 
     uint64_t* out_abs_pointer, 
     DatabasePlatform platform

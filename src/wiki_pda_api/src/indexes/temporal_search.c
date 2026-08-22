@@ -22,22 +22,23 @@ void free_temporal_top_index(TemporalSparseRow* top_level_index) {
 
 bool temporal_search(
     int64_t search_term,
-    const TemporalSparseRow* top_level_ram_index, 
-    uint64_t* out_abs_pointer, 
+    const TemporalSparseRow* top_level_ram_index,
+    uint64_t* out_abs_pointer,
     DatabasePlatform platform
 ) {
     return generic_int64_search(
-        search_term,
-        (const void*)top_level_ram_index,
-        TEMPORAL_SEARCH_TOP_LEVEL_ROWS,
-        TEMPORAL_SEARCH_NUM_SPARSE_LEVELS,
-        TEMPORAL_SEARCH_CHUNK_SIZE_ROWS,
-        OFFSETS_TEMPORAL_SEARCH_LEVEL,
-        sizeof(TemporalSparseRow),
-        sizeof(TemporalRow),
-        out_abs_pointer,
-        platform
-    );
+            search_term,
+            top_level_ram_index,
+            TEMPORAL_SEARCH_TOP_LEVEL_ROWS,
+            TEMPORAL_SEARCH_NUM_SPARSE_LEVELS,
+            TEMPORAL_SEARCH_CHUNK_SIZE_ROWS,
+            OFFSETS_TEMPORAL_SEARCH_LEVEL,
+            SIZES_TEMPORAL_SEARCH_LEVEL,
+            TEMPORAL_SEARCH_TOTAL_ROW_SIZE,
+            TEMPORAL_SEARCH_TOTAL_ROW_SIZE,
+            out_abs_pointer,
+            platform
+        );
 }
 
 #endif

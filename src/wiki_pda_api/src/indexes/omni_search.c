@@ -43,6 +43,7 @@ bool omni_search(
     uint32_t left = 0;
     uint32_t right = OMNI_SEARCH_TOP_LEVEL_ROWS - 1;
     uint32_t best_match = 0;
+    uint32_t total_omni_rows = SIZES_OMNI_SEARCH_LEVEL[0] / sizeof(OmniRow);
 
     while (left <= right) {
         uint32_t mid = left + (right - left) / 2;
@@ -56,6 +57,10 @@ bool omni_search(
     for (int lvl = OMNI_SEARCH_NUM_SPARSE_LEVELS - 1; lvl >= 1; lvl--) {
         left = target_row;
         right = target_row + OMNI_SEARCH_CHUNK_SIZE_ROWS - 1;
+        uint32_t total_sparse_rows = SIZES_OMNI_SEARCH_LEVEL[lvl] / sizeof(OmniSparseRow);
+        if (right >= total_sparse_rows) {
+            right = total_sparse_rows - 1;
+        }
         best_match = left;
 
         while (left <= right) {
@@ -80,6 +85,9 @@ bool omni_search(
 
     left = target_row;
     right = target_row + OMNI_SEARCH_CHUNK_SIZE_ROWS - 1;
+    if (right >= total_omni_rows) {
+        right = total_omni_rows - 1;
+    }
     bool found = false;
     uint32_t first_match = left;
     OmniRow temp_row;
@@ -98,14 +106,14 @@ bool omni_search(
             if (mid == 0) break;
             right = mid - 1;
         } else { 
-            left = mid + 1; 
+            left = mid + 1;
         }
     }
 
-    if (!found) return false; 
+    if (!found) return false;
 
     *out_abs_pointer = OFFSETS_OMNI_SEARCH_LEVEL[0] + ((uint64_t)first_match * sizeof(OmniRow));
-    return true; 
+    return true;
 }
 
 #endif

@@ -21,10 +21,27 @@ bool generic_int64_search(
     uint32_t num_sparse_levels,
     uint32_t chunk_size_rows,
     const uint64_t* level_offsets,
+    const uint64_t* level_sizes,
     size_t sparse_row_size,
     size_t base_row_size,
     uint64_t* out_abs_pointer,
     DatabasePlatform platform
 );
+
+bool generic_uint64_search(
+    uint64_t search_term,
+    const void* top_level_ram_index,
+    uint32_t top_level_rows,
+    uint32_t num_sparse_levels,
+    uint32_t chunk_size_rows,
+    const uint64_t* level_offsets,
+    const uint64_t* level_sizes,
+    size_t sparse_row_size,
+    size_t base_row_size,
+    uint64_t* out_abs_pointer,
+    DatabasePlatform platform
+);
+
+
 
 #endif // GENERIC_SEARCH_H
