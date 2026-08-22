@@ -18,7 +18,7 @@ struct RemovableDrive {
 
 pub fn cli(settings: &Settings) -> Result<(), String> {
     let default_db_dir = PathBuf::from_str(&settings.paths.bin_dir).unwrap();
-    let default_db_path = default_db_dir.join(constants::DATA_BASE_BIN); // Make sure 'constants' is imported
+    let default_db_path = default_db_dir.join(constants::DATA_BASE_BIN);
 
     println!("Scanning for connected removable media...");
 
@@ -33,11 +33,10 @@ pub fn cli(settings: &Settings) -> Result<(), String> {
         match get_index(max_menu_index) {
             MsgType::Idx(menu_choice) => {
                 let selected_drive = &safe_drives[menu_choice as usize];
-
-                // Ask the user for the file path (default vs custom)
                 let file_path = get_database_path(default_db_path.clone());
+                let drive_label = get_drive_label();
 
-                write_data(selected_drive, &file_path)?;
+                write_data(selected_drive, &file_path, &drive_label)?;
                 break;
             }
             MsgType::Quit => return Ok(()),
@@ -51,7 +50,6 @@ pub fn cli(settings: &Settings) -> Result<(), String> {
     Ok(())
 }
 
-/// Prompts the user to use the default database path or provide a custom one.
 fn get_database_path(default_path: PathBuf) -> PathBuf {
     let msg = format!("Use default database path ({})?", default_path.display());
 
@@ -66,12 +64,9 @@ fn get_database_path(default_path: PathBuf) -> PathBuf {
                 );
             }
         }
-        UserAgreement::Disagree => {
-            // Simply pass through to the custom path prompt below
-        }
+        UserAgreement::Disagree => {}
     }
 
-    // Custom path loop (only reached if they disagreed OR the default file was missing)
     loop {
         print!("Enter custom path to database file: ");
         io::stdout().flush().unwrap();
@@ -88,11 +83,32 @@ fn get_database_path(default_path: PathBuf) -> PathBuf {
     }
 }
 
+fn get_drive_label() -> String {
+    loop {
+        print!("Enter a name for the drive (max 11 chars, leave empty for 'WIKIDRIVE'): ");
+        io::stdout().flush().unwrap();
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        let trimmed = input.trim();
+
+        if trimmed.is_empty() {
+            return "WIKIDRIVE".to_string();
+        }
+
+        let upper = trimmed.to_uppercase();
+        if upper.len() <= 11 && upper.is_ascii() && !upper.contains(' ') {
+            return upper;
+        }
+
+        println!("Invalid name. Must be 1-11 ASCII characters without spaces.\n");
+    }
+}
+
 #[cfg(target_os = "linux")]
 fn get_removable_disks() -> Vec<RemovableDrive> {
     let mut safe_drives = Vec::new();
 
-    // Read the physical block devices directly from the Linux kernel
     let Ok(paths) = std::fs::read_dir("/sys/block/") else {
         return safe_drives;
     };
@@ -101,12 +117,10 @@ fn get_removable_disks() -> Vec<RemovableDrive> {
     for path in paths.flatten() {
         let name = path.file_name().into_string().unwrap_or_default();
 
-        // 1. Skip virtual devices and optical drives (CD/DVDs)
         if name.starts_with("loop") || name.starts_with("ram") || name.starts_with("sr") {
             continue;
         }
 
-        // Check the hardware "removable" flag
         let removable_path = path.path().join("removable");
         if let Ok(removable_str) = std::fs::read_to_string(&removable_path) {
             if removable_str.trim() == "1" {
@@ -119,7 +133,6 @@ fn get_removable_disks() -> Vec<RemovableDrive> {
 
                 let total_space = size_sectors * 512;
 
-                // 2. Skip empty card reader slots
                 if total_space == 0 {
                     continue;
                 }
@@ -145,7 +158,6 @@ fn get_removable_disks() -> Vec<RemovableDrive> {
     safe_drives
 }
 
-// A quick helper to parse /proc/mounts to see if the device happens to be mounted
 #[cfg(target_os = "linux")]
 fn get_mount_point(device_path: &str) -> Option<String> {
     let mounts = std::fs::read_to_string("/proc/mounts").ok()?;
@@ -216,21 +228,21 @@ fn wait_for_agreement(msg: &str) -> UserAgreement {
     }
 }
 
-fn write_data(drive: &RemovableDrive, file_path: &PathBuf) -> Result<(), String> {
+fn write_data(
+    drive: &RemovableDrive,
+    file_path: &PathBuf,
+    drive_label: &str,
+) -> Result<(), String> {
     let device_path = &drive.name;
 
-    // 1. Check if the program is running as root/sudo (Unix only)
-    // Checking the SUDO_USER or USER environment variable is a quick way without importing the libc crate
     if std::env::var("USER").unwrap_or_default() != "root" {
         return Err("Raw flashing requires Administrator/root privileges.\nPlease run this command again using 'sudo'.".to_string());
     }
 
-    // 2. Check if the database actually fits on the SD Card
     let metadata =
         std::fs::metadata(file_path).map_err(|e| format!("Failed to read database file: {}", e))?;
     let db_size_bytes = metadata.len();
 
-    // We need the DB size + roughly 32MB minimum for the FAT32 partition to format successfully
     let required_space = db_size_bytes + (32 * 1024 * 1024);
 
     if required_space > drive.total_space {
@@ -242,7 +254,6 @@ fn write_data(drive: &RemovableDrive, file_path: &PathBuf) -> Result<(), String>
         ));
     }
 
-    // 3. Proceed to the warning phase
     println!("\n================ DANGER ZONE ================");
     println!("Selected target: {}", device_path);
     println!("Mount point: {:?}", drive.mount_point);
@@ -259,19 +270,17 @@ fn write_data(drive: &RemovableDrive, file_path: &PathBuf) -> Result<(), String>
         UserAgreement::Agree => {
             println!("Agreement confirmed. Preparing partitions...");
 
-            // Unpack both paths
-            let (fat32_partition, raw_partition) = setup_partitions(device_path, file_path)?;
+            let (fat32_partition, raw_partition) =
+                setup_partitions(device_path, file_path, drive_label)?;
 
             println!("Partitions created successfully.");
             println!("Flashing database to {}...", raw_partition);
 
-            // Flash the raw data
             flash_image_to_drive(file_path, &raw_partition).map_err(|e| e.to_string())?;
 
-            // Add the README to the visible FAT32 partition
             write_fat32_metadata(&fat32_partition, db_size_bytes);
 
-            println!("\n🎉 Upload complete! You can safely remove the SD card.");
+            println!("\nUpload complete! You can safely remove the SD card.");
             Ok(())
         }
         UserAgreement::Disagree => {
@@ -281,12 +290,12 @@ fn write_data(drive: &RemovableDrive, file_path: &PathBuf) -> Result<(), String>
     }
 }
 
-// ---------------------------------------------------------
-// OS-SPECIFIC PARTITIONING LOGIC
-// ---------------------------------------------------------
-
 #[cfg(target_os = "linux")]
-fn setup_partitions(partition_path: &str, db_file_path: &Path) -> Result<(String, String), String> {
+fn setup_partitions(
+    partition_path: &str,
+    db_file_path: &Path,
+    drive_label: &str,
+) -> Result<(String, String), String> {
     let base_device = partition_path.trim_end_matches(|c: char| c.is_ascii_digit());
     let base_device = base_device.trim_end_matches('p');
 
@@ -342,19 +351,21 @@ fn setup_partitions(partition_path: &str, db_file_path: &Path) -> Result<(String
     let part2_path = format!("{}2", base_device);
 
     println!(
-        "Formatting Partition 1 ({}) as FAT32 with label 'WIKI_DRIVE'...",
-        part1_path
+        "Formatting Partition 1 ({}) as FAT32 with label '{}'...",
+        part1_path, drive_label
     );
-    // Added "-n" "WIKI_DRIVE" (Max 11 uppercase chars for FAT32)
-    run_command("mkfs.fat", &["-F", "32", "-n", "WIKI_DRIVE", &part1_path])?;
 
-    // Return BOTH paths now
+    run_command("mkfs.fat", &["-F", "32", "-n", drive_label, &part1_path])?;
+
     Ok((part1_path, part2_path))
 }
 
 #[cfg(target_os = "macos")]
-fn setup_partitions(partition_path: &str, db_file_path: &Path) -> Result<String, String> {
-    // diskutil names are usually /dev/disk2s1. We need /dev/disk2.
+fn setup_partitions(
+    partition_path: &str,
+    db_file_path: &Path,
+    drive_label: &str,
+) -> Result<String, String> {
     let base_device = partition_path.split('s').next().unwrap_or(partition_path);
 
     let metadata = std::fs::metadata(db_file_path).map_err(|e| e.to_string())?;
@@ -368,9 +379,7 @@ fn setup_partitions(partition_path: &str, db_file_path: &Path) -> Result<String,
         .ok();
 
     println!("Rewriting partition table via diskutil...");
-    // macOS diskutil partitionDisk syntax:
-    // Format Name Size Format Name Size (R = remainder)
-    // We create the RAW_DB partition as MS-DOS just to reserve the exact space, we will overwrite it raw later.
+
     run_command(
         "diskutil",
         &[
@@ -379,20 +388,23 @@ fn setup_partitions(partition_path: &str, db_file_path: &Path) -> Result<String,
             "2",
             "MBR",
             "FAT32",
-            "DATA",
-            "R", // Partition 1: Uses all remaining space
+            drive_label,
+            "R",
             "MS-DOS",
             "RAW_DB",
-            &db_size_str, // Partition 2: Exact size for DB
+            &db_size_str,
         ],
     )?;
 
-    // Return Partition 2 path
     Ok(format!("{}s2", base_device))
 }
 
 #[cfg(target_os = "windows")]
-fn setup_partitions(_partition_path: &str, _db_file_path: &Path) -> Result<String, String> {
+fn setup_partitions(
+    _partition_path: &str,
+    _db_file_path: &Path,
+    _drive_label: &str,
+) -> Result<String, String> {
     Err("Automated partitioning on Windows is currently unsupported due to OS safety locks. Please use a Linux or macOS machine, or pre-partition the SD card manually.".to_string())
 }
 
@@ -408,10 +420,6 @@ fn run_command(cmd: &str, args: &[&str]) -> Result<(), String> {
     Ok(())
 }
 
-// ---------------------------------------------------------
-// RAW FLASHING LOGIC
-// ---------------------------------------------------------
-
 fn flash_image_to_drive(image_path: &Path, device_path: &str) -> io::Result<()> {
     println!("Opening source database file: {:?}", image_path);
     let mut source_file = File::open(image_path)?;
@@ -419,7 +427,6 @@ fn flash_image_to_drive(image_path: &Path, device_path: &str) -> io::Result<()> 
 
     println!("Opening target partition: {}", device_path);
 
-    // Requires Sudo/Admin privileges!
     let mut target_device = OpenOptions::new()
         .read(true)
         .write(true)
@@ -464,22 +471,18 @@ fn flash_image_to_drive(image_path: &Path, device_path: &str) -> io::Result<()> 
 
 #[cfg(target_os = "linux")]
 fn write_fat32_metadata(part1_path: &str, db_size_bytes: u64) {
-    println!("Generating README on WIKI_DRIVE...");
+    println!("Generating README on the FAT32 partition...");
     let mount_dir = "/tmp/wiki_drive_mount";
 
-    // 1. Create a temporary mount point
     let _ = std::fs::create_dir_all(mount_dir);
 
-    // 2. Mount the FAT32 partition
     if run_command("mount", &[part1_path, mount_dir]).is_err() {
-        println!("  ⚠️ Warning: Could not mount FAT32 partition to write README.");
+        println!("  Warning: Could not mount FAT32 partition to write README.");
         return;
     }
 
-    // 3. Write the README.txt
     let readme_path = format!("{}/README.txt", mount_dir);
 
-    // Use chrono or just hardcode the date format (using standard library here for simplicity)
     let readme_content = format!(
         "=======================================\n\
          WIKI DATABASE DRIVE\n\
@@ -499,12 +502,11 @@ fn write_fat32_metadata(part1_path: &str, db_size_bytes: u64) {
     );
 
     if let Err(e) = std::fs::write(&readme_path, readme_content) {
-        println!("  ⚠️ Warning: Failed to write README.txt: {}", e);
+        println!("  Warning: Failed to write README.txt: {}", e);
     } else {
-        println!("  ✅ README.txt successfully generated.");
+        println!("  README.txt successfully generated.");
     }
 
-    // 4. Clean up and unmount
     let _ = run_command("umount", &[mount_dir]);
     let _ = std::fs::remove_dir(mount_dir);
 }
