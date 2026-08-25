@@ -193,7 +193,6 @@ static RowEvalResult _evaluate_globe_row(SearchCursor* cursor, void* raw_row_ptr
 #endif
 
 #if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
-// --- NEW ASTRONOMICAL EVALUATOR ---
 static RowEvalResult _evaluate_astronomical_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
     AstronomicalRow* row = (AstronomicalRow*)raw_row_ptr;
     SpatialCursorState* spatial = &cursor->state.spatial;
