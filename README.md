@@ -7,7 +7,7 @@ A customizable Wiki database generator + lightweight C Query API optimized for m
 
 
 > [!Warning]  
-> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Linux Subsystem for Windows (WSL). MacOS is not supported as of right now. Keep in mind that the query API might change in the future.  
+> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Windows Subsystem for Linux (WSL). MacOS is not supported as of right now. Keep in mind that the query API might change in the future.  
 
 ---
 
@@ -125,14 +125,14 @@ flowchart TD
 * Add API support for the **Temporal Search Index**, **Global Search Index**, **Astronomical Search Index**, direct **QID Search Index**, and **PID Search Index**.
 * **Wiktionary** support.
 * Decide whether to properly support other wikis such as **Wikibooks**. This is a pain in the a** because, unlike Wikipedia articles, a Wiki Book consists of multiple chapters that need to be individually parsed and linked. This prevents me from using the same pipeline as Wikipedia articles, and considering the small size of those other wikis compared to Wikipedia, it might not be worth it.
-* Making the generator work on Windows (or maybe not, because people should switch to Linux anyway).
+* Making the generator work on Windows (or maybe not, because people should switch to  anyway).
 * Implementing a better default processing function for articles. Additionally, an easy way to turn redirects into QIDs would be nice so offline redirecting can be implemented (using the QID Index).
 * Performance improvements (focusing on the API).
 
 ---
 
 ## Quick Start
-*Note*: As of right now, this project has only been tested on Fedora. Other Linux distributions should work as well, but it will break under Windows/macOS natively. 
+*Note*: As of right now, this project has only been tested on Fedora. Other  distributions should work as well, but it will break under Windows/macOS natively. 
 
 ### 0. Prerequisites
 
@@ -141,7 +141,7 @@ In order to build and run this project, you will need `cargo` and `gcc` for comp
 
 *Windows*:
 
-Install Linux Subsystem for Windows (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once the installation has finished, close Powershell and open the WSL-Shell (You can just search for WSL). Once you are inside WSL, continue with the setup process by following the instructions for your installed Linux distribution below. From now on all the documented commands should be run from the WSL-Shell.
+Install Windows Subsystem for Linux (WSL) by opening the Powershell and running `wsl --install`. This will automatically install Ubuntu. If you want to install a different distribution or need more information, visit `https://learn.microsoft.com/en-us/windows/wsl/install` for help. Once the installation has finished, close Powershell and open the WSL-Shell (You can just search for WSL). Once you are inside WSL, continue with the setup process by following the instructions for your installed Linux distribution below. From now on all the documented commands should be run from the WSL-Shell.
 
 *Fedora:*
 ```bash
