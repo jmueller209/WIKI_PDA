@@ -24,8 +24,8 @@ typedef struct {
     uint32_t qid;
     uint32_t tags;
     float distance;
-    double lat;
-    double lon;
+    float lat; // Also used for Dec (Declination) in Astro Search
+    float lon; // Also used for RA (Right Ascension) in Astro Search
 } SpatialMatch;
 
 typedef struct {
@@ -38,7 +38,6 @@ typedef struct {
     uint16_t current_sorted_index;
 
     CompareCtx compare_ctx;
-    bool use_spherical_math;
 } SpatialCursorState;
 
 typedef struct {
@@ -92,8 +91,14 @@ void fetch_real_title(uint32_t qid, char* buffer, size_t max_len, DatabasePlatfo
     buffer[max_len - 1] = '\0';
 }
 
-static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, double lat, double lon, uint16_t max_results) {
+static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, float lat, float lon, uint16_t max_results) {
     if (max_results == 0 || max_results > MAX_SORTED_RESULTS) max_results = MAX_SORTED_RESULTS;
+
+    for (int i = 0; i < spatial->num_sorted_results; i++) {
+        if (spatial->sorted_results[i].qid == qid) {
+            return;
+        }
+    }
 
     int insert_idx = -1;
     for (int i = 0; i < spatial->num_sorted_results; i++) {
@@ -130,7 +135,7 @@ static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t q
         }
     }
 }
-
+#if WIKI_PDA_ENABLE_OMNI_SEARCH
 static RowEvalResult _evaluate_omni_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
     OmniRow* row = (OmniRow*)raw_row_ptr;
 
@@ -145,7 +150,9 @@ static RowEvalResult _evaluate_omni_row(SearchCursor* cursor, void* raw_row_ptr,
     DEBUG_PRINT("Omni-Search: Mismatch found. Terminating text search.");
     return ROW_END;
 }
+#endif
 
+#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
 static RowEvalResult _evaluate_globe_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
     GlobeCoordinateRow* row = (GlobeCoordinateRow*)raw_row_ptr;
     SpatialCursorState* spatial = &cursor->state.spatial;
@@ -169,14 +176,12 @@ static RowEvalResult _evaluate_globe_row(SearchCursor* cursor, void* raw_row_ptr
     }
 
     if (row->term >= current_range.start_code) {
-        bool is_inside = spatial->use_spherical_math 
-                       ? spatial_code_is_in_spherical_radius(row->term, spatial->compare_ctx)
-                       : spatial_code_is_in_local_radius(row->term, spatial->compare_ctx);
+        float dist = spatial_code_is_in_radius(row->term, &spatial->compare_ctx);
 
-        if (is_inside) {
+        if (dist >= 0) {
             *out_qid = row->qid;
             *out_tags = row->tags;
-            double row_lat, row_lon;
+            float row_lat, row_lon;
             spatial_decode(row->term, &row_lat, &row_lon, spatial->compare_ctx.spatialCtx);
             snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", row_lat, row_lon);
             return ROW_MATCH;
@@ -185,6 +190,48 @@ static RowEvalResult _evaluate_globe_row(SearchCursor* cursor, void* raw_row_ptr
 
     return ROW_SKIP; 
 }
+#endif
+
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+// --- NEW ASTRONOMICAL EVALUATOR ---
+static RowEvalResult _evaluate_astronomical_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
+    AstronomicalRow* row = (AstronomicalRow*)raw_row_ptr;
+    SpatialCursorState* spatial = &cursor->state.spatial;
+
+    if (spatial->current_range_index >= spatial->num_ranges) return ROW_END;
+    MortonRange current_range = spatial->ranges[spatial->current_range_index];
+
+    if (row->term > current_range.end_code) {
+        spatial->current_range_index++;
+        if (spatial->current_range_index >= spatial->num_ranges) {
+            DEBUG_PRINT("Astro-Search: Reached last range.");
+            return ROW_END;
+        }
+
+        uint64_t next_min = spatial->ranges[spatial->current_range_index].start_code;
+        DEBUG_PRINT("Astro-Search: Jumping to next range (Start: %" PRIu64 ").", next_min);
+
+        astronomical_search(next_min, cursor->ctx->astronomical_top_index, 
+                            &cursor->next_read_offset, cursor->ctx->platform);
+        return ROW_JUMP; 
+    }
+
+    if (row->term >= current_range.start_code) {
+        float dist = spatial_code_is_in_radius(row->term, &spatial->compare_ctx);
+
+        if (dist >= 0) {
+            *out_qid = row->qid;
+            *out_tags = row->tags;
+            float row_dec, row_ra;
+            spatial_decode(row->term, &row_dec, &row_ra, spatial->compare_ctx.spatialCtx);
+            snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", row_dec, row_ra);
+            return ROW_MATCH;
+        }
+    }
+
+    return ROW_SKIP; 
+}
+#endif
 
 DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform platform) {
     DEBUG_PRINT("db_init called.");
@@ -192,13 +239,18 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
     DatabaseContext* ctx = (DatabaseContext*)calloc(1, sizeof(struct DatabaseContext_t));
     if (ctx == NULL) return NULL;
     ctx->platform = platform;
-    
+
     if (!load_zstd_dictionary(&(ctx->zstd_dict), &(ctx->zstd_dict_length), ctx->platform)) {
         db_end(ctx); return NULL;
     }
-    
+
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
     if ((indexes_to_load & INDEX_GLOBE_COORDINATE) && !load_globe_coordinate_top_index(&(ctx->globe_coordinate_top_index), ctx->platform)) {
+        db_end(ctx); return NULL;
+    }
+#endif
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+    if ((indexes_to_load & INDEX_ASTRONOMICAL) && !load_astronomical_top_index(&(ctx->astronomical_top_index), ctx->platform)) {
         db_end(ctx); return NULL;
     }
 #endif
@@ -218,6 +270,9 @@ bool db_end(DatabaseContext* ctx) {
 #endif
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
     if (ctx->globe_coordinate_top_index != NULL) free_globe_coordinate_top_index(ctx->globe_coordinate_top_index);
+#endif
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+    if (ctx->astronomical_top_index != NULL) free_astronomical_top_index(ctx->astronomical_top_index);
 #endif
     free(ctx);
     return true;
@@ -257,9 +312,9 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 DEBUG_PRINT("ERROR: globe_coordinate_top_index is NULL!");
                 goto fail;
             }
-            double lat = query->target.globe.lat;
-            double lon = query->target.globe.lon;
-            double search_radius_km = query->target.globe.search_radius_km;
+            float lat = query->target.globe.lat;
+            float lon = query->target.globe.lon;
+            float search_radius_km = query->target.globe.search_radius_km;
             SpatialzCtx spatial_ctx = spatial_create_earth_ctx();
             cursor->row_size = sizeof(GlobeCoordinateRow);
 
@@ -267,7 +322,7 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             if (!spatial_get_radius_ranges(lat, lon, search_radius_km,
                                            cursor->state.spatial.ranges,
                                            &num_ranges_found,
-                                           MAX_MORTON_RANGES, spatial_ctx)) {
+                                           MAX_MORTON_RANGES, &spatial_ctx)) {
                 DEBUG_PRINT("ERROR: spatial_get_radius_ranges failed!");
                 goto fail;
             }
@@ -289,9 +344,8 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 break;
             }
 
-            cursor->state.spatial.use_spherical_math = (search_radius_km > LOCAL_SEARCH_LIMIT_KM);
             cursor->state.spatial.compare_ctx = spatial_create_compare_ctx(
-                lat, lon, search_radius_km, cursor->state.spatial.use_spherical_math, spatial_ctx
+                lat, lon, search_radius_km, spatial_ctx
             );
 
             if (query->target.globe.sort_by_distance) {
@@ -320,11 +374,9 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                                 break;
                             }
                             if (row.term >= range.start_code) {
-                                double dist = cursor->state.spatial.use_spherical_math 
-                                    ? spatial_code_is_in_spherical_radius(row.term, cursor->state.spatial.compare_ctx)
-                                    : spatial_code_is_in_local_radius(row.term, cursor->state.spatial.compare_ctx);
+                                float dist = spatial_code_is_in_radius(row.term, &cursor->state.spatial.compare_ctx);
                                 if (dist >= 0.0) {
-                                    double row_lat, row_lon;
+                                    float row_lat, row_lon;
                                     spatial_decode(row.term, &row_lat, &row_lon, cursor->state.spatial.compare_ctx.spatialCtx);
                                     _insert_sorted_spatial_match(&cursor->state.spatial, row.qid, row.tags, (float)dist, row_lat, row_lon, max_results);
                                 }
@@ -358,6 +410,110 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             break;
         }
 #endif
+
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+        case SEARCH_TYPE_ASTRONOMICAL: {
+            if (ctx->astronomical_top_index == NULL) {
+                DEBUG_PRINT("ERROR: astronomical_top_index is NULL!");
+                goto fail;
+            }
+            float dec = query->target.astronomical.dec;
+            float ra = query->target.astronomical.ra;
+            float search_radius = query->target.astronomical.search_radius_degrees;
+            SpatialzCtx spatial_ctx = spatial_create_celestial_ctx();
+            cursor->row_size = sizeof(AstronomicalRow);
+
+            int num_ranges_found = 0;
+            if (!spatial_get_radius_ranges(dec, ra, search_radius,
+                                           cursor->state.spatial.ranges,
+                                           &num_ranges_found,
+                                           MAX_MORTON_RANGES, &spatial_ctx)) {
+                DEBUG_PRINT("ERROR: spatial_get_radius_ranges failed!");
+                goto fail;
+            }
+            cursor->state.spatial.num_ranges = (uint8_t)num_ranges_found;
+            cursor->state.spatial.current_range_index = 0;
+            cursor->state.spatial.current_sorted_index = 0;
+            cursor->state.spatial.num_sorted_results = 0;
+
+            DEBUG_PRINT("Astro-Search: Found ranges: %d", num_ranges_found);
+            if (num_ranges_found > 0) {
+                DEBUG_PRINT("Astro-Search: First range -> Start: %" PRIu64 ", End: %" PRIu64,
+                            cursor->state.spatial.ranges[0].start_code,
+                            cursor->state.spatial.ranges[0].end_code);
+            }
+
+            if (cursor->state.spatial.num_ranges == 0) {
+                DEBUG_PRINT("Astro-Search: No ranges found within radius.");
+                cursor->end_of_results = true;
+                break;
+            }
+
+            cursor->state.spatial.compare_ctx = spatial_create_compare_ctx(
+                dec, ra, search_radius, spatial_ctx
+            );
+
+            if (query->target.astronomical.sort_by_distance) {
+                DEBUG_PRINT("Astro-Search: Top-K mode active. Scanning ranges for sorted results...");
+                uint16_t max_results = query->target.astronomical.max_results > 0 ? query->target.astronomical.max_results : MAX_SORTED_RESULTS;
+
+                for (int r = 0; r < cursor->state.spatial.num_ranges; r++) {
+                    MortonRange range = cursor->state.spatial.ranges[r];
+                    uint64_t read_offset = 0;
+                    if (!astronomical_search(range.start_code, ctx->astronomical_top_index, &read_offset, ctx->platform)) {
+                        continue;
+                    }
+
+                    AstronomicalRow row_batch[32];
+                    while (true) {
+                        if (!ctx->platform.read_fn(read_offset, (uint8_t*)row_batch, sizeof(row_batch), ctx->platform.user_data)) {
+                            break;
+                        }
+                        size_t rows_in_batch = sizeof(row_batch) / sizeof(AstronomicalRow);
+                        bool out_of_range = false;
+
+                        for (size_t i = 0; i < rows_in_batch; i++) {
+                            AstronomicalRow row = row_batch[i];
+                            if (row.term > range.end_code) {
+                                out_of_range = true;
+                                break;
+                            }
+                            if (row.term >= range.start_code) {
+                                float dist = spatial_code_is_in_radius(row.term, &cursor->state.spatial.compare_ctx); 
+                                if (dist >= 0.0) {
+                                    float row_dec, row_ra;
+                                    spatial_decode(row.term, &row_dec, &row_ra, cursor->state.spatial.compare_ctx.spatialCtx);
+                                    _insert_sorted_spatial_match(&cursor->state.spatial, row.qid, row.tags, (float)dist, row_dec, row_ra, max_results);
+                                }
+                            }
+                        }
+                        if (out_of_range) break;
+                        read_offset += sizeof(row_batch);
+                    }
+                }
+                DEBUG_PRINT("Astro-Search: Top-K populated %d results.", cursor->state.spatial.num_sorted_results);
+                if (cursor->state.spatial.num_sorted_results == 0) {
+                    cursor->end_of_results = true;
+                }
+            } else {
+                DEBUG_PRINT("Astro-Search: Stream mode active. Invoking astronomical_search...");
+                uint64_t target_code = cursor->state.spatial.ranges[0].start_code;
+                bool search_success = astronomical_search(
+                    target_code, 
+                    ctx->astronomical_top_index, 
+                    &cursor->next_read_offset, 
+                    ctx->platform
+                );
+
+                if (!search_success) {
+                    DEBUG_PRINT("Astro-Search: astronomical_search returned false (no match in index).");
+                    cursor->end_of_results = true;
+                }
+            }
+            break;
+        }
+#endif
+
         default:
             goto fail;
     }
@@ -371,39 +527,45 @@ fail:
 
 bool search_next(SearchCursor* cursor, SearchResult* out_result) {
     if (cursor == NULL || cursor->end_of_results) return false;
+    bool is_spatial_top_k = false;
 
-    // --- INTERCEPT FOR SORTED RESULTS (TOP-K GLOBE / ASTRO) ---
+#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
     if (cursor->query.type == SEARCH_TYPE_GLOBE_COORDINATE && cursor->query.target.globe.sort_by_distance) {
-        if (cursor->state.spatial.current_sorted_index >= cursor->state.spatial.num_sorted_results) {
-            cursor->end_of_results = true;
-            return false;
-        }
-        
-        SpatialMatch match = cursor->state.spatial.sorted_results[cursor->state.spatial.current_sorted_index++];
-        
-        uint64_t relative_data_offset = 0;
-        uint32_t data_length = 0;
-        if (!get_relative_data_offset_and_length(match.qid, (uint16_t)cursor->query.article_type, 
-                                                 &relative_data_offset, &data_length, cursor->ctx->platform)) {
-            return false; 
-        }
+        is_spatial_top_k = true;
+    }
+#endif
 
-        out_result->qid = match.qid;
-        out_result->tags = match.tags;
-        out_result->article_type = cursor->query.article_type;
-        out_result->data_length = data_length;
-        out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
-        
-        // Display exact coordinates instead of distance in Top-K mode
-        snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
-        out_result->term = cursor->match_term_buffer;
-        
-        snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
-        out_result->title = cursor->article_title_buffer;
-        return true;
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+    if (cursor->query.type == SEARCH_TYPE_ASTRONOMICAL && cursor->query.target.astronomical.sort_by_distance) {
+        is_spatial_top_k = true;
+    }
+#endif
+
+    if (is_spatial_top_k) {
+        while (cursor->state.spatial.current_sorted_index < cursor->state.spatial.num_sorted_results) {
+            SpatialMatch match = cursor->state.spatial.sorted_results[cursor->state.spatial.current_sorted_index++];
+            uint64_t relative_data_offset = 0;
+            uint32_t data_length = 0;
+            if (!get_relative_data_offset_and_length(match.qid, (uint16_t)cursor->query.article_type, 
+                                                     &relative_data_offset, &data_length, cursor->ctx->platform)) {
+                continue; 
+            }
+
+            out_result->qid = match.qid;
+            out_result->tags = match.tags;
+            out_result->article_type = cursor->query.article_type;
+            out_result->data_length = data_length;
+            out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+
+            snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
+            out_result->term = cursor->match_term_buffer;
+            snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
+            out_result->title = cursor->article_title_buffer;
+            return true;        }
+        cursor->end_of_results = true;
+        return false;
     }
 
-    // --- NORMAL STREAM MODE FROM SD CARD ---
     while (true) {
         if (cursor->current_row_index >= cursor->valid_rows_in_batch) {
             if (!cursor->ctx->platform.read_fn(cursor->next_read_offset, 
@@ -433,6 +595,11 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
             case SEARCH_TYPE_GLOBE_COORDINATE:
                 eval_result = _evaluate_globe_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+            case SEARCH_TYPE_ASTRONOMICAL:
+                eval_result = _evaluate_astronomical_row(cursor, raw_row_ptr, &qid, &tags);
                 break;
 #endif
             default:
@@ -468,8 +635,8 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
         uint32_t data_length = 0;
         if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type, 
                                                  &relative_data_offset, &data_length, cursor->ctx->platform)) {
-            continue; 
-        } 
+            continue;
+        }
 
         cursor->seen_qids[(cursor->seen_qid_count++) % MAX_DEDUPLICATION_CACHE] = qid;
 
@@ -486,7 +653,6 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
         return true;
     }
 }
-
 
 bool search_end(SearchCursor* cursor) {
     DEBUG_PRINT("search_end called.");

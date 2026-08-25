@@ -6,7 +6,8 @@
 
 // Maximum number of morton ranges that need to be searched. A lower number reduces the number of random reads the database needs to perform.
 // Increasing the number will increase the number of sequential reads needed (relevant for astronomical and globe coordinate search).
-#define MAX_MORTON_RANGES 12
+#define MAX_MORTON_RANGES 64
 
 // Search radius at which the API starts considering the curvature of the earth for distance calculation (relevant only for globe coordinate search).
 #define LOCAL_SEARCH_LIMIT_KM 500
+

@@ -21,7 +21,7 @@ void free_astronomical_top_index(AstronomicalSparseRow* top_level_index) {
 }
 
 bool astronomical_search(
-    int64_t search_term,
+    uint64_t search_term,
     const AstronomicalSparseRow* top_level_ram_index, 
     uint64_t* out_abs_pointer, 
     DatabasePlatform platform
@@ -33,6 +33,7 @@ bool astronomical_search(
         ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS,
         ASTRONOMICAL_SEARCH_CHUNK_SIZE_ROWS,
         OFFSETS_ASTRONOMICAL_SEARCH_LEVEL,
+        SIZES_ASTRONOMICAL_SEARCH_LEVEL,
         sizeof(AstronomicalSparseRow),
         sizeof(AstronomicalRow),
         out_abs_pointer,

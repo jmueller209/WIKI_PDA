@@ -1,48 +1,66 @@
-#include <math.h>
 #include <stdint.h>
-#include "utils.h"
+#include <math.h>
 #include "../include/spatial_z.h"
+#include "utils.h"
 
-#define GRID_MAX_UINT 4294967295.0
-
-uint32_t lat_to_grid(double lat, SpatialzCtx ctx)
+void to_internal_sphere(float user_y, float user_x, SpatialzCtx ctx, 
+                        float *internal_y, float *internal_x) 
 {
-    if (lat < ctx.min_lat) lat = ctx.min_lat;
-    if (lat > ctx.max_lat) lat = ctx.max_lat;
+    float y = user_y - ctx.min_axis1;
+    float x = user_x - ctx.min_axis2;
 
-    const double range = ctx.max_lat - ctx.min_lat;
-    const double norm = (range == 0.0)
-        ? 0.0
-        : (lat - ctx.min_lat) / range;
+    y = fmodf(y, 360.0f);
+    if (y < 0.0f) y += 360.0f;
 
-    if (norm <= 0.0) return 0U;
-    if (norm >= 1.0) return UINT32_MAX;
+    if (y > 180.0f) {
+        y = 360.0f - y;
+        x += 180.0f;
+    }
+
+    x = fmodf(x, 360.0f);
+    if (x < 0.0f) x += 360.0f;
+
+    *internal_y = y;
+    *internal_x = x;
+}
+
+void to_user_space(float internal_y, float internal_x, SpatialzCtx ctx, 
+                   float *user_y, float *user_x) 
+{
+    *user_y = internal_y + ctx.min_axis1;
+    *user_x = internal_x + ctx.min_axis2;
+}
+
+
+uint32_t axis1_to_grid(float internal_y)
+{
+    const float norm = internal_y / 180.0f;
+
+    if (norm <= 0.0f) return 0U;
+    if (norm >= 1.0f) return (uint32_t)GRID_MAX_UINT;
+
     return (uint32_t)(norm * GRID_MAX_UINT);
 }
 
-uint32_t lon_to_grid(double lon, SpatialzCtx ctx)
+uint32_t axis2_to_grid(float internal_x)
 {
-    if (lon < ctx.min_long) lon = ctx.min_long;
-    if (lon > ctx.max_long) lon = ctx.max_long;
+    const float norm = internal_x / 360.0f;
 
-    const double range = ctx.max_long - ctx.min_long;
-    const double norm = (range == 0.0)
-        ? 0.0
-        : (lon - ctx.min_long) / range;
+    if (norm <= 0.0f) return 0U;
+    if (norm >= 1.0f) return (uint32_t)GRID_MAX_UINT;
 
-    if (norm <= 0.0) return 0U;
-    if (norm >= 1.0) return UINT32_MAX;
     return (uint32_t)(norm * GRID_MAX_UINT);
 }
 
-double grid_to_lat(uint32_t grid_y, SpatialzCtx ctx)
+
+float grid_to_axis1(uint32_t grid_y)
 {
-    const double norm = (double)grid_y / GRID_MAX_UINT;
-    return ctx.min_lat + norm * (ctx.max_lat - ctx.min_lat);
+    const float norm = (float)grid_y / GRID_MAX_UINT;
+    return norm * 180.0f;
 }
 
-double grid_to_lon(uint32_t grid_x, SpatialzCtx ctx)
+float grid_to_axis2(uint32_t grid_x)
 {
-    const double norm = (double)grid_x / GRID_MAX_UINT;
-    return ctx.min_long + norm * (ctx.max_long - ctx.min_long);
+    const float norm = (float)grid_x / GRID_MAX_UINT;
+    return norm * 360.0f;
 }

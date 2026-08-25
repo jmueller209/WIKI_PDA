@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include "../include/spatial_z.h"
 
-#define M_PI 3.14159265358979323846
-
 static inline uint64_t spread_bits_32_to_64(uint32_t v) {
     uint64_t x = v;
     x = (x | (x << 16)) & 0x00000ffff0000ffffULL;
@@ -26,11 +24,18 @@ static inline uint32_t compact_bits_64_to_32(uint64_t x) {
     return (uint32_t)x;
 }
 
+void to_internal_sphere(float user_y, float user_x, SpatialzCtx ctx, 
+                        float *internal_y, float *internal_x);
 
-uint32_t lat_to_grid(double lat, SpatialzCtx ctx);
-uint32_t lon_to_grid(double lon, SpatialzCtx ctx);
-double grid_to_lat(uint32_t grid_y, SpatialzCtx ctx);
-double grid_to_lon(uint32_t grid_x, SpatialzCtx ctx);
+void to_user_space(float internal_y, float internal_x, SpatialzCtx ctx, 
+                   float *user_y, float *user_x);
+
+
+uint32_t axis1_to_grid(float internal_y);
+uint32_t axis2_to_grid(float internal_x);
+
+float grid_to_axis1(uint32_t grid_y);
+float grid_to_axis2(uint32_t grid_x);
 
 
 #endif // INTERNAL_H

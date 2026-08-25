@@ -7,38 +7,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifndef SPATIALZ_FAST_RADIUS_KM
-#define SPATIALZ_FAST_RADIUS_KM 1000.0
-#endif
-
-#ifndef SPATIALZ_SPHERICAL_LAT_THRESHOLD_DEG
-#define SPATIALZ_SPHERICAL_LAT_THRESHOLD_DEG 75.0
-#endif
-
-#define SPATIALZ_MAX_GRID_LEVEL 32U
-#define SPATIALZ_EPS_KM 1e-8
-
-typedef enum {
-    QUERY_LOCAL = 0,
-    QUERY_SPHERICAL = 1
-} QueryMode;
+#include <stdio.h>
 
 typedef struct {
-    double center_lat;
-    double center_lon;
-    double radius_km;
-    double radius_sq_km;
-    QueryMode mode;
+    float center_axis1;
+    float center_axis2;
 
-    // Used by the local/equirectangular fast path.
-    double km_per_deg_lat;
-    double km_per_deg_lon;
+    float radius;
+    float radius_sq;
+    float radius_chord_sq;
 
-    // Used by the spherical path.
-    double center_lat_rad;
-    double center_lon_rad;
-    double radius_rad;
+    float units_per_degree_axis1;
+    float units_per_degree_axis2;
+
+    float center_axis1_rad;
+    float center_axis2_rad;
+    float radius_rad;
+    float sphere_radius;
 } FastQueryCtx;
 
 typedef enum {
@@ -50,21 +35,47 @@ typedef enum {
 typedef struct {
     uint32_t gx;
     uint32_t gy;
+
     uint8_t level;
     uint8_t query_id;
+
     BlockClass cls;
-    double dead_area;
+    float dead_area;
 } ZBlock;
 
-
-static inline uint64_t morton_encode_grid(uint32_t gx, uint32_t gy)
-{
-    return spread_bits_32_to_64(gx) |
-           (spread_bits_32_to_64(gy) << 1);
+static inline float deg_to_rad(float value) {
+    return value * (SPATIALZ_PI / 180.0f);
 }
 
-static int compare_ranges(const void *a, const void *b)
-{
+static inline float rad_to_deg(float value) {
+    return value * (180.0f / SPATIALZ_PI);
+}
+
+static inline float clamp_float(float value, float minimum, float maximum) {
+    if (value < minimum) return minimum;
+    if (value > maximum) return maximum;
+    return value;
+}
+
+static inline void latlon_to_vector(float lat_rad, float lon_rad, float out_v[3]) {
+    const float cos_lat = cosf(lat_rad);
+    out_v[0] = cos_lat * cosf(lon_rad);
+    out_v[1] = cos_lat * sinf(lon_rad);
+    out_v[2] = sinf(lat_rad);
+}
+
+static inline float chord_distance_sq(const float v1[3], const float v2[3]) {
+    const float dx = v1[0] - v2[0];
+    const float dy = v1[1] - v2[1];
+    const float dz = v1[2] - v2[2];
+    return dx * dx + dy * dy + dz * dz;
+}
+
+static inline uint64_t morton_encode_grid(uint32_t gx, uint32_t gy) {
+    return spread_bits_32_to_64(gx) | (spread_bits_32_to_64(gy) << 1);
+}
+
+static int compare_ranges(const void *a, const void *b) {
     const MortonRange *ra = (const MortonRange *)a;
     const MortonRange *rb = (const MortonRange *)b;
 
@@ -72,280 +83,154 @@ static int compare_ranges(const void *a, const void *b)
     if (ra->start_code > rb->start_code) return 1;
     if (ra->end_code < rb->end_code) return -1;
     if (ra->end_code > rb->end_code) return 1;
+
     return 0;
 }
 
-static int merge_ranges(MortonRange *ranges, int count)
-{
-    if (count <= 1)
-        return count;
+static int merge_ranges(MortonRange *ranges, int count) {
+    if (count <= 1) return count;
 
     qsort(ranges, (size_t)count, sizeof(*ranges), compare_ranges);
 
     int write = 0;
-
     for (int read = 1; read < count; ++read) {
-        MortonRange *cur = &ranges[write];
+        MortonRange *current = &ranges[write];
         const MortonRange *next = &ranges[read];
 
-        const bool overlaps = next->start_code <= cur->end_code;
-        const bool adjacent =
-            cur->end_code != UINT64_MAX &&
-            next->start_code == cur->end_code + 1ULL;
+        const bool overlaps = next->start_code <= current->end_code;
+        const bool adjacent = current->end_code != UINT64_MAX &&
+                              next->start_code == current->end_code + 1ULL;
 
         if (overlaps || adjacent) {
-            if (next->end_code > cur->end_code)
-                cur->end_code = next->end_code;
+            if (next->end_code > current->end_code) {
+                current->end_code = next->end_code;
+            }
         } else {
             ++write;
             ranges[write] = *next;
         }
     }
-
     return write + 1;
 }
 
+static inline float angular_distance(float axis1_a_rad, float axis2_a_rad, float axis1_b_rad, float axis2_b_rad) {
+    const float d_axis1 = axis1_b_rad - axis1_a_rad;
+    const float d_axis2 = axis2_b_rad - axis2_a_rad;
 
-static inline double deg_to_rad(double x)
-{
-    return x * (M_PI / 180.0);
+    const float s1 = sinf(d_axis1 * 0.5f);
+    const float s2 = sinf(d_axis2 * 0.5f);
+
+    const float a = s1 * s1 + cosf(axis1_a_rad) * cosf(axis1_b_rad) * s2 * s2;
+    return 2.0f * asinf(sqrtf(clamp_float(a, 0.0f, 1.0f)));
 }
 
-static inline double rad_to_deg(double x)
-{
-    return x * (180.0 / M_PI);
+static float block_area_estimate(float min_axis1, float max_axis1, float min_axis2, float max_axis2, const FastQueryCtx *query) {
+    const float height = fabsf(max_axis1 - min_axis1) * query->units_per_degree_axis1;
+    const float mid_axis1 = 0.5f * (min_axis1 + max_axis1);
+    const float axis2_scale = fabsf(cosf(deg_to_rad(mid_axis1 - 90.0f)));
+    const float width = fabsf(max_axis2 - min_axis2) * query->units_per_degree_axis1 * axis2_scale;
+    return height * width;
 }
 
-static inline double clamp_double(double x, double lo, double hi)
-{
-    return x < lo ? lo : (x > hi ? hi : x);
+static void get_block_bounds(const ZBlock *block, float *min_axis1, float *max_axis1, float *min_axis2, float *max_axis2) {
+    const uint64_t size = 1ULL << block->level;
+    const float axis1_0 = (float)grid_to_axis1(block->gy);
+    const float axis2_0 = (float)grid_to_axis2(block->gx);
+
+    float axis1_1, axis2_1;
+
+    if (block->level == SPATIALZ_MAX_GRID_LEVEL) {
+        axis1_1 = 180.0f;
+        axis2_1 = 360.0f;
+    } else {
+        const uint64_t gy1 = (uint64_t)block->gy + size;
+        const uint64_t gx1 = (uint64_t)block->gx + size;
+        axis1_1 = ((float)gy1 / GRID_MAX_UINT) * 180.0f;
+        axis2_1 = ((float)gx1 / GRID_MAX_UINT) * 360.0f;
+    }
+
+    *min_axis1 = fminf(axis1_0, axis1_1);
+    *max_axis1 = fmaxf(axis1_0, axis1_1);
+    *min_axis2 = fminf(axis2_0, axis2_1);
+    *max_axis2 = fmaxf(axis2_0, axis2_1);
 }
 
-static inline double normalize_lon_deg(double lon)
-{
-    while (lon < -180.0) lon += 360.0;
-    while (lon > 180.0) lon -= 360.0;
-    return lon;
-}
+static BlockClass classify_spherical(ZBlock *block, const FastQueryCtx *query) {
+    float min_axis1, max_axis1, min_axis2, max_axis2;
+    get_block_bounds(block, &min_axis1, &max_axis1, &min_axis2, &max_axis2);
 
-static inline double earth_radius_km(const SpatialzCtx *ctx)
-{
-    return ctx->unit_length * (180.0 / M_PI);
-}
+    const float mid_axis1 = 0.5f * (min_axis1 + max_axis1);
+    const float mid_axis2 = 0.5f * (min_axis2 + max_axis2);
 
-static inline double local_sq_dist(double lat, double lon, const FastQueryCtx *q)
-{
-    const double dy = (lat - q->center_lat) * q->km_per_deg_lat;
-    const double dx = (lon - q->center_lon) * q->km_per_deg_lon;
-    return dx * dx + dy * dy;
-}
+    float center_v[3];
+    latlon_to_vector(deg_to_rad(mid_axis1 - 90.0f), deg_to_rad(mid_axis2), center_v);
 
-static inline double spherical_angle(
-    double lat1_rad,
-    double lon1_rad,
-    double lat2_rad,
-    double lon2_rad)
-{
-    const double dlat = lat2_rad - lat1_rad;
-    const double dlon = lon2_rad - lon1_rad;
+    float query_center_v[3];
+    latlon_to_vector(deg_to_rad(query->center_axis1 - 90.0f), deg_to_rad(query->center_axis2), query_center_v);
 
-    const double s1 = sin(dlat * 0.5);
-    const double s2 = sin(dlon * 0.5);
-    const double a = s1 * s1 +
-                     cos(lat1_rad) * cos(lat2_rad) * s2 * s2;
+    const float center_dist_sq = chord_distance_sq(query_center_v, center_v);
 
-    return 2.0 * asin(sqrt(clamp_double(a, 0.0, 1.0)));
-}
+    float corner_v[3];
+    float max_corner_chord_sq = 0.0f;
 
-static inline double spherical_distance_km(
-    double lat,
-    double lon,
-    const FastQueryCtx *q,
-    double earth_radius_km)
-{
-    return spherical_angle(
-        q->center_lat_rad,
-        q->center_lon_rad,
-        deg_to_rad(lat),
-        deg_to_rad(lon)) * earth_radius_km;
-}
+    latlon_to_vector(deg_to_rad(min_axis1 - 90.0f), deg_to_rad(min_axis2), corner_v);
+    max_corner_chord_sq = fmaxf(max_corner_chord_sq, chord_distance_sq(center_v, corner_v));
+    latlon_to_vector(deg_to_rad(max_axis1 - 90.0f), deg_to_rad(min_axis2), corner_v);
+    max_corner_chord_sq = fmaxf(max_corner_chord_sq, chord_distance_sq(center_v, corner_v));
+    latlon_to_vector(deg_to_rad(min_axis1 - 90.0f), deg_to_rad(max_axis2), corner_v);
+    max_corner_chord_sq = fmaxf(max_corner_chord_sq, chord_distance_sq(center_v, corner_v));
+    latlon_to_vector(deg_to_rad(max_axis1 - 90.0f), deg_to_rad(max_axis2), corner_v);
+    max_corner_chord_sq = fmaxf(max_corner_chord_sq, chord_distance_sq(center_v, corner_v));
 
-static double block_dead_area_estimate(
-    double min_lat,
-    double max_lat,
-    double min_lon,
-    double max_lon,
-    const FastQueryCtx *q)
-{
-    const double h = fabs(max_lat - min_lat) * q->km_per_deg_lat;
-    const double w = fabs(max_lon - min_lon) * q->km_per_deg_lon;
-    return w * h;
-}
+    const float block_chord_radius = sqrtf(max_corner_chord_sq) * 1.001f;
+    const float query_radius = sqrtf(query->radius_chord_sq);
+    const float center_dist = sqrtf(center_dist_sq);
 
-static void get_block_bounds(
-    const ZBlock *b,
-    SpatialzCtx ctx,
-    double *min_lat,
-    double *max_lat,
-    double *min_lon,
-    double *max_lon)
-{
-    const uint64_t size = 1ULL << b->level;
-
-    const uint64_t gx1_64 = (uint64_t)b->gx + size - 1ULL;
-    const uint64_t gy1_64 = (uint64_t)b->gy + size - 1ULL;
-
-    const uint32_t gx1 = (uint32_t)gx1_64;
-    const uint32_t gy1 = (uint32_t)gy1_64;
-
-    const double lat0 = grid_to_lat(b->gy, ctx);
-    const double lat1 = grid_to_lat(gy1, ctx);
-    const double lon0 = grid_to_lon(b->gx, ctx);
-    const double lon1 = grid_to_lon(gx1, ctx);
-
-    *min_lat = fmin(lat0, lat1);
-    *max_lat = fmax(lat0, lat1);
-    *min_lon = fmin(lon0, lon1);
-    *max_lon = fmax(lon0, lon1);
-}
-
-
-static BlockClass classify_local(
-    ZBlock *b,
-    const FastQueryCtx *q,
-    SpatialzCtx ctx)
-{
-    double min_lat, max_lat, min_lon, max_lon;
-    get_block_bounds(b, ctx, &min_lat, &max_lat, &min_lon, &max_lon);
-
-    const double closest_lat = clamp_double(
-        q->center_lat, min_lat, max_lat);
-    const double closest_lon = clamp_double(
-        q->center_lon, min_lon, max_lon);
-
-    const double min_d2 = local_sq_dist(closest_lat, closest_lon, q);
-
-    if (min_d2 > q->radius_sq_km) {
-        b->dead_area = block_dead_area_estimate(
-            min_lat, max_lat, min_lon, max_lon, q);
+    if (center_dist - block_chord_radius > query_radius) {
+        block->dead_area = block_area_estimate(min_axis1, max_axis1, min_axis2, max_axis2, query);
         return BLOCK_OUTSIDE;
     }
 
-    const double d00 = local_sq_dist(min_lat, min_lon, q);
-    const double d01 = local_sq_dist(min_lat, max_lon, q);
-    const double d10 = local_sq_dist(max_lat, min_lon, q);
-    const double d11 = local_sq_dist(max_lat, max_lon, q);
-
-    const double max_d2 = fmax(fmax(d00, d01), fmax(d10, d11));
-
-    if (max_d2 <= q->radius_sq_km)
-        return BLOCK_INSIDE;
-
-    const double lat_mid = 0.5 * (min_lat + max_lat);
-    const double lon_mid = 0.5 * (min_lon + max_lon);
-    const double lat[3] = { min_lat, lat_mid, max_lat };
-    const double lon[3] = { min_lon, lon_mid, max_lon };
-
-    int inside = 0;
-    for (int iy = 0; iy < 3; ++iy) {
-        for (int ix = 0; ix < 3; ++ix) {
-            if (local_sq_dist(lat[iy], lon[ix], q) <= q->radius_sq_km)
-                ++inside;
-        }
-    }
-
-    const double area = block_dead_area_estimate(
-        min_lat, max_lat, min_lon, max_lon, q);
-    b->dead_area = area * (1.0 - ((double)inside / 9.0));
-
-    return BLOCK_INTERSECT;
-}
-
-static BlockClass classify_spherical(
-    ZBlock *b,
-    const FastQueryCtx *q,
-    SpatialzCtx ctx)
-{
-    double min_lat, max_lat, min_lon, max_lon;
-    get_block_bounds(b, ctx, &min_lat, &max_lat, &min_lon, &max_lon);
-
-    const double lat_mid = 0.5 * (min_lat + max_lat);
-    const double lon_mid = 0.5 * (min_lon + max_lon);
-
-    const double lat_half = 0.5 * deg_to_rad(max_lat - min_lat);
-    const double lon_half = 0.5 * deg_to_rad(max_lon - min_lon);
-
-    double block_radius = lat_half + lon_half;
-    if (block_radius > M_PI)
-        block_radius = M_PI;
-
-    const double center_angle = spherical_angle(
-        q->center_lat_rad,
-        q->center_lon_rad,
-        deg_to_rad(lat_mid),
-        deg_to_rad(lon_mid));
-
-    const double padded_radius = q->radius_rad + deg_to_rad(1e-8);
-
-    if (center_angle - block_radius > padded_radius) {
-        b->dead_area = block_dead_area_estimate(
-            min_lat, max_lat, min_lon, max_lon, q);
-        return BLOCK_OUTSIDE;
-    }
-
-    if (center_angle + block_radius <= padded_radius) {
-        b->dead_area = 0.0;
+    if (center_dist + block_chord_radius <= query_radius) {
+        block->dead_area = 0.0f;
         return BLOCK_INSIDE;
     }
 
-    const double R = earth_radius_km(&ctx);
-    const double lat_span_km = fabs(max_lat - min_lat) * ctx.unit_length;
-    const double lon_scale = fmax(0.0, cos(deg_to_rad(lat_mid)));
-    const double lon_span_km =
-        fabs(max_lon - min_lon) * ctx.unit_length * lon_scale;
+    float sin_a1[3], cos_a1[3], sin_a2[3], cos_a2[3];
+    const float axis1_samples[3] = { min_axis1, mid_axis1, max_axis1 };
+    const float axis2_samples[3] = { min_axis2, mid_axis2, max_axis2 };
 
-    const double area = lat_span_km * lon_span_km;
+    for (int i = 0; i < 3; ++i) {
+        sin_a1[i] = sinf(deg_to_rad(axis1_samples[i] - 90.0f));
+        cos_a1[i] = cosf(deg_to_rad(axis1_samples[i] - 90.0f));
+        sin_a2[i] = sinf(deg_to_rad(axis2_samples[i]));
+        cos_a2[i] = cosf(deg_to_rad(axis2_samples[i]));
+    }
 
-    const double lat[3] = { min_lat, lat_mid, max_lat };
-    const double lon[3] = { min_lon, lon_mid, max_lon };
     int inside = 0;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            float sample_v[3];
+            sample_v[0] = cos_a1[i] * cos_a2[j];
+            sample_v[1] = cos_a1[i] * sin_a2[j];
+            sample_v[2] = sin_a1[i];
 
-    for (int iy = 0; iy < 3; ++iy) {
-        for (int ix = 0; ix < 3; ++ix) {
-            if (spherical_distance_km(lat[iy], lon[ix], q, R) <= q->radius_km)
+            if (chord_distance_sq(query_center_v, sample_v) <= query->radius_chord_sq) {
                 ++inside;
+            }
         }
     }
 
-    b->dead_area = area * (1.0 - ((double)inside / 9.0));
+    const float area = block_area_estimate(min_axis1, max_axis1, min_axis2, max_axis2, query);
+    block->dead_area = area * (1.0f - ((float)inside / 9.0f));
     return BLOCK_INTERSECT;
 }
 
-static BlockClass classify_block(
-    ZBlock *b,
-    const FastQueryCtx *q,
-    SpatialzCtx ctx)
-{
-    if (q->mode == QUERY_SPHERICAL)
-        return classify_spherical(b, q, ctx);
-    return classify_local(b, q, ctx);
-}
-
-static void get_grid_box(
-    double min_lon,
-    double max_lon,
-    double min_lat,
-    double max_lat,
-    SpatialzCtx ctx,
-    uint32_t *min_gx,
-    uint32_t *max_gx,
-    uint32_t *min_gy,
-    uint32_t *max_gy)
-{
-    uint32_t gx0 = lon_to_grid(min_lon, ctx);
-    uint32_t gx1 = lon_to_grid(max_lon, ctx);
-    uint32_t gy0 = lat_to_grid(min_lat, ctx);
-    uint32_t gy1 = lat_to_grid(max_lat, ctx);
+static void get_grid_box(float min_axis2, float max_axis2, float min_axis1, float max_axis1, uint32_t *min_gx, uint32_t *max_gx, uint32_t *min_gy, uint32_t *max_gy) {
+    const uint32_t gx0 = axis2_to_grid(min_axis2);
+    const uint32_t gx1 = axis2_to_grid(max_axis2);
+    const uint32_t gy0 = axis1_to_grid(min_axis1);
+    const uint32_t gy1 = axis1_to_grid(max_axis1);
 
     *min_gx = gx0 < gx1 ? gx0 : gx1;
     *max_gx = gx0 > gx1 ? gx0 : gx1;
@@ -353,497 +238,406 @@ static void get_grid_box(
     *max_gy = gy0 > gy1 ? gy0 : gy1;
 }
 
-static uint64_t next_pow2_u64(uint64_t x)
-{
-    if (x <= 1ULL)
-        return 1ULL;
-
-    --x;
-    x |= x >> 1;
-    x |= x >> 2;
-    x |= x >> 4;
-    x |= x >> 8;
-    x |= x >> 16;
-    x |= x >> 32;
-    return x + 1ULL;
+static uint64_t next_pow2_u64(uint64_t value) {
+    if (value <= 1ULL) return 1ULL;
+    --value;
+    value |= value >> 1;
+    value |= value >> 2;
+    value |= value >> 4;
+    value |= value >> 8;
+    value |= value >> 16;
+    value |= value >> 32;
+    return value + 1ULL;
 }
 
-static uint64_t count_root_blocks(
-    uint32_t min_gx,
-    uint32_t max_gx,
-    uint32_t min_gy,
-    uint32_t max_gy,
-    uint64_t size)
-{
-    if (size == 0ULL)
-        return UINT64_MAX;
+static uint64_t count_root_blocks(uint32_t min_gx, uint32_t max_gx, uint32_t min_gy, uint32_t max_gy, uint64_t size) {
+    if (size == 0ULL) return UINT64_MAX;
+    const uint64_t mask = ~(size - 1ULL);
+    const uint64_t start_x = min_gx & mask;
+    const uint64_t end_x = max_gx & mask;
+    const uint64_t start_y = min_gy & mask;
+    const uint64_t end_y = max_gy & mask;
 
-    const uint64_t x0 = ((uint64_t)min_gx / size) * size;
-    const uint64_t x1 = ((uint64_t)max_gx / size) * size;
-    const uint64_t y0 = ((uint64_t)min_gy / size) * size;
-    const uint64_t y1 = ((uint64_t)max_gy / size) * size;
+    const uint64_t nx = ((end_x - start_x) >> __builtin_ctzll(size)) + 1ULL;
+    const uint64_t ny = ((end_y - start_y) >> __builtin_ctzll(size)) + 1ULL;
 
-    const uint64_t nx = ((x1 - x0) / size) + 1ULL;
-    const uint64_t ny = ((y1 - y0) / size) + 1ULL;
-
-    if (nx > UINT64_MAX / ny)
-        return UINT64_MAX;
-
+    if (nx > UINT64_MAX / ny) return UINT64_MAX;
     return nx * ny;
 }
 
-static int create_root_blocks(
-    double min_lon,
-    double max_lon,
-    double min_lat,
-    double max_lat,
-    uint8_t query_id,
-    int max_ranges,
-    SpatialzCtx ctx,
-    const FastQueryCtx *queries,
-    ZBlock *blocks)
-{
-    uint32_t min_gx, max_gx, min_gy, max_gy;
-    get_grid_box(
-        min_lon, max_lon, min_lat, max_lat, ctx,
-        &min_gx, &max_gx, &min_gy, &max_gy);
-
-    const uint64_t span_x = (uint64_t)max_gx - min_gx + 1ULL;
-    const uint64_t span_y = (uint64_t)max_gy - min_gy + 1ULL;
-
-    uint64_t size = next_pow2_u64(span_x > span_y ? span_x : span_y);
-    if (size > (1ULL << SPATIALZ_MAX_GRID_LEVEL))
-        size = (1ULL << SPATIALZ_MAX_GRID_LEVEL);
-
-    while (count_root_blocks(
-               min_gx, max_gx, min_gy, max_gy, size) > (uint64_t)max_ranges) {
-        if (size >= (1ULL << SPATIALZ_MAX_GRID_LEVEL))
-            break;
-        size <<= 1;
-    }
-
-    const uint64_t start_x = ((uint64_t)min_gx / size) * size;
-    const uint64_t end_x   = ((uint64_t)max_gx / size) * size;
-    const uint64_t start_y = ((uint64_t)min_gy / size) * size;
-    const uint64_t end_y   = ((uint64_t)max_gy / size) * size;
-
+static uint8_t level_from_size(uint64_t size) {
     uint8_t level = 0;
-    while ((1ULL << level) < size && level < SPATIALZ_MAX_GRID_LEVEL)
+    while (level < SPATIALZ_MAX_GRID_LEVEL && (1ULL << level) < size) {
         ++level;
+    }
+    return level;
+}
+
+static bool get_box_grid_info(float min_axis2, float max_axis2, float min_axis1, float max_axis1, uint32_t *min_gx, uint32_t *max_gx, uint32_t *min_gy, uint32_t *max_gy, uint8_t *minimum_level) {
+    get_grid_box(min_axis2, max_axis2, min_axis1, max_axis1, min_gx, max_gx, min_gy, max_gy);
+    const uint64_t span_x = (uint64_t)*max_gx - *min_gx + 1ULL;
+    const uint64_t span_y = (uint64_t)*max_gy - *min_gy + 1ULL;
+    const uint64_t span = span_x > span_y ? span_x : span_y;
+
+    uint64_t size = next_pow2_u64(span);
+    if (size > (1ULL << SPATIALZ_MAX_GRID_LEVEL)) size = 1ULL << SPATIALZ_MAX_GRID_LEVEL;
+
+    *minimum_level = level_from_size(size);
+    return true;
+}
+
+static int create_root_blocks(float min_axis2, float max_axis2, float min_axis1, float max_axis1, uint8_t query_id, uint8_t level, int max_ranges, const FastQueryCtx *queries, ZBlock *blocks) {
+    uint32_t min_gx, max_gx, min_gy, max_gy;
+    uint8_t minimum_level;
+
+    if (!get_box_grid_info(min_axis2, max_axis2, min_axis1, max_axis1, &min_gx, &max_gx, &min_gy, &max_gy, &minimum_level)) return -1;
+    if (level < minimum_level) level = minimum_level;
+
+    const uint64_t size = 1ULL << level;
+    const uint64_t mask = ~(size - 1ULL);
+    const uint64_t start_x = min_gx & mask;
+    const uint64_t end_x = max_gx & mask;
+    const uint64_t start_y = min_gy & mask;
+    const uint64_t end_y = max_gy & mask;
+
+    if (count_root_blocks(min_gx, max_gx, min_gy, max_gy, size) > (uint64_t)max_ranges) return -1;
 
     int count = 0;
+    for (uint64_t gy = start_y; gy <= end_y;) {
+        for (uint64_t gx = start_x; gx <= end_x;) {
+            if (count >= max_ranges) return -1;
 
-    for (uint64_t gy = start_y; gy <= end_y; gy += size) {
-        for (uint64_t gx = start_x; gx <= end_x; gx += size) {
-            if (count >= max_ranges)
-                return count;
+            ZBlock block = { .gx = (uint32_t)gx, .gy = (uint32_t)gy, .level = level, .query_id = query_id, .dead_area = 0.0f };
+            block.cls = classify_spherical(&block, &queries[query_id]);
 
-            ZBlock *b = &blocks[count];
-            b->gx = (uint32_t)gx;
-            b->gy = (uint32_t)gy;
-            b->level = level;
-            b->query_id = query_id;
-            b->dead_area = 0.0;
+            if (block.cls != BLOCK_OUTSIDE) blocks[count++] = block;
 
-            b->cls = classify_block(b, &queries[query_id], ctx);
-
-            if (b->cls != BLOCK_OUTSIDE)
-                ++count;
-
-            // Avoid wraparound when size is 2^32.
-            if (gx + size > end_x || gx + size < gx)
-                break;
+            if (gx + size < gx || gx + size > end_x) break;
+            gx += size;
         }
-
-        if (gy + size > end_y || gy + size < gy)
-            break;
+        if (gy + size < gy || gy + size > end_y) break;
+        gy += size;
     }
-
     return count;
 }
 
-static int make_children(
-    const ZBlock *parent,
-    const FastQueryCtx *queries,
-    SpatialzCtx ctx,
-    ZBlock children[4])
-{
-    if (parent->level == 0)
-        return 0;
+static int make_children(const ZBlock *parent, const FastQueryCtx *queries, ZBlock children[4]) {
+    if (parent->level == 0) return 0;
 
     const uint8_t child_level = (uint8_t)(parent->level - 1U);
     const uint64_t child_size = 1ULL << child_level;
-
     int count = 0;
 
     for (int iy = 0; iy < 2; ++iy) {
         for (int ix = 0; ix < 2; ++ix) {
-            ZBlock child;
-
-            const uint64_t gx =
-                (uint64_t)parent->gx + (ix ? child_size : 0ULL);
-            const uint64_t gy =
-                (uint64_t)parent->gy + (iy ? child_size : 0ULL);
-
-            child.gx = (uint32_t)gx;
-            child.gy = (uint32_t)gy;
-            child.level = child_level;
-            child.query_id = parent->query_id;
-            child.dead_area = 0.0;
-            child.cls = classify_block(
-                &child,
-                &queries[parent->query_id],
-                ctx);
-
-            if (child.cls != BLOCK_OUTSIDE)
-                children[count++] = child;
+            ZBlock child = {
+                .gx = (uint32_t)(parent->gx + (ix ? child_size : 0ULL)),
+                .gy = (uint32_t)(parent->gy + (iy ? child_size : 0ULL)),
+                .level = child_level,
+                .query_id = parent->query_id,
+                .dead_area = 0.0f
+            };
+            child.cls = classify_spherical(&child, &queries[parent->query_id]);
+            if (child.cls != BLOCK_OUTSIDE) children[count++] = child;
         }
     }
-
     return count;
 }
 
-static MortonRange encode_block(const ZBlock *b)
+static MortonRange encode_block(const ZBlock *block)
 {
-    MortonRange r;
+    MortonRange range;
 
-    if (b->level == 32U) {
-        r.start_code = 0ULL;
-        r.end_code = UINT64_MAX;
-        return r;
+    if (block->level == SPATIALZ_MAX_GRID_LEVEL) {
+        range.start_code = 0ULL;
+        if (SPATIALZ_MAX_GRID_LEVEL == 32) {
+            range.end_code = UINT64_MAX;
+        } else {
+            range.end_code = (1ULL << (2 * SPATIALZ_MAX_GRID_LEVEL)) - 1ULL;
+        }
+        return range;
     }
 
-    const uint64_t start = morton_encode_grid(b->gx, b->gy);
-    const uint64_t count = 1ULL << (2U * b->level);
+    const uint64_t start = morton_encode_grid(block->gx, block->gy);
+    const uint32_t bit_count = 2U * block->level;
+    const uint64_t count = 1ULL << bit_count;
 
-    r.start_code = start;
-    r.end_code = start + count - 1ULL;
-    return r;
+    range.start_code = start;
+    range.end_code = start + count - 1ULL;
+
+    return range;
 }
 
-static void refine_blocks(
-    ZBlock *blocks,
-    int *count,
-    int max_ranges,
-    const FastQueryCtx *queries,
-    SpatialzCtx ctx)
-{
+static void refine_blocks(ZBlock *blocks, int *count, int max_ranges, const FastQueryCtx *queries) {
     for (;;) {
         int best_index = -1;
-        double best_score = -DBL_MAX;
-        ZBlock best_children[4];
-        int best_child_count = 0;
+        float largest_dead_area = -1.0f;
 
         for (int i = 0; i < *count; ++i) {
-            const ZBlock *b = &blocks[i];
-
-            if (b->cls != BLOCK_INTERSECT || b->level == 0)
-                continue;
-
-            ZBlock children[4];
-            const int child_count = make_children(
-                b, queries, ctx, children);
-
-            if (child_count <= 0)
-                continue;
-
-            const int new_count = *count - 1 + child_count;
-            if (new_count > max_ranges)
-                continue;
-
-            double child_dead_area = 0.0;
-            for (int c = 0; c < child_count; ++c)
-                child_dead_area += children[c].dead_area;
-
-            const double benefit = b->dead_area - child_dead_area;
-            if (benefit <= SPATIALZ_EPS_KM)
-                continue;
-
-            const int extra_ranges = child_count - 1;
-            const double score =
-                extra_ranges == 0
-                    ? DBL_MAX
-                    : benefit / (double)extra_ranges;
-
-            if (score > best_score) {
-                best_score = score;
-                best_index = i;
-                best_child_count = child_count;
-                memcpy(best_children, children, sizeof(best_children));
+            if (blocks[i].cls == BLOCK_INTERSECT && blocks[i].level > 0) {
+                if (blocks[i].dead_area > largest_dead_area) {
+                    largest_dead_area = blocks[i].dead_area;
+                    best_index = i;
+                }
             }
         }
 
-        if (best_index < 0)
-            break;
+        if (best_index < 0) break;
 
-        blocks[best_index] = best_children[0];
+        ZBlock children[4];
+        const int child_count = make_children(&blocks[best_index], queries, children);
 
-        for (int c = 1; c < best_child_count; ++c) {
-            if (*count >= max_ranges)
-                break;
-            blocks[*count] = best_children[c];
-            ++(*count);
+        if (*count - 1 + child_count > max_ranges) break;
+
+        if (child_count == 0) {
+            blocks[best_index] = blocks[*count - 1];
+            (*count)--;
+        } else {
+            blocks[best_index] = children[0];
+            for (int c = 1; c < child_count; ++c) {
+                blocks[*count] = children[c];
+                (*count)++;
+            }
         }
     }
 }
 
+static bool make_query(float center_axis1, float center_axis2, float radius, const SpatialzCtx *ctx, FastQueryCtx *query) {
+    if (!isfinite(radius) || radius < 0.0f || ctx->unit_length <= 0.0f) return false;
 
-static bool make_query(
-    double center_lat,
-    double center_lon,
-    double radius_km,
-    SpatialzCtx ctx,
-    FastQueryCtx *q)
-{
-    if (!isfinite(center_lat) || !isfinite(center_lon) ||
-        !isfinite(radius_km) || radius_km < 0.0)
-        return false;
+    float int_y_dbl, int_x_dbl;
+    to_internal_sphere(center_axis1, center_axis2, *ctx, &int_y_dbl, &int_x_dbl);
 
-    center_lat = clamp_double(center_lat, ctx.min_lat, ctx.max_lat);
-    center_lon = normalize_lon_deg(center_lon);
+    query->center_axis1 = (float)int_y_dbl;
+    query->center_axis2 = (float)int_x_dbl;
+    query->radius = radius;
+    query->radius_sq = radius * radius;
 
-    q->center_lat = center_lat;
-    q->center_lon = center_lon;
-    q->radius_km = radius_km;
-    q->radius_sq_km = radius_km * radius_km;
-    q->km_per_deg_lat = ctx.unit_length;
-    q->km_per_deg_lon = ctx.unit_length * cos(deg_to_rad(center_lat));
-    q->center_lat_rad = deg_to_rad(center_lat);
-    q->center_lon_rad = deg_to_rad(center_lon);
+    query->center_axis1_rad = deg_to_rad(query->center_axis1 - 90.0f);
+    query->center_axis2_rad = deg_to_rad(query->center_axis2);
+    query->sphere_radius = (float)ctx->unit_length * (180.0f / SPATIALZ_PI);
 
-    const double R = earth_radius_km(&ctx);
-    q->radius_rad = R > 0.0 ? radius_km / R : 0.0;
+    const float axis2_scale = fabsf(cosf(query->center_axis1_rad));
+    query->units_per_degree_axis1 = (float)ctx->unit_length;
+    query->units_per_degree_axis2 = (float)ctx->unit_length * axis2_scale;
 
-    q->mode =
-        (radius_km <= SPATIALZ_FAST_RADIUS_KM &&
-         fabs(center_lat) < SPATIALZ_SPHERICAL_LAT_THRESHOLD_DEG)
-            ? QUERY_LOCAL
-            : QUERY_SPHERICAL;
+    query->radius_rad = query->sphere_radius > 0.0f ? radius / query->sphere_radius : 0.0f;
+
+    if (query->radius_rad > SPATIALZ_PI) {
+        query->radius_rad = SPATIALZ_PI;
+    }
+
+    const float half_chord = sinf(query->radius_rad * 0.5f);
+    query->radius_chord_sq = 4.0f * half_chord * half_chord;
 
     return true;
 }
 
-static void get_query_lon_segments(
-    const FastQueryCtx *q,
-    SpatialzCtx ctx,
-    double *min_lat,
-    double *max_lat,
-    double *seg1_min_lon,
-    double *seg1_max_lon,
-    double *seg2_min_lon,
-    double *seg2_max_lon,
-    int *segment_count,
-    FastQueryCtx queries[2])
-{
+static void get_query_segments(const FastQueryCtx *query, float *min_axis1, float *max_axis1, float *segment1_min_axis2, float *segment1_max_axis2, float *segment2_min_axis2, float *segment2_max_axis2, int *segment_count, FastQueryCtx queries[2]) {
     *segment_count = 0;
-    queries[0] = *q;
-    queries[1] = *q;
+    queries[0] = *query;
+    queries[1] = *query;
 
-    if (q->mode == QUERY_LOCAL) {
-        const double dlat = q->radius_km / q->km_per_deg_lat;
-        const double min_la = fmax(ctx.min_lat, q->center_lat - dlat);
-        const double max_la = fmin(ctx.max_lat, q->center_lat + dlat);
-        *min_lat = min_la;
-        *max_lat = max_la;
+    const float MIN_AXIS1 = 0.0f;
+    const float MAX_AXIS1 = 180.0f;
+    const float MIN_AXIS2 = 0.0f;
+    const float MAX_AXIS2 = 360.0f;
+    const float period = 360.0f;
 
-        const double lon_scale = fabs(q->km_per_deg_lon);
-        if (lon_scale < 1e-12) {
-            *seg1_min_lon = ctx.min_long;
-            *seg1_max_lon = ctx.max_long;
-            *segment_count = 1;
-            return;
-        }
+    const float alpha = query->radius_rad;
+    const float axis1_center = query->center_axis1_rad;
 
-        const double dlon = q->radius_km / lon_scale;
-        if (dlon >= 180.0) {
-            *seg1_min_lon = ctx.min_long;
-            *seg1_max_lon = ctx.max_long;
-            *segment_count = 1;
-            return;
-        }
-
-        const double left = q->center_lon - dlon;
-        const double right = q->center_lon + dlon;
-
-        if (left >= ctx.min_long && right <= ctx.max_long) {
-            *seg1_min_lon = left;
-            *seg1_max_lon = right;
-            *segment_count = 1;
-        } else if (left < ctx.min_long) {
-            *seg1_min_lon = ctx.min_long;
-            *seg1_max_lon = right;
-            *seg2_min_lon = ctx.max_long - (ctx.min_long - left);
-            *seg2_max_lon = ctx.max_long;
-            queries[1].center_lon = q->center_lon +
-                (ctx.max_long - ctx.min_long);
-            *segment_count = 2;
-        } else {
-            *seg1_min_lon = left;
-            *seg1_max_lon = ctx.max_long;
-            *seg2_min_lon = ctx.min_long;
-            *seg2_max_lon = ctx.min_long + (right - ctx.max_long);
-            queries[1].center_lon = q->center_lon -
-                (ctx.max_long - ctx.min_long);
-            *segment_count = 2;
-        }
-
-        return;
-    }
-
-    const double alpha = q->radius_rad;
-    const double phi = q->center_lat_rad;
-
-    if (alpha >= M_PI) {
-        *min_lat = ctx.min_lat;
-        *max_lat = ctx.max_lat;
-        *seg1_min_lon = ctx.min_long;
-        *seg1_max_lon = ctx.max_long;
+    if (alpha >= SPATIALZ_PI) {
+        *min_axis1 = MIN_AXIS1; *max_axis1 = MAX_AXIS1;
+        *segment1_min_axis2 = MIN_AXIS2; *segment1_max_axis2 = MAX_AXIS2;
         *segment_count = 1;
         return;
     }
 
-    *min_lat = rad_to_deg(fmax(-M_PI * 0.5, phi - alpha));
-    *max_lat = rad_to_deg(fmin( M_PI * 0.5, phi + alpha));
+    *min_axis1 = rad_to_deg(fmaxf(-SPATIALZ_PI * 0.5f, axis1_center - alpha)) + 90.0f;
+    *max_axis1 = rad_to_deg(fminf(SPATIALZ_PI * 0.5f, axis1_center + alpha)) + 90.0f;
 
-    if (phi + alpha >= M_PI * 0.5 || phi - alpha <= -M_PI * 0.5) {
-        *seg1_min_lon = ctx.min_long;
-        *seg1_max_lon = ctx.max_long;
+    if (axis1_center + alpha >= SPATIALZ_PI * 0.5f || axis1_center - alpha <= -SPATIALZ_PI * 0.5f || fabsf(cosf(axis1_center)) <= 1e-15f) {
+        *segment1_min_axis2 = MIN_AXIS2; *segment1_max_axis2 = MAX_AXIS2;
         *segment_count = 1;
         return;
     }
 
-    const double c = fabs(cos(phi));
-    if (c < 1e-15) {
-        *seg1_min_lon = ctx.min_long;
-        *seg1_max_lon = ctx.max_long;
+    const float ratio = clamp_float(sinf(alpha) / fabsf(cosf(axis1_center)), -1.0f, 1.0f);
+    const float d_axis2_deg = rad_to_deg(asinf(fabsf(ratio)));
+
+    if (d_axis2_deg >= period * 0.5f) {
+        *segment1_min_axis2 = MIN_AXIS2; *segment1_max_axis2 = MAX_AXIS2;
         *segment_count = 1;
         return;
     }
 
-    double ratio = sin(alpha) / c;
-    ratio = clamp_double(ratio, -1.0, 1.0);
-    const double dlon = asin(fabs(ratio));
-    const double dlon_deg = rad_to_deg(dlon);
+    const float left = query->center_axis2 - d_axis2_deg;
+    const float right = query->center_axis2 + d_axis2_deg;
 
-    if (dlon_deg >= 180.0) {
-        *seg1_min_lon = ctx.min_long;
-        *seg1_max_lon = ctx.max_long;
+    if (left >= MIN_AXIS2 && right <= MAX_AXIS2) {
+        *segment1_min_axis2 = left; *segment1_max_axis2 = right;
         *segment_count = 1;
         return;
     }
 
-    const double left = q->center_lon - dlon_deg;
-    const double right = q->center_lon + dlon_deg;
-
-    if (left >= ctx.min_long && right <= ctx.max_long) {
-        *seg1_min_lon = left;
-        *seg1_max_lon = right;
-        *segment_count = 1;
-    } else if (left < ctx.min_long) {
-        *seg1_min_lon = ctx.min_long;
-        *seg1_max_lon = right;
-        *seg2_min_lon = ctx.max_long - (ctx.min_long - left);
-        *seg2_max_lon = ctx.max_long;
-        queries[1].center_lon = q->center_lon +
-            (ctx.max_long - ctx.min_long);
+    if (left < MIN_AXIS2) {
+        *segment1_min_axis2 = MIN_AXIS2; *segment1_max_axis2 = right;
+        *segment2_min_axis2 = MAX_AXIS2 - (MIN_AXIS2 - left); *segment2_max_axis2 = MAX_AXIS2;
+        queries[1].center_axis2 = query->center_axis2 + period;
         *segment_count = 2;
-    } else {
-        *seg1_min_lon = left;
-        *seg1_max_lon = ctx.max_long;
-        *seg2_min_lon = ctx.min_long;
-        *seg2_max_lon = ctx.min_long + (right - ctx.max_long);
-        queries[1].center_lon = q->center_lon -
-            (ctx.max_long - ctx.min_long);
-        *segment_count = 2;
+        return;
+    }
+
+    *segment1_min_axis2 = left; *segment1_max_axis2 = MAX_AXIS2;
+    *segment2_min_axis2 = MIN_AXIS2; *segment2_max_axis2 = MIN_AXIS2 + (right - MAX_AXIS2);
+    queries[1].center_axis2 = query->center_axis2 - period;
+    *segment_count = 2;
+}
+
+static bool determine_root_level(float segment1_min_axis2, float segment1_max_axis2, float segment2_min_axis2, float segment2_max_axis2, int segment_count, float min_axis1, float max_axis1, int max_ranges, uint8_t *root_level) {
+    uint32_t min_gx[2], max_gx[2], min_gy[2], max_gy[2];
+    uint8_t minimum_level[2];
+
+    float segment_min_axis2[2] = { segment1_min_axis2, segment2_min_axis2 };
+    float segment_max_axis2[2] = { segment1_max_axis2, segment2_max_axis2 };
+
+    uint8_t level = 0;
+
+    for (int i = 0; i < segment_count; ++i) {
+        if (!get_box_grid_info(segment_min_axis2[i], segment_max_axis2[i], min_axis1, max_axis1, &min_gx[i], &max_gx[i], &min_gy[i], &max_gy[i], &minimum_level[i])) return false;
+        if (minimum_level[i] > level) level = minimum_level[i];
+    }
+
+    for (;;) {
+        const uint64_t size = 1ULL << level;
+        uint64_t total_blocks = 0;
+
+        for (int i = 0; i < segment_count; ++i) {
+            const uint64_t count = count_root_blocks(min_gx[i], max_gx[i], min_gy[i], max_gy[i], size);
+            if (count > UINT64_MAX - total_blocks) total_blocks = UINT64_MAX;
+            else total_blocks += count;
+        }
+
+        if (total_blocks <= (uint64_t)max_ranges) {
+            *root_level = level;
+            return true;
+        }
+
+        if (level >= SPATIALZ_MAX_GRID_LEVEL) return false;
+        ++level;
     }
 }
 
-// -----------------------------------------------------------------------------
-// Public API
-// -----------------------------------------------------------------------------
-
 bool spatial_get_radius_ranges(
-    double center_lat,
-    double center_lon,
-    double radius_km,
+    float center_axis1,
+    float center_axis2,
+    float radius,
     MortonRange *out_ranges,
     int *out_num_ranges,
     int max_ranges,
-    SpatialzCtx ctx)
+    const SpatialzCtx *ctx)
 {
-    if (!out_ranges || !out_num_ranges || max_ranges <= 0)
-        return false;
+    if (!out_ranges || !out_num_ranges || max_ranges <= 0) return false;
+
+    #if defined(DEBUG_MODE)
+    printf("[SPATIALZ DEBUG] spatial_get_radius_ranges invoked:\n");
+    printf("  -> center_axis1: %.6f\n", center_axis1);
+    printf("  -> center_axis2: %.6f\n", center_axis2);
+    printf("  -> radius:       %.6f\n", radius);
+    printf("  -> max_ranges:   %d\n", max_ranges);
+    if (ctx) {
+        printf("  -> ctx: min_axis1=%.2f, min_axis2=%.2f, unit_length=%.2f\n", 
+               ctx->min_axis1, ctx->min_axis2, ctx->unit_length);
+    } else {
+        printf("  -> ctx: NULL\n");
+    }
+    #endif
+
+    if (radius <= 0.0f) {
+        float int_y_dbl, int_x_dbl;
+        to_internal_sphere(center_axis1, center_axis2, *ctx, &int_y_dbl, &int_x_dbl);
+
+        uint32_t gx = axis2_to_grid((float)int_x_dbl);
+        uint32_t gy = axis1_to_grid((float)int_y_dbl - 90.0f);
+
+        uint64_t code = morton_encode_grid(gx, gy);
+
+        out_ranges[0].start_code = code;
+        out_ranges[0].end_code = code;
+        *out_num_ranges = 1;
+        return true;
+    }
+
+    if (max_ranges > SPATIALZ_MAX_INTERNAL_BLOCKS) {
+        max_ranges = SPATIALZ_MAX_INTERNAL_BLOCKS;
+    }
 
     *out_num_ranges = 0;
 
-    FastQueryCtx q;
-    if (!make_query(center_lat, center_lon, radius_km, ctx, &q))
-        return false;
+    ZBlock blocks[SPATIALZ_MAX_INTERNAL_BLOCKS];
+
+    FastQueryCtx query;
+    if (!make_query(center_axis1, center_axis2, radius, ctx, &query)) return false;
 
     FastQueryCtx queries[2];
-    double min_lat, max_lat;
-    double seg1_min_lon, seg1_max_lon;
-    double seg2_min_lon = 0.0, seg2_max_lon = 0.0;
+    float min_axis1, max_axis1, segment1_min_axis2, segment1_max_axis2;
+    float segment2_min_axis2 = 0.0f, segment2_max_axis2 = 0.0f;
     int segment_count = 0;
 
-    get_query_lon_segments(
-        &q, ctx,
-        &min_lat, &max_lat,
-        &seg1_min_lon, &seg1_max_lon,
-        &seg2_min_lon, &seg2_max_lon,
-        &segment_count,
-        queries);
+    get_query_segments(
+        &query, &min_axis1, &max_axis1, 
+        &segment1_min_axis2, &segment1_max_axis2, 
+        &segment2_min_axis2, &segment2_max_axis2, 
+        &segment_count, queries
+    );
 
-    ZBlock blocks[max_ranges];
-    int block_count = 0;
-
-    const int first_count = create_root_blocks(
-        seg1_min_lon,
-        seg1_max_lon,
-        min_lat,
-        max_lat,
-        0,
-        max_ranges,
-        ctx,
-        queries,
-        blocks);
-    block_count = first_count;
-
-    if (segment_count == 2 && block_count < max_ranges) {
-        block_count += create_root_blocks(
-            seg2_min_lon,
-            seg2_max_lon,
-            min_lat,
-            max_lat,
-            1,
-            max_ranges - block_count,
-            ctx,
-            queries,
-            blocks + block_count);
+    uint8_t root_level = 0;
+    if (!determine_root_level(
+            segment1_min_axis2, segment1_max_axis2, 
+            segment2_min_axis2, segment2_max_axis2, 
+            segment_count, min_axis1, max_axis1, 
+            max_ranges, &root_level)) {
+        return false;
     }
 
-    if (block_count == 0)
-        return false;
+    int block_count = create_root_blocks(
+        segment1_min_axis2, segment1_max_axis2, 
+        min_axis1, max_axis1, 0, root_level, max_ranges, 
+        queries, blocks
+    );
+    if (block_count < 0) return false;
 
-    refine_blocks(
-        blocks,
-        &block_count,
-        max_ranges,
-        queries,
-        ctx);
+    if (segment_count == 2) {
+        const int remaining = max_ranges - block_count;
+        if (remaining <= 0) return false;
+
+        const int second_count = create_root_blocks(
+            segment2_min_axis2, segment2_max_axis2, 
+            min_axis1, max_axis1, 1, root_level, remaining, 
+            queries, blocks + block_count 
+        );
+        if (second_count < 0) return false;
+        block_count += second_count;
+    }
+
+    if (block_count <= 0) return false;
+
+    refine_blocks(blocks, &block_count, max_ranges, queries);
 
     int range_count = 0;
     for (int i = 0; i < block_count; ++i) {
-        if (blocks[i].cls == BLOCK_OUTSIDE)
-            continue;
+        if (blocks[i].cls == BLOCK_OUTSIDE) continue;
         out_ranges[range_count++] = encode_block(&blocks[i]);
     }
 
     range_count = merge_ranges(out_ranges, range_count);
 
-    if (range_count > max_ranges)
+    if (range_count <= 0 || range_count > max_ranges) {
+        *out_num_ranges = 0;
         return false;
+    }
 
     *out_num_ranges = range_count;
-    return range_count > 0;
+    return true;
 }

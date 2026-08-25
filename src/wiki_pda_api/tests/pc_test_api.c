@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include "../include/wiki_pda.h"
 
+// Define a safe maximum to prevent stack buffer overflows
+#define MAX_DISPLAY_RESULTS 50
 
 bool get_input(const char* prompt, char* buffer, size_t max_len) {
     printf("%s", prompt);
@@ -91,19 +93,16 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
 }
 
 
-bool build_query(SearchQuery* query) {
+bool build_query(SearchQuery* query, int* out_max_results) {
     static char temp_input[256];
     static char omni_string_buffer[256];
-    static char temporal_string_buffer[64];
 
     printf("\n--- SELECT SEARCH INDEX ---\n");
     printf("1. Omni Search (Text)\n");
     printf("2. Globe Coordinate Search (Lat/Lon)\n");
-    //printf("3. Astronomical Search (Dec/RA)\n");
-    //printf("4. Temporal Search (Date)\n");
+    printf("3. Astronomical Search (Dec/RA)\n");
 
-    // if (!get_input("Choice (1-4) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
-    if (!get_input("Choice (1-2) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
+    if (!get_input("Choice (1-3) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
 
     int choice = atoi(temp_input);
     memset(query, 0, sizeof(SearchQuery));
@@ -130,37 +129,49 @@ bool build_query(SearchQuery* query) {
 
             if (!get_input("Sort by distance? (1 = Yes [Top-K], 0 = No [Fast Stream]): ", temp_input, sizeof(temp_input))) return false;
             query->target.globe.sort_by_distance = (atoi(temp_input) == 1);
-
-            query->target.globe.max_results = 10;
             break;
 
-        // case 3:
-        //     query->type = SEARCH_TYPE_ASTRONOMICAL;
-        //     if (!get_input("Enter Declination: ", temp_input, sizeof(temp_input))) return false;
-        //     query->target.astronomical.dec = atof(temp_input);
-        //
-        //     if (!get_input("Enter Right Ascension: ", temp_input, sizeof(temp_input))) return false;
-        //     query->target.astronomical.ra = atof(temp_input);
-        //
-        //     if (!get_input("Enter search radius (degrees): ", temp_input, sizeof(temp_input))) return false;
-        //     query->target.astronomical.search_radius_degrees = (float)atof(temp_input);
-        //     break;
-        //
-        // case 4:
-        //     query->type = SEARCH_TYPE_TEMPORAL;
-        //     if (!get_input("Enter Date (e.g. 1969-07-20 or -500-01-01): ", temporal_string_buffer, sizeof(temporal_string_buffer))) return false;
-        //     query->target.temporal.temporal_iso_string = temporal_string_buffer;
-        //     break;
+        case 3:
+            query->type = SEARCH_TYPE_ASTRONOMICAL;
+            if (!get_input("Enter Declination: ", temp_input, sizeof(temp_input))) return false;
+            query->target.astronomical.dec = atof(temp_input);
+
+            if (!get_input("Enter Right Ascension: ", temp_input, sizeof(temp_input))) return false;
+            query->target.astronomical.ra = atof(temp_input);
+
+            if (!get_input("Enter search radius (degrees): ", temp_input, sizeof(temp_input))) return false;
+            query->target.astronomical.search_radius_degrees = (float)atof(temp_input);
+
+            if (!get_input("Sort by distance? (1 = Yes [Top-K], 0 = No [Fast Stream]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.astronomical.sort_by_distance = (atoi(temp_input) == 1); // Bug fixed here
+            break;
 
         default:
             printf("Invalid choice.\n");
-            return build_query(query);
+            return build_query(query, out_max_results); // Recursive call now passes both args
     }
+
+    // Now ask for the maximum number of results to display
+    if (!get_input("Enter maximum results to show (1-50): ", temp_input, sizeof(temp_input))) return false;
+    
+    int max = atoi(temp_input);
+    if (max < 1) max = 1;
+    if (max > MAX_DISPLAY_RESULTS) max = MAX_DISPLAY_RESULTS;
+    
+    *out_max_results = max;
+
+    // Apply the max limit to the API query structs that support it
+    if (query->type == SEARCH_TYPE_GLOBE_COORDINATE) {
+        query->target.globe.max_results = max;
+    } else if (query->type == SEARCH_TYPE_ASTRONOMICAL) {
+        query->target.astronomical.max_results = max;
+    }
+
     return true;
 }
 
 
-int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchResult* displayed_results) {
+int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchResult* displayed_results, int max_matches) {
     SearchCursor* cursor = search_begin(ctx, query);
     if (cursor == NULL) {
         printf("Search initialization failed or index empty.\n");
@@ -173,7 +184,7 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
     printf("\n--- SEARCH RESULTS ---\n");
 
     while (search_next(cursor, &result)) {
-        if (match_count < 10) {
+        if (match_count < max_matches) {
             displayed_results[match_count] = result;
         }
         match_count++;
@@ -183,7 +194,8 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
         printf("    QID: Q%u | Length: %u bytes\n", result.qid, result.data_length);
         printf("------------------------\n");
 
-        if (match_count >= 10) break;
+        // Safely break exactly at the limit
+        if (match_count >= max_matches) break;
     }
 
     search_end(cursor);
@@ -214,12 +226,18 @@ int main(int argc, char** argv) {
 
     while (true) {
         SearchQuery query;
-        if (!build_query(&query)) {
+        int requested_max_results = 0;
+        
+        // Pass the pointer so we can get the user's preference back
+        if (!build_query(&query, &requested_max_results)) {
             break; 
         }
 
-        SearchResult displayed_results[10];
-        int match_count = execute_and_display_search(ctx, &query, displayed_results);
+        // Allocate our safe, maximum-bounded array
+        SearchResult displayed_results[MAX_DISPLAY_RESULTS];
+        
+        // Pass down the limit to prevent overflows
+        int match_count = execute_and_display_search(ctx, &query, displayed_results, requested_max_results);
 
         if (match_count == 0) continue;
 
