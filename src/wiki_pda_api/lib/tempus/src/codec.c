@@ -24,6 +24,21 @@ int64_t temporal_encode(const char* iso_str) {
     return sortable_date;
 }
 
-bool temporal_decode(int64_t code, const char* out_iso_str){
-    return false;
+
+bool temporal_decode(int64_t code, TemporalDate* out_date) {
+    if (!out_date) return false;
+
+    int64_t y = code / 10000;
+    int64_t rem = code % 10000;
+
+    if (rem < 0) {
+        y -= 1;
+        rem += 10000; 
+    }
+
+    out_date->year = y;
+    out_date->month = (uint8_t)(rem / 100);
+    out_date->day = (uint8_t)(rem % 100);
+
+    return true;
 }

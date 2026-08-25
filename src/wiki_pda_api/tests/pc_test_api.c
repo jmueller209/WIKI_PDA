@@ -101,8 +101,9 @@ bool build_query(SearchQuery* query, int* out_max_results) {
     printf("1. Omni Search (Text)\n");
     printf("2. Globe Coordinate Search (Lat/Lon)\n");
     printf("3. Astronomical Search (Dec/RA)\n");
+    printf("4. Temporal Search (Date)\n");
 
-    if (!get_input("Choice (1-3) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
+    if (!get_input("Choice (1-4) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
 
     int choice = atoi(temp_input);
     memset(query, 0, sizeof(SearchQuery));
@@ -113,7 +114,7 @@ bool build_query(SearchQuery* query, int* out_max_results) {
             query->type = SEARCH_TYPE_OMNI;
             if (!get_input("Enter search term: ", omni_string_buffer, sizeof(omni_string_buffer))) return false;
             str_to_lowercase(omni_string_buffer);
-            query->target.omni_text = omni_string_buffer;
+            query->target.omni.text = omni_string_buffer;
             break;
 
         case 2:
@@ -143,12 +144,26 @@ bool build_query(SearchQuery* query, int* out_max_results) {
             query->target.astronomical.search_radius_degrees = (float)atof(temp_input);
 
             if (!get_input("Sort by distance? (1 = Yes [Top-K], 0 = No [Fast Stream]): ", temp_input, sizeof(temp_input))) return false;
-            query->target.astronomical.sort_by_distance = (atoi(temp_input) == 1); // Bug fixed here
+            query->target.astronomical.sort_by_distance = (atoi(temp_input) == 1); 
+            break;
+
+        case 4:
+            query->type = SEARCH_TYPE_TEMPORAL;
+            if (!get_input("Enter Date Code (e.g., 19690720 for +1969-07-20): ", temp_input, sizeof(temp_input))) return false;
+
+            int64_t date_code = 0;
+            if (sscanf(temp_input, "%" SCNd64, &date_code) != 1) {
+                printf("Invalid input! Please enter a valid integer date code.\n");
+                return build_query(query, out_max_results);            }
+            query->target.temporal.date_code = date_code;
+
+            if (!get_input("Search forward in time? (1 = Yes, 0 = No [Backwards]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.temporal.search_forward = (atoi(temp_input) == 1);
             break;
 
         default:
             printf("Invalid choice.\n");
-            return build_query(query, out_max_results); // Recursive call now passes both args
+            return build_query(query, out_max_results); 
     }
 
     // Now ask for the maximum number of results to display
@@ -169,7 +184,6 @@ bool build_query(SearchQuery* query, int* out_max_results) {
 
     return true;
 }
-
 
 int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchResult* displayed_results, int max_matches) {
     SearchCursor* cursor = search_begin(ctx, query);

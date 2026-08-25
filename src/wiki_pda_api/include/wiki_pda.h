@@ -1,6 +1,8 @@
 #ifndef KNOWLEDGE_API_H
 #define KNOWLEDGE_API_H
-
+/* use this 
+ * comment style
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,7 +20,6 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query);
 bool search_next(SearchCursor* cursor, SearchResult* out_result);
 
 bool search_end(SearchCursor* cursor);
-
 
 DataStream* data_stream_begin(DatabaseContext* ctx, uint64_t data_offset, uint32_t data_length);
 

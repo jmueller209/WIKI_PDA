@@ -46,6 +46,8 @@ typedef struct {
 } OmniCursorState;
 
 typedef struct {
+    int64_t date_code;
+    bool search_forward;
 } TemporalCursorState;
 
 struct SearchCursor_t {
@@ -54,6 +56,7 @@ struct SearchCursor_t {
     bool end_of_results;
 
     uint64_t next_read_offset;
+
     uint8_t raw_bytes[512];
     uint8_t current_row_index;
     uint8_t valid_rows_in_batch;
@@ -62,11 +65,11 @@ struct SearchCursor_t {
     uint32_t seen_qids[MAX_DEDUPLICATION_CACHE];
     uint32_t seen_qid_count;
 
-    char article_title_buffer[256]; 
-    char match_term_buffer[256]; 
+    char article_title_buffer[256];
+    char match_term_buffer[256];
 
     union {
-        SpatialCursorState spatial; 
+        SpatialCursorState spatial;
         OmniCursorState omni;
         TemporalCursorState temporal;
     } state;
@@ -91,6 +94,7 @@ void fetch_real_title(uint32_t qid, char* buffer, size_t max_len, DatabasePlatfo
     buffer[max_len - 1] = '\0';
 }
 
+// TODO: Improve algorithm (pretty slow right now)
 static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, float lat, float lon, uint16_t max_results) {
     if (max_results == 0 || max_results > MAX_SORTED_RESULTS) max_results = MAX_SORTED_RESULTS;
 
@@ -135,6 +139,8 @@ static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t q
         }
     }
 }
+
+
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
 static RowEvalResult _evaluate_omni_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
     OmniRow* row = (OmniRow*)raw_row_ptr;
@@ -149,6 +155,49 @@ static RowEvalResult _evaluate_omni_row(SearchCursor* cursor, void* raw_row_ptr,
 
     DEBUG_PRINT("Omni-Search: Mismatch found. Terminating text search.");
     return ROW_END;
+}
+#endif
+
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+static RowEvalResult _evaluate_temporal_row(SearchCursor* cursor, void* raw_row_ptr, uint32_t* out_qid, uint32_t* out_tags) {
+    bool forward = cursor->state.temporal.search_forward;
+
+    uint64_t current_block_offset = cursor->next_read_offset + (forward ? -512 : 512);
+    uint64_t offset_in_block = (uint64_t)((uint8_t*)raw_row_ptr - cursor->raw_bytes);
+    uint64_t absolute_row_offset = current_block_offset + offset_in_block;
+
+    uint64_t index_start = OFFSETS_TEMPORAL_SEARCH_LEVEL[0];
+    uint64_t index_end = index_start + SIZES_TEMPORAL_SEARCH_LEVEL[0];
+
+    if (forward) {
+        if (absolute_row_offset >= index_end) return ROW_END;
+        if (absolute_row_offset < index_start) return ROW_SKIP;
+    } else {
+        if (absolute_row_offset < index_start) return ROW_END;
+        if (absolute_row_offset >= index_end) return ROW_SKIP; 
+    }
+
+    TemporalRow* row = (TemporalRow*)raw_row_ptr;
+
+    if (row->qid == 0) return ROW_SKIP;
+
+    int64_t target_date = cursor->state.temporal.date_code;
+
+    if (forward) {
+        if (row->term < target_date) return ROW_SKIP;
+    } else {
+        if (row->term > target_date) return ROW_SKIP;
+    }
+
+    *out_qid = row->qid;
+    *out_tags = row->tags;
+
+    TemporalDate date;
+    if (temporal_decode(row->term, &date)) {
+        snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), 
+                 "%" PRId64 "-%02u-%02u", date.year, date.month, date.day);
+    }
+    return ROW_MATCH;
 }
 #endif
 
@@ -248,6 +297,11 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
         db_end(ctx); return NULL;
     }
 #endif
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+    if ((indexes_to_load & INDEX_TEMPORAL) && !load_temporal_top_index(&(ctx->temporal_top_index), ctx->platform)) {
+        db_end(ctx); return NULL;
+    }
+#endif
 #if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
     if ((indexes_to_load & INDEX_ASTRONOMICAL) && !load_astronomical_top_index(&(ctx->astronomical_top_index), ctx->platform)) {
         db_end(ctx); return NULL;
@@ -267,6 +321,9 @@ bool db_end(DatabaseContext* ctx) {
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
     if (ctx->omni_top_index != NULL) free_omni_top_index(ctx->omni_top_index); 
 #endif
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+    if (ctx->temporal_top_index != NULL) free_temporal_top_index(ctx->temporal_top_index); 
+#endif
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
     if (ctx->globe_coordinate_top_index != NULL) free_globe_coordinate_top_index(ctx->globe_coordinate_top_index);
 #endif
@@ -284,7 +341,7 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
     if (cursor == NULL) return NULL;
 
     cursor->ctx = ctx;
-    cursor->query = *query; 
+    cursor->query = *query;
     cursor->end_of_results = false;
     cursor->current_row_index = 0;
     cursor->seen_qid_count = 0;
@@ -292,15 +349,45 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
     switch (query->type) {
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
         case SEARCH_TYPE_OMNI: {
-            if (ctx->omni_top_index == NULL) goto fail;
+            if (ctx->omni_top_index == NULL){
+                DEBUG_PRINT("ERROR: omni_top_index is NULL!");
+                goto fail;
+            }
             cursor->row_size = sizeof(OmniRow); 
-            strncpy(cursor->state.omni.search_term, query->target.omni_text, OMNI_SEARCH_TERM_SIZE);
+            strncpy(cursor->state.omni.search_term, query->target.omni.text, OMNI_SEARCH_TERM_SIZE);
             cursor->state.omni.search_term[OMNI_SEARCH_TERM_SIZE - 1] = '\0';
             cursor->state.omni.term_length = strlen(cursor->state.omni.search_term);
             DEBUG_PRINT("Omni-Search: Starting search for '%s'", cursor->state.omni.search_term);
             if (!omni_search(cursor->state.omni.search_term, ctx->omni_top_index, &cursor->next_read_offset, ctx->platform)) {
-                cursor->end_of_results = true; 
+                cursor->end_of_results = true;
             }
+            break;
+        }
+#endif
+
+
+
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+        case SEARCH_TYPE_TEMPORAL: {
+            if (ctx->temporal_top_index == NULL){
+                DEBUG_PRINT("ERROR: temporal_top_index is NULL!");
+                goto fail;
+            }
+            cursor->row_size = sizeof(TemporalRow);
+            cursor->state.temporal.date_code = query->target.temporal.date_code;
+            cursor->state.temporal.search_forward = query->target.temporal.search_forward;
+            DEBUG_PRINT("Temporal-Search: Starting search for %" PRId64, cursor->state.temporal.date_code);
+            if (!temporal_search(cursor->state.temporal.date_code, ctx->temporal_top_index, &cursor->next_read_offset, ctx->platform)){
+                if (!cursor->state.temporal.search_forward) {
+                    uint64_t index_start = OFFSETS_TEMPORAL_SEARCH_LEVEL[0];
+                    uint64_t index_size  = SIZES_TEMPORAL_SEARCH_LEVEL[0];
+                    cursor->next_read_offset = index_start + ((index_size - 1) / 512) * 512;
+                    DEBUG_PRINT("Temporal-Search: Target out of bounds. Warping backward search to last block");
+                } else {
+                    cursor->end_of_results = true;
+                }
+            }
+            DEBUG_PRINT("Offset: %" PRIu64 ").", cursor->next_read_offset);
             break;
         }
 #endif
@@ -565,30 +652,50 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
         return false;
     }
 
+    bool is_reverse = (cursor->query.type == SEARCH_TYPE_TEMPORAL && !cursor->query.target.temporal.search_forward);
+
     while (true) {
         if (cursor->current_row_index >= cursor->valid_rows_in_batch) {
-            if (!cursor->ctx->platform.read_fn(cursor->next_read_offset, 
-                                               cursor->raw_bytes, 512, 
+
+            if (!cursor->ctx->platform.read_fn(cursor->next_read_offset,
+                                               cursor->raw_bytes, 512,
                                                cursor->ctx->platform.user_data)) {
                 cursor->end_of_results = true;
                 return false;
             }
-            cursor->next_read_offset += 512;
-            cursor->current_row_index = 0;
+
             cursor->valid_rows_in_batch = 512 / cursor->row_size;
+
+            if (is_reverse) {
+                cursor->next_read_offset -= 512;
+                cursor->current_row_index = cursor->valid_rows_in_batch - 1;
+            } else {
+                cursor->next_read_offset += 512;
+                cursor->current_row_index = 0;
+            }
         }
 
         void* raw_row_ptr = cursor->raw_bytes + (cursor->current_row_index * cursor->row_size);
-        cursor->current_row_index++;
+
+        if (is_reverse) {
+            cursor->current_row_index--; 
+        } else {
+            cursor->current_row_index++;
+        }
 
         uint32_t qid = 0;
         uint32_t tags = 0;
         RowEvalResult eval_result = ROW_SKIP;
-
         switch (cursor->query.type) {
+
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
             case SEARCH_TYPE_OMNI:
                 eval_result = _evaluate_omni_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+            case SEARCH_TYPE_TEMPORAL:
+                eval_result = _evaluate_temporal_row(cursor, raw_row_ptr, &qid, &tags);
                 break;
 #endif
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
@@ -610,11 +717,11 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
             return false;
         }
         if (eval_result == ROW_SKIP) {
-            continue; 
+            continue;
         }
         if (eval_result == ROW_JUMP) {
             cursor->current_row_index = cursor->valid_rows_in_batch;
-            continue; 
+            continue;
         }
 
         if (!_check_tags(tags, cursor->query.exact_tags, cursor->query.include_tags, cursor->query.exclude_tags)) continue;
@@ -632,7 +739,7 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
 
         uint64_t relative_data_offset = 0;
         uint32_t data_length = 0;
-        if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type, 
+        if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type,
                                                  &relative_data_offset, &data_length, cursor->ctx->platform)) {
             continue;
         }
@@ -644,7 +751,6 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result) {
         out_result->article_type = cursor->query.article_type;
         out_result->data_length = data_length;
         out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
-
         out_result->term = cursor->match_term_buffer;
         snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
         out_result->title = cursor->article_title_buffer;
