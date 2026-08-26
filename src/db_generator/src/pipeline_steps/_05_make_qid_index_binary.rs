@@ -24,39 +24,38 @@ use crate::utils::settings::Settings;
  * [ Bytes 0-3 ] : u32 - start_index (Row number in index.bin where entries begin)
  * [ Bytes 4-5 ] : u16 - entry_count (Number of sequential entries for this QID)
  *
- * Example: Reading QID 5
- * 1. Seek to byte (5 - 1) * 6 = 24 in hashmap.bin.
- * 2. Read 6 bytes.
- *    - If entry_count is 0, the QID does not exist in our dataset.
- *    - If start_index is 14 and entry_count is 2, go to row 14 in index.bin
- *      and read 2 rows.
- *
  *
  * FILE 2: index.bin (The Entries)
  * ----------------------------------------------------------------------------
- * This file holds the actual target data. Rows are strictly 14 bytes each.
+ * This file holds the actual target data. Rows are strictly 18 bytes each.
  *
- * Formula to find Row 'y': file_offset = y * 14 bytes
- * (Note: y is exactly what you get from start_index above!)
+ * Formula to find Row 'y': file_offset = y * 18 bytes
  *
- * Row Layout (16 bytes total, Little-Endian):
+ * Row Layout (18 bytes total, Little-Endian):
  * [ Bytes 8-15]: u64 - offset (Absolute byte offset of payload in the data archive)
  * [ Bytes 4-7 ] : u32 - length (Size of the compressed payload in bytes)
  * [ Bytes 0-1 ] : u16 - project_id (Maps to project_dictionary.txt, e.g., 0=metadata)
+ * [ Bytes 16-17 ]: u32 - title_offset (Points to the string in titles.bin. 0 = empty)
+ *
+ *
+ * FILE 3: titles.bin (String Pool)
+ * ----------------------------------------------------------------------------
+ * Contains null-terminated UTF-8 strings. Byte 0 is always '\0'.
  *
  *
  * C++ STRUCTS FOR ESP32:
  * ----------------------------------------------------------------------------
  * struct __attribute__((packed)) HashMapRow {
- *     uint32_t start_index; // Max 4.29 billion rows in index.bin
- *     uint16_t entry_count; // Max 65,535 languages/projects per QID
+ *     uint32_t start_index;
+ *     uint16_t entry_count;
  * }; // Exactly 6 bytes
  *
  * struct __attribute__((packed)) IndexRow {
  *     uint64_t offset;
  *     uint32_t length;
  *     uint16_t project_id;
- * }; // Exactly 14 bytes
+ *     uint32_t title_offset; // <-- NEU
+ * }; // Exactly 18 bytes
  * ============================================================================
  */
 
@@ -81,9 +80,11 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
     let txt_delimiter = &settings.other.text_delimiter;
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
+
     let qid_index_txt_path = tmp_dir.join(constants::QID_INDEX_TXT);
     let qid_index_bin_path = bin_dir.join(constants::QID_INDEX_BIN);
     let qid_hashmap_bin_path = bin_dir.join(constants::QID_HASHMAP_BIN);
+    let titles_bin_path = bin_dir.join(constants::TITLES_BIN);
     let wiki_lang_mapping_txt_path = tmp_dir.join(constants::WIKI_LANG_MAPPING_TXT);
 
     let input_file = File::open(&qid_index_txt_path)
@@ -97,6 +98,10 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
 
     let mut hashmap_writer = BufWriter::new(File::create(qid_hashmap_bin_path).unwrap());
     let mut index_writer = BufWriter::new(File::create(qid_index_bin_path).unwrap());
+    let mut titles_writer = BufWriter::new(File::create(titles_bin_path).unwrap()); // <-- NEU
+
+    titles_writer.write_all(&[0u8]).unwrap();
+    let mut current_title_offset: u32 = 1;
 
     let mut project_dict: HashMap<String, u16> = HashMap::new();
     let mut next_project_id: u16 = 0;
@@ -123,7 +128,7 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
         pb.inc((line.len() + 1) as u64);
 
         let parts: Vec<&str> = line.split(txt_delimiter).collect();
-        if parts.len() != 4 {
+        if parts.len() < 4 {
             pb.println(format!("Warning: Skipping malformed line: {}", line));
             continue;
         }
@@ -132,6 +137,8 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
         let project_str = parts[1];
         let offset: u64 = parts[2].parse().unwrap();
         let length: u32 = parts[3].parse().unwrap();
+
+        let title_str = if parts.len() >= 5 { parts[4] } else { "" };
 
         while expected_qid < qid_num {
             assert!(
@@ -159,9 +166,20 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
                 id
             });
 
+        let mut row_title_offset: u32 = 0;
+        if project_str != "metadata" && !title_str.is_empty() {
+            row_title_offset = current_title_offset;
+            titles_writer.write_all(title_str.as_bytes()).unwrap();
+            titles_writer.write_all(&[0u8]).unwrap();
+            current_title_offset += title_str.len() as u32 + 1;
+        }
+
         index_writer.write_all(&offset.to_le_bytes()).unwrap();
         index_writer.write_all(&length.to_le_bytes()).unwrap();
         index_writer.write_all(&project_id.to_le_bytes()).unwrap();
+        index_writer
+            .write_all(&row_title_offset.to_le_bytes())
+            .unwrap(); // <-- NEU
 
         current_binary_row += 1;
         current_qid_count += 1;

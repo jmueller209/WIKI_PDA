@@ -15,7 +15,8 @@ typedef struct __attribute__((packed)) {
     uint64_t offset;
     uint32_t length;
     uint16_t project_id;
-} QIDIndexRow; 
+    uint32_t title_offset;
+} QIDIndexRow;
 
 bool get_qid_hash_map_row(uint32_t qid, QIDHashMapRow* out_hash_map_row, DatabasePlatform platform);
 
@@ -23,7 +24,8 @@ bool get_qid_index_rows(const QIDHashMapRow* row, QIDIndexRow* out_index_rows, D
 
 bool get_all_index_rows_for_qid(uint32_t qid, QIDIndexRow** out_index_rows, uint16_t* out_num_rows, DatabasePlatform platform);
 
-bool get_relative_data_offset_and_length(uint32_t qid, uint16_t project_id, uint64_t* out_data_offset, uint32_t* out_data_length, DatabasePlatform platform);
+bool get_article_index_data(uint32_t qid, uint16_t project_id, uint64_t* out_data_offset, uint32_t* out_data_length, uint32_t* out_title_offset, DatabasePlatform platform);
 
+bool get_article_title(uint32_t title_offset, char* out_title, size_t max_length, DatabasePlatform platform);
 
 #endif

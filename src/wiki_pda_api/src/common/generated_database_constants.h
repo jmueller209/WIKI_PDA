@@ -13,7 +13,7 @@
 #define OMNI_SEARCH_TERM_SIZE 24ULL
 #define OMNI_SEARCH_CHUNK_SIZE_ROWS 256ULL
 #define OMNI_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define OMNI_SEARCH_TOP_LEVEL_ROWS 89ULL
+#define OMNI_SEARCH_TOP_LEVEL_ROWS 24ULL
 
 // =========================================
 // TEMPORAL_SEARCH
@@ -22,7 +22,7 @@
 #define TEMPORAL_SEARCH_TERM_SIZE 8ULL
 #define TEMPORAL_SEARCH_CHUNK_SIZE_ROWS 512ULL
 #define TEMPORAL_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define TEMPORAL_SEARCH_TOP_LEVEL_ROWS 15ULL
+#define TEMPORAL_SEARCH_TOP_LEVEL_ROWS 3ULL
 
 // =========================================
 // ASTRONOMICAL_SEARCH
@@ -40,7 +40,7 @@
 #define GLOBE_COORDINATE_SEARCH_TERM_SIZE 8ULL
 #define GLOBE_COORDINATE_SEARCH_CHUNK_SIZE_ROWS 512ULL
 #define GLOBE_COORDINATE_SEARCH_NUM_SPARSE_LEVELS 1ULL
-#define GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS 8ULL
+#define GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS 2ULL
 
 // =========================================
 // WIKI_PDA_ENABLE
@@ -53,66 +53,68 @@
 // =========================================
 // OFFSETS
 // =========================================
-#define OFFSETS_QID_INDEX 1413120ULL
-#define OFFSETS_METADATA 136040960ULL
-#define OFFSETS_QID_HASHMAP 910336ULL
-#define OFFSETS_CONTENT 1678848ULL
-#define OFFSETS_ZSTD_DICTIONARY 140027392ULL
+#define OFFSETS_METADATA 46470656ULL
+#define OFFSETS_TITLES 399360ULL
+#define OFFSETS_QID_INDEX 330752ULL
+#define OFFSETS_ZSTD_DICTIONARY 47627264ULL
+#define OFFSETS_CONTENT 425984ULL
+#define OFFSETS_QID_HASHMAP 229376ULL
 
-static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
-    794112ULL,	// level_0
-    909824ULL,	// level_1
+static const uint64_t OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
+    193536ULL,	// level_0
+    208384ULL,	// level_1
 };
 
 
-static const uint64_t OFFSETS_ASTRONOMICAL_SEARCH_LEVEL[] = {
-    793088ULL,	// level_0
-    793600ULL,	// level_1
+static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
+    209920ULL,	// level_0
+    228864ULL,	// level_1
 };
 
 
 static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
     0ULL,	// level_0
-    728064ULL,	// level_1
+    192512ULL,	// level_1
 };
 
 
-static const uint64_t OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
-    731136ULL,	// level_0
-    792576ULL,	// level_1
+static const uint64_t OFFSETS_ASTRONOMICAL_SEARCH_LEVEL[] = {
+    208896ULL,	// level_0
+    209408ULL,	// level_1
 };
 
 
 // =========================================
 // SIZES
 // =========================================
-#define SIZES_QID_INDEX 265650ULL
-#define SIZES_METADATA 3986046ULL
-#define SIZES_QID_HASHMAP 502506ULL
-#define SIZES_CONTENT 134361797ULL
+#define SIZES_METADATA 1156217ULL
+#define SIZES_TITLES 26423ULL
+#define SIZES_QID_INDEX 68508ULL
 #define SIZES_ZSTD_DICTIONARY 32768ULL
-
-static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
-    727808ULL,	// level_0
-    2848ULL,	// level_1
-};
-
+#define SIZES_CONTENT 46044267ULL
+#define SIZES_QID_HASHMAP 101202ULL
 
 static const uint64_t SIZES_TEMPORAL_SEARCH_LEVEL[] = {
-    115504ULL,	// level_0
-    240ULL,	// level_1
+    18544ULL,	// level_0
+    48ULL,	// level_1
 };
 
 
-static const uint64_t SIZES_ASTRONOMICAL_SEARCH_LEVEL[] = {
-    384ULL,	// level_0
-    16ULL,	// level_1
+static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
+    192224ULL,	// level_0
+    768ULL,	// level_1
 };
 
 
 static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
-    61120ULL,	// level_0
-    128ULL,	// level_1
+    14704ULL,	// level_0
+    32ULL,	// level_1
+};
+
+
+static const uint64_t SIZES_ASTRONOMICAL_SEARCH_LEVEL[] = {
+    272ULL,	// level_0
+    16ULL,	// level_1
 };
 
 

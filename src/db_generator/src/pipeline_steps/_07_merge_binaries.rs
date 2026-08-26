@@ -101,6 +101,7 @@ fn build_file_list(
 
     add_file("qid_hashmap", constants::QID_HASHMAP_BIN);
     add_file("qid_index", constants::QID_INDEX_BIN);
+    add_file("titles", constants::TITLES_BIN);
     add_file("content", constants::CONTENT_BIN);
     add_file("metadata", constants::META_DATA_BIN);
     add_file("zstd_dictionary", constants::ZSTD_DICTIONARY_BIN);

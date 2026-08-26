@@ -16,6 +16,7 @@ pub const ZSTD_DICTIONARY_BIN: &str = "zstd_dictionary.bin";
 pub const CONTENT_BIN: &str = "content.bin";
 pub const QID_INDEX_BIN: &str = "qid_index.bin";
 pub const QID_HASHMAP_BIN: &str = "qid_hashmap.bin";
+pub const TITLES_BIN: &str = "titles.bin";
 pub const META_DATA_BIN: &str = "meta_data.bin";
 pub const WIKI_LANG_MAPPING_BIN: &str = "wiki_lang_mapping.bin";
 pub const OMNI_SEARCH_BIN: &str = "omni_search.bin";

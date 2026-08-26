@@ -95,11 +95,6 @@ bool _check_tags(uint32_t row_tags, SearchTagMask exact_tags, SearchTagMask incl
     return true;
 }
 
-void fetch_real_title(uint32_t qid, char* buffer, size_t max_len, DatabasePlatform platform) {
-    strncpy(buffer, "Untitled", max_len - 1);
-    buffer[max_len - 1] = '\0';
-}
-
 // TODO: Improve algorithm (pretty slow right now)
 static void _insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, float lat, float lon, uint16_t max_results) {
     if (max_results == 0 || max_results > MAX_SORTED_RESULTS) max_results = MAX_SORTED_RESULTS;
@@ -296,7 +291,7 @@ bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
             uint32_t max_valid_qid = SIZES_QID_HASHMAP / sizeof(QIDHashMapRow);
 
             if (cursor->state.id.id == cursor->query.target.qid.id && !cursor->query.target.qid.first_result_must_match) {
-                
+
                 if (!cursor->state.id.search_forward && cursor->state.id.id > max_valid_qid) {
                     cursor->state.id.id = max_valid_qid;
                 }
@@ -315,18 +310,20 @@ bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
 
                 cursor->state.id.id += dir;
 
-                uint64_t relative_offset = 0;
-
-                if (get_relative_data_offset_and_length(current_id, (uint16_t)cursor->query.article_type, &relative_offset, &out_result->data_length, cursor->ctx->platform)) {
-                    out_result->data_offset = relative_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+                uint64_t relative_data_offset = 0;
+                uint32_t title_offset = 0;
+                if (get_article_index_data(current_id, (uint16_t)cursor->query.article_type, &relative_data_offset, &out_result->data_length, &title_offset, cursor->ctx->platform)) {
+                    out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
                     out_result->article_type = cursor->query.article_type;
                     out_result->qid = current_id;
                     out_result->tags = 0;
                     out_result->term = "";
-                    out_result->title = "Untitled";
+
+                    get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+                    out_result->title = cursor->article_title_buffer;
+
                     return true;
-                } else {
-                    if (current_id == cursor->query.target.qid.id && cursor->query.target.qid.first_result_must_match) {
+                } else {                    if (current_id == cursor->query.target.qid.id && cursor->query.target.qid.first_result_must_match) {
                         cursor->end_of_results = true;
                         return false;
                     }
@@ -364,11 +361,11 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
             SpatialMatch match = cursor->state.spatial.sorted_results[cursor->state.spatial.current_sorted_index++];
             uint64_t relative_data_offset = 0;
             uint32_t data_length = 0;
-            if (!get_relative_data_offset_and_length(match.qid, (uint16_t)cursor->query.article_type, 
-                                                     &relative_data_offset, &data_length, cursor->ctx->platform)) {
+            uint32_t title_offset = 0;
+            if (!get_article_index_data(match.qid, (uint16_t)cursor->query.article_type, 
+                                        &relative_data_offset, &data_length, &title_offset, cursor->ctx->platform)) {
                 continue;
             }
-
             out_result->qid = match.qid;
             out_result->tags = match.tags;
             out_result->article_type = cursor->query.article_type;
@@ -377,9 +374,12 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
 
             snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
             out_result->term = cursor->match_term_buffer;
-            snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
+
+            get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
             out_result->title = cursor->article_title_buffer;
-            return true;        }
+
+            return true;
+        }
         cursor->end_of_results = true;
         return false;
     }
@@ -471,9 +471,9 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
 
         uint64_t relative_data_offset = 0;
         uint32_t data_length = 0;
-
-        if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type,
-                                                 &relative_data_offset, &data_length, cursor->ctx->platform)) {
+        uint32_t title_offset = 0;
+        if (!get_article_index_data(qid, (uint16_t)cursor->query.article_type,
+                                    &relative_data_offset, &data_length, &title_offset, cursor->ctx->platform)) {
             continue;
         }
 
@@ -485,7 +485,8 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
         out_result->data_length = data_length;
         out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
         out_result->term = cursor->match_term_buffer;
-        snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
+
+        get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
         out_result->title = cursor->article_title_buffer;
 
         return true;

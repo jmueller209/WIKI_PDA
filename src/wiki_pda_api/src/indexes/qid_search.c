@@ -71,8 +71,8 @@ bool get_all_index_rows_for_qid(uint32_t qid, QIDIndexRow** out_index_rows, uint
     return true;
 }
 
-bool get_relative_data_offset_and_length(uint32_t qid, uint16_t project_id, uint64_t* out_data_offset, uint32_t* out_data_length, DatabasePlatform platform) {
-    if (qid == 0 || out_data_offset == NULL || out_data_length == NULL) {
+bool get_article_index_data(uint32_t qid, uint16_t project_id, uint64_t* out_data_offset, uint32_t* out_data_length, uint32_t* out_title_offset, DatabasePlatform platform) {
+    if (qid == 0 || out_data_offset == NULL || out_data_length == NULL || out_title_offset == NULL) {
         return false;
     }
 
@@ -87,6 +87,7 @@ bool get_relative_data_offset_and_length(uint32_t qid, uint16_t project_id, uint
         if (index_rows[i].project_id == project_id) {
             *out_data_offset = index_rows[i].offset;
             *out_data_length = index_rows[i].length;
+            *out_title_offset = index_rows[i].title_offset;
             found = true;
             break;
         }
@@ -94,6 +95,27 @@ bool get_relative_data_offset_and_length(uint32_t qid, uint16_t project_id, uint
 
     free(index_rows);
     return found;
+}
+
+
+bool get_article_title(uint32_t title_offset, char* out_title, size_t max_length, DatabasePlatform platform) {
+    if (out_title == NULL || max_length == 0) {
+        return false;
+    }
+    if (title_offset == 0) {
+        out_title[0] = '\0';
+        return true;
+    }
+
+    uint64_t absolute_offset = OFFSETS_TITLES + title_offset;
+    if (!platform.read_fn(absolute_offset, (uint8_t*)out_title, max_length - 1, platform.user_data)) {
+        out_title[0] = '\0';
+        return false;
+    }
+
+    out_title[max_length - 1] = '\0'; 
+
+    return true;
 }
 
 

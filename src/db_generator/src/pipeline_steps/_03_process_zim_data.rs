@@ -143,6 +143,7 @@ enum WorkItem {
 struct ProcessedArticle {
     qid: String,
     wiki_lang: String,
+    title: String,
     binary_data: Vec<u8>,
 }
 
@@ -331,11 +332,12 @@ pub fn process_directories(
                 WorkItem::Article(article) => {
                     let data_len = article.binary_data.len() as u64;
 
+                    let d = &settings_writer_clone.other.text_delimiter;
                     bin_writer.write_all(&article.binary_data).unwrap();
                     writeln!(
                         idx_writer,
-                        "{}\t{}\t{}\t{}",
-                        article.qid, article.wiki_lang, current_offset, data_len
+                        "{0}{1}{2}{1}{3}{1}{4}{1}{5}",
+                        article.qid, d, article.wiki_lang, current_offset, data_len, article.title
                     )
                     .unwrap();
 
@@ -564,6 +566,7 @@ pub fn process_directories(
                             .send(WorkItem::Article(ProcessedArticle {
                                 qid,
                                 wiki_lang: combined_lang.clone(),
+                                title: primary_title,
                                 binary_data: compressed_data,
                             }))
                             .expect("Writer thread died, could not send article");
