@@ -35,7 +35,7 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
 
         RunMode::TestPipeline => {
             cleanup::clean(&settings)?;
-            run_all(&settings, Some(2000))?;
+            run_all(&settings, Some(10000))?;
         }
         RunMode::TestArticleProcessing => {
             test_article_processing::test_article_processing(&settings)?;
