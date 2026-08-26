@@ -179,7 +179,7 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
         index_writer.write_all(&project_id.to_le_bytes()).unwrap();
         index_writer
             .write_all(&row_title_offset.to_le_bytes())
-            .unwrap(); // <-- NEU
+            .unwrap();
 
         current_binary_row += 1;
         current_qid_count += 1;
@@ -200,8 +200,10 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
     println!("Successfully built QID binary indexes!");
 
     let mut dict_writer = BufWriter::new(File::create(wiki_lang_mapping_txt_path).unwrap());
-    for (name, id) in project_dict {
-        writeln!(dict_writer, "{}\t{}", id, name).unwrap();
+    let mut sorted_projects: Vec<(String, u16)> = project_dict.into_iter().collect();
+    sorted_projects.sort_by_key(|&(_, id)| id);
+    for (name, id) in sorted_projects {
+        writeln!(dict_writer, "{}\t{}", name, id).unwrap();
     }
 
     let summary_string = "Summary not available.";

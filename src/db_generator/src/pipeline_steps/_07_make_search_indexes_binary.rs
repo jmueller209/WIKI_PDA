@@ -46,7 +46,7 @@ struct IndexConfig<'a> {
 }
 
 pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
-    match checkpoints::checkpoint_exists(&settings, 6) {
+    match checkpoints::checkpoint_exists(&settings, 7) {
         checkpoints::CheckpointState::exists_empty => {
             println!("Checkpoint found: Binary index creation has already finished");
             return Ok(());
@@ -155,7 +155,7 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
         info_json_path
     );
 
-    checkpoints::make_checkpoint(&settings, 6, "binary_index_creation", None)
+    checkpoints::make_checkpoint(&settings, 7, "binary_index_creation", None)
         .map_err(|e| format!("Failed to create checkpoint: {}", e))?;
 
     Ok(())
