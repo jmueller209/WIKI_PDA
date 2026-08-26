@@ -4,9 +4,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include "../include/wiki_pda.h"
 
-// Define a safe maximum to prevent stack buffer overflows
 #define MAX_DISPLAY_RESULTS 50
 
 bool get_input(const char* prompt, char* buffer, size_t max_len) {
@@ -80,7 +80,7 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
 
         char cmd_buf[16];
         if (!get_input("[Enter]: Scroll down | [p]: Scroll up | [q]: Exit reader\nCommand: ", cmd_buf, sizeof(cmd_buf))) {
-            break; 
+            break;
         }
 
         if (strcmp(cmd_buf, "p") == 0 || strcmp(cmd_buf, "P") == 0) {
@@ -92,7 +92,6 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
     }
 }
 
-
 bool build_query(SearchQuery* query, int* out_max_results) {
     static char temp_input[256];
     static char omni_string_buffer[256];
@@ -102,8 +101,9 @@ bool build_query(SearchQuery* query, int* out_max_results) {
     printf("2. Globe Coordinate Search (Lat/Lon)\n");
     printf("3. Astronomical Search (Dec/RA)\n");
     printf("4. Temporal Search (Date)\n");
+    printf("5. QID Search (Direct ID)\n");
 
-    if (!get_input("Choice (1-4) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
+    if (!get_input("Choice (1-5) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
 
     int choice = atoi(temp_input);
     memset(query, 0, sizeof(SearchQuery));
@@ -154,11 +154,30 @@ bool build_query(SearchQuery* query, int* out_max_results) {
             int64_t date_code = 0;
             if (sscanf(temp_input, "%" SCNd64, &date_code) != 1) {
                 printf("Invalid input! Please enter a valid integer date code.\n");
-                return build_query(query, out_max_results);            }
+                return build_query(query, out_max_results);            
+            }
             query->target.temporal.date_code = date_code;
 
             if (!get_input("Search forward in time? (1 = Yes, 0 = No [Backwards]): ", temp_input, sizeof(temp_input))) return false;
             query->target.temporal.search_forward = (atoi(temp_input) == 1);
+            break;
+
+        case 5:
+            query->type = SEARCH_TYPE_QID;
+            if (!get_input("Enter target QID (e.g., 42): ", temp_input, sizeof(temp_input))) return false;
+            
+            uint64_t qid = 0;
+            if (sscanf(temp_input, "%" SCNu64, &qid) != 1) {
+                printf("Invalid input! Please enter a valid QID.\n");
+                return build_query(query, out_max_results);
+            }
+            query->target.qid.id = qid;
+
+            if (!get_input("Search forward? (1 = Yes, 0 = No [Backwards]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.qid.search_forward = (atoi(temp_input) == 1);
+
+            if (!get_input("Must match exactly? (1 = Yes [Strict], 0 = No [Paging]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.qid.first_result_must_match = (atoi(temp_input) == 1);
             break;
 
         default:
@@ -166,16 +185,14 @@ bool build_query(SearchQuery* query, int* out_max_results) {
             return build_query(query, out_max_results); 
     }
 
-    // Now ask for the maximum number of results to display
     if (!get_input("Enter maximum results to show (1-50): ", temp_input, sizeof(temp_input))) return false;
-    
+
     int max = atoi(temp_input);
     if (max < 1) max = 1;
     if (max > MAX_DISPLAY_RESULTS) max = MAX_DISPLAY_RESULTS;
-    
+
     *out_max_results = max;
 
-    // Apply the max limit to the API query structs that support it
     if (query->type == SEARCH_TYPE_GLOBE_COORDINATE) {
         query->target.globe.max_results = max;
     } else if (query->type == SEARCH_TYPE_ASTRONOMICAL) {
@@ -208,7 +225,6 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
         printf("    QID: Q%u | Length: %u bytes\n", result.qid, result.data_length);
         printf("------------------------\n");
 
-        // Safely break exactly at the limit
         if (match_count >= max_matches) break;
     }
 
@@ -241,16 +257,13 @@ int main(int argc, char** argv) {
     while (true) {
         SearchQuery query;
         int requested_max_results = 0;
-        
-        // Pass the pointer so we can get the user's preference back
+
         if (!build_query(&query, &requested_max_results)) {
             break; 
         }
 
-        // Allocate our safe, maximum-bounded array
         SearchResult displayed_results[MAX_DISPLAY_RESULTS];
-        
-        // Pass down the limit to prevent overflows
+
         int match_count = execute_and_display_search(ctx, &query, displayed_results, requested_max_results);
 
         if (match_count == 0) continue;

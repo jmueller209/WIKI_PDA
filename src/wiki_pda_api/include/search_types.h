@@ -53,17 +53,7 @@ typedef struct {
     SearchType type;
 
     union {
-        /** 
-         * @brief Used for SEARCH_TYPE_QID.
-         * The exact Wikidata QID to fetch (e.g., 42 for Douglas Adams).
-         */
-        uint32_t qid;
 
-        /** 
-         * @brief Used for SEARCH_TYPE_PID.
-         * The exact Wikipedia Property ID to fetch.
-         */
-        uint32_t pid;
 
         /** @brief Used for SEARCH_TYPE_OMNI. */
         struct {
@@ -143,6 +133,18 @@ typedef struct {
              */
             bool search_forward;
         } temporal;
+
+        struct {
+            uint64_t id;
+            bool search_forward;
+            bool first_result_must_match;
+        } qid;
+
+        struct {
+            uint64_t id;
+            bool search_forward;
+            bool first_result_must_match;
+        } pid;
 
     } target;
 

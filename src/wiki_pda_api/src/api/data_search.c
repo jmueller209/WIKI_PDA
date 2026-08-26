@@ -50,6 +50,11 @@ typedef struct {
     bool search_forward;
 } TemporalCursorState;
 
+typedef struct {
+    uint64_t id; // Used for QID and PID search
+    bool search_forward;
+} IDCursorState;
+
 struct SearchCursor_t {
     DatabaseContext* ctx;
     SearchQuery query;
@@ -72,6 +77,7 @@ struct SearchCursor_t {
         SpatialCursorState spatial;
         OmniCursorState omni;
         TemporalCursorState temporal;
+        IDCursorState id;
     } state;
 };
 
@@ -280,6 +286,211 @@ static RowEvalResult _evaluate_astronomical_row(SearchCursor* cursor, void* raw_
     return ROW_SKIP; 
 }
 #endif
+
+
+
+bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
+    switch (cursor->query.type) {
+        case SEARCH_TYPE_QID: {
+            int dir = cursor->state.id.search_forward ? 1 : -1;
+            uint32_t max_valid_qid = SIZES_QID_HASHMAP / sizeof(QIDHashMapRow);
+
+            if (cursor->state.id.id == cursor->query.target.qid.id && !cursor->query.target.qid.first_result_must_match) {
+                
+                if (!cursor->state.id.search_forward && cursor->state.id.id > max_valid_qid) {
+                    cursor->state.id.id = max_valid_qid;
+                }
+                else if (cursor->state.id.search_forward && cursor->state.id.id == 0) {
+                    cursor->state.id.id = 1;
+                }
+            }
+
+            while (!cursor->end_of_results) {
+                uint32_t current_id = cursor->state.id.id;
+
+                if (current_id == 0 || current_id > max_valid_qid) {
+                    cursor->end_of_results = true;
+                    return false;
+                }
+
+                cursor->state.id.id += dir;
+
+                uint64_t relative_offset = 0;
+
+                if (get_relative_data_offset_and_length(current_id, (uint16_t)cursor->query.article_type, &relative_offset, &out_result->data_length, cursor->ctx->platform)) {
+                    out_result->data_offset = relative_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+                    out_result->article_type = cursor->query.article_type;
+                    out_result->qid = current_id;
+                    out_result->tags = 0;
+                    out_result->term = "";
+                    out_result->title = "Untitled";
+                    return true;
+                } else {
+                    if (current_id == cursor->query.target.qid.id && cursor->query.target.qid.first_result_must_match) {
+                        cursor->end_of_results = true;
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+        case SEARCH_TYPE_PID: {
+            // (Analog implementieren, falls du das auch für PIDs brauchst)
+            return false;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
+    bool is_spatial_top_k = false;
+
+#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
+    if (cursor->query.type == SEARCH_TYPE_GLOBE_COORDINATE && cursor->query.target.globe.sort_by_distance) {
+        is_spatial_top_k = true;
+    }
+#endif
+
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+    if (cursor->query.type == SEARCH_TYPE_ASTRONOMICAL && cursor->query.target.astronomical.sort_by_distance) {
+        is_spatial_top_k = true;
+    }
+#endif
+
+    if (is_spatial_top_k) {
+        while (cursor->state.spatial.current_sorted_index < cursor->state.spatial.num_sorted_results) {
+            SpatialMatch match = cursor->state.spatial.sorted_results[cursor->state.spatial.current_sorted_index++];
+            uint64_t relative_data_offset = 0;
+            uint32_t data_length = 0;
+            if (!get_relative_data_offset_and_length(match.qid, (uint16_t)cursor->query.article_type, 
+                                                     &relative_data_offset, &data_length, cursor->ctx->platform)) {
+                continue;
+            }
+
+            out_result->qid = match.qid;
+            out_result->tags = match.tags;
+            out_result->article_type = cursor->query.article_type;
+            out_result->data_length = data_length;
+            out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+
+            snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
+            out_result->term = cursor->match_term_buffer;
+            snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
+            out_result->title = cursor->article_title_buffer;
+            return true;        }
+        cursor->end_of_results = true;
+        return false;
+    }
+
+    bool is_reverse = (cursor->query.type == SEARCH_TYPE_TEMPORAL && !cursor->query.target.temporal.search_forward);
+
+    while (true) {
+        if (cursor->current_row_index >= cursor->valid_rows_in_batch) {
+
+            if (!cursor->ctx->platform.read_fn(cursor->next_read_offset,
+                                               cursor->raw_bytes, 512,
+                                               cursor->ctx->platform.user_data)) {
+                cursor->end_of_results = true;
+                return false;
+            }
+
+            cursor->valid_rows_in_batch = 512 / cursor->row_size;
+
+            if (is_reverse) {
+                cursor->next_read_offset -= 512;
+                cursor->current_row_index = cursor->valid_rows_in_batch - 1;
+            } else {
+                cursor->next_read_offset += 512;
+                cursor->current_row_index = 0;
+            }
+        }
+
+        void* raw_row_ptr = cursor->raw_bytes + (cursor->current_row_index * cursor->row_size);
+
+        if (is_reverse) {
+            cursor->current_row_index--; 
+        } else {
+            cursor->current_row_index++;
+        }
+
+        uint32_t qid = 0;
+        uint32_t tags = 0;
+        RowEvalResult eval_result = ROW_SKIP;
+        switch (cursor->query.type) {
+
+#if WIKI_PDA_ENABLE_OMNI_SEARCH
+            case SEARCH_TYPE_OMNI:
+                eval_result = _evaluate_omni_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
+            case SEARCH_TYPE_TEMPORAL:
+                eval_result = _evaluate_temporal_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
+            case SEARCH_TYPE_GLOBE_COORDINATE:
+                eval_result = _evaluate_globe_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
+            case SEARCH_TYPE_ASTRONOMICAL:
+                eval_result = _evaluate_astronomical_row(cursor, raw_row_ptr, &qid, &tags);
+                break;
+#endif
+            default:
+                eval_result = ROW_END;
+        }
+
+        if (eval_result == ROW_END) {
+            cursor->end_of_results = true;
+            return false;
+        }
+        if (eval_result == ROW_SKIP) {
+            continue;
+        }
+        if (eval_result == ROW_JUMP) {
+            cursor->current_row_index = cursor->valid_rows_in_batch;
+            continue;
+        }
+
+        if (!_check_tags(tags, cursor->query.exact_tags, cursor->query.include_tags, cursor->query.exclude_tags)) continue;
+
+        bool is_duplicate = false;
+        uint16_t items_to_check = (cursor->seen_qid_count < MAX_DEDUPLICATION_CACHE) 
+                                ? cursor->seen_qid_count : MAX_DEDUPLICATION_CACHE;
+        for (uint16_t i = 0; i < items_to_check; i++) {
+            if (cursor->seen_qids[i] == qid) {
+                is_duplicate = true; 
+                break;
+            }
+        }
+        if (is_duplicate) continue;
+
+        uint64_t relative_data_offset = 0;
+        uint32_t data_length = 0;
+
+        if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type,
+                                                 &relative_data_offset, &data_length, cursor->ctx->platform)) {
+            continue;
+        }
+
+        cursor->seen_qids[(cursor->seen_qid_count++) % MAX_DEDUPLICATION_CACHE] = qid;
+
+        out_result->qid = qid;
+        out_result->tags = tags;
+        out_result->article_type = cursor->query.article_type;
+        out_result->data_length = data_length;
+        out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+        out_result->term = cursor->match_term_buffer;
+        snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
+        out_result->title = cursor->article_title_buffer;
+
+        return true;
+    }
+}
 
 DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform platform) {
     DEBUG_PRINT("db_init called.");
@@ -599,6 +810,17 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             break;
         }
 #endif
+        case SEARCH_TYPE_QID: {
+            cursor->row_size = sizeof(QIDHashMapRow);
+            cursor->state.id.id = query->target.qid.id;
+            cursor->state.id.search_forward = query->target.qid.search_forward;
+            DEBUG_PRINT("Temporal-Search: Starting search for %" PRId64, cursor->state.id.id);
+            break;
+        }
+
+        case SEARCH_TYPE_PID: {
+            goto fail;
+        }
 
         default:
             goto fail;
@@ -613,149 +835,10 @@ fail:
 
 bool search_next(SearchCursor* cursor, SearchResult* out_result) {
     if (cursor == NULL || cursor->end_of_results) return false;
-    bool is_spatial_top_k = false;
-
-#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
-    if (cursor->query.type == SEARCH_TYPE_GLOBE_COORDINATE && cursor->query.target.globe.sort_by_distance) {
-        is_spatial_top_k = true;
-    }
-#endif
-
-#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
-    if (cursor->query.type == SEARCH_TYPE_ASTRONOMICAL && cursor->query.target.astronomical.sort_by_distance) {
-        is_spatial_top_k = true;
-    }
-#endif
-
-    if (is_spatial_top_k) {
-        while (cursor->state.spatial.current_sorted_index < cursor->state.spatial.num_sorted_results) {
-            SpatialMatch match = cursor->state.spatial.sorted_results[cursor->state.spatial.current_sorted_index++];
-            uint64_t relative_data_offset = 0;
-            uint32_t data_length = 0;
-            if (!get_relative_data_offset_and_length(match.qid, (uint16_t)cursor->query.article_type, 
-                                                     &relative_data_offset, &data_length, cursor->ctx->platform)) {
-                continue; 
-            }
-
-            out_result->qid = match.qid;
-            out_result->tags = match.tags;
-            out_result->article_type = cursor->query.article_type;
-            out_result->data_length = data_length;
-            out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
-
-            snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
-            out_result->term = cursor->match_term_buffer;
-            snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
-            out_result->title = cursor->article_title_buffer;
-            return true;        }
-        cursor->end_of_results = true;
-        return false;
-    }
-
-    bool is_reverse = (cursor->query.type == SEARCH_TYPE_TEMPORAL && !cursor->query.target.temporal.search_forward);
-
-    while (true) {
-        if (cursor->current_row_index >= cursor->valid_rows_in_batch) {
-
-            if (!cursor->ctx->platform.read_fn(cursor->next_read_offset,
-                                               cursor->raw_bytes, 512,
-                                               cursor->ctx->platform.user_data)) {
-                cursor->end_of_results = true;
-                return false;
-            }
-
-            cursor->valid_rows_in_batch = 512 / cursor->row_size;
-
-            if (is_reverse) {
-                cursor->next_read_offset -= 512;
-                cursor->current_row_index = cursor->valid_rows_in_batch - 1;
-            } else {
-                cursor->next_read_offset += 512;
-                cursor->current_row_index = 0;
-            }
-        }
-
-        void* raw_row_ptr = cursor->raw_bytes + (cursor->current_row_index * cursor->row_size);
-
-        if (is_reverse) {
-            cursor->current_row_index--; 
-        } else {
-            cursor->current_row_index++;
-        }
-
-        uint32_t qid = 0;
-        uint32_t tags = 0;
-        RowEvalResult eval_result = ROW_SKIP;
-        switch (cursor->query.type) {
-
-#if WIKI_PDA_ENABLE_OMNI_SEARCH
-            case SEARCH_TYPE_OMNI:
-                eval_result = _evaluate_omni_row(cursor, raw_row_ptr, &qid, &tags);
-                break;
-#endif
-#if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
-            case SEARCH_TYPE_TEMPORAL:
-                eval_result = _evaluate_temporal_row(cursor, raw_row_ptr, &qid, &tags);
-                break;
-#endif
-#if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
-            case SEARCH_TYPE_GLOBE_COORDINATE:
-                eval_result = _evaluate_globe_row(cursor, raw_row_ptr, &qid, &tags);
-                break;
-#endif
-#if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
-            case SEARCH_TYPE_ASTRONOMICAL:
-                eval_result = _evaluate_astronomical_row(cursor, raw_row_ptr, &qid, &tags);
-                break;
-#endif
-            default:
-                eval_result = ROW_END;
-        }
-
-        if (eval_result == ROW_END) {
-            cursor->end_of_results = true;
-            return false;
-        }
-        if (eval_result == ROW_SKIP) {
-            continue;
-        }
-        if (eval_result == ROW_JUMP) {
-            cursor->current_row_index = cursor->valid_rows_in_batch;
-            continue;
-        }
-
-        if (!_check_tags(tags, cursor->query.exact_tags, cursor->query.include_tags, cursor->query.exclude_tags)) continue;
-
-        bool is_duplicate = false;
-        uint16_t items_to_check = (cursor->seen_qid_count < MAX_DEDUPLICATION_CACHE) 
-                                ? cursor->seen_qid_count : MAX_DEDUPLICATION_CACHE;
-        for (uint16_t i = 0; i < items_to_check; i++) {
-            if (cursor->seen_qids[i] == qid) {
-                is_duplicate = true; 
-                break;
-            }
-        }
-        if (is_duplicate) continue;
-
-        uint64_t relative_data_offset = 0;
-        uint32_t data_length = 0;
-        if (!get_relative_data_offset_and_length(qid, (uint16_t)cursor->query.article_type,
-                                                 &relative_data_offset, &data_length, cursor->ctx->platform)) {
-            continue;
-        }
-
-        cursor->seen_qids[(cursor->seen_qid_count++) % MAX_DEDUPLICATION_CACHE] = qid;
-
-        out_result->qid = qid;
-        out_result->tags = tags;
-        out_result->article_type = cursor->query.article_type;
-        out_result->data_length = data_length;
-        out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
-        out_result->term = cursor->match_term_buffer;
-        snprintf(cursor->article_title_buffer, sizeof(cursor->article_title_buffer), "Untitled");
-        out_result->title = cursor->article_title_buffer;
-
-        return true;
+    if (cursor->query.type == SEARCH_TYPE_QID || cursor->query.type == SEARCH_TYPE_PID) {
+        return _search_next_id(cursor, out_result);
+    }else{
+        return _search_next_in_index(cursor, out_result);
     }
 }
 
