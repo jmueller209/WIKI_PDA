@@ -32,7 +32,7 @@ typedef enum {
     SEARCH_TYPE_TEMPORAL,
     SEARCH_TYPE_GLOBE_COORDINATE,
     SEARCH_TYPE_ASTRONOMICAL,
-    SEARCH_TYPE_QID, 
+    SEARCH_TYPE_QID,
     SEARCH_TYPE_PID
 } SearchType;
 
@@ -40,7 +40,7 @@ typedef enum {
 typedef uint32_t SearchTagMask;
 
 /** @brief Identifier defining the payload format (e.g., Metadata-only, specific language content). */
-typedef uint32_t ArticleType; 
+typedef uint32_t ArticleType;
 
 /**
  * @brief Defines a query for the Wikipedia PDA database.
@@ -134,15 +134,29 @@ typedef struct {
             bool search_forward;
         } temporal;
 
+        /** @brief Used for SEARCH_TYPE_QID. */
         struct {
+            /** @brief The exact Wikidata QID (Item ID) to target (e.g., 42 for Q42). */
             uint64_t id;
+            /** @brief If true, subsequent search_next() calls will traverse QIDs in ascending order. If false, descending. */
             bool search_forward;
+            /** 
+             * @brief If true, the search will immediately fail if the exact 'id' does not exist.
+             * If false, the cursor acts as a pager, automatically snapping to the nearest valid QID in the search direction.
+             */
             bool first_result_must_match;
         } qid;
 
+        /** @brief Used for SEARCH_TYPE_PID. */
         struct {
+            /** @brief The exact Wikidata PID (Property ID) to target (e.g., 31 for P31). */
             uint64_t id;
+            /** @brief If true, subsequent search_next() calls will traverse PIDs in ascending order. If false, descending. */
             bool search_forward;
+            /** 
+             * @brief If true, the search will immediately fail if the exact 'id' does not exist.
+             * If false, the cursor acts as a pager, automatically snapping to the nearest valid PID in the search direction.
+             */
             bool first_result_must_match;
         } pid;
 
