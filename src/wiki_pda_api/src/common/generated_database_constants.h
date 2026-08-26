@@ -53,27 +53,15 @@
 // =========================================
 // OFFSETS
 // =========================================
-#define OFFSETS_METADATA 46523392ULL
 #define OFFSETS_CONTENT 384512ULL
 #define OFFSETS_QID_INDEX 330752ULL
+#define OFFSETS_METADATA 46504960ULL
+#define OFFSETS_ZSTD_DICTIONARY 47661568ULL
 #define OFFSETS_QID_HASHMAP 229376ULL
-#define OFFSETS_ZSTD_DICTIONARY 47680000ULL
 
 static const uint64_t OFFSETS_ASTRONOMICAL_SEARCH_LEVEL[] = {
     208896ULL,	// level_0
     209408ULL,	// level_1
-};
-
-
-static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
-    0ULL,	// level_0
-    192512ULL,	// level_1
-};
-
-
-static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
-    209920ULL,	// level_0
-    228864ULL,	// level_1
 };
 
 
@@ -83,14 +71,38 @@ static const uint64_t OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
 };
 
 
+static const uint64_t OFFSETS_TEMPORAL_SEARCH_LEVEL[] = {
+    209920ULL,	// level_0
+    228864ULL,	// level_1
+};
+
+
+static const uint64_t OFFSETS_OMNI_SEARCH_LEVEL[] = {
+    0ULL,	// level_0
+    192512ULL,	// level_1
+};
+
+
 // =========================================
 // SIZES
 // =========================================
-#define SIZES_METADATA 1156217ULL
-#define SIZES_CONTENT 46138675ULL
+#define SIZES_CONTENT 46120087ULL
 #define SIZES_QID_INDEX 53284ULL
-#define SIZES_QID_HASHMAP 101202ULL
+#define SIZES_METADATA 1156217ULL
 #define SIZES_ZSTD_DICTIONARY 32768ULL
+#define SIZES_QID_HASHMAP 101202ULL
+
+static const uint64_t SIZES_ASTRONOMICAL_SEARCH_LEVEL[] = {
+    272ULL,	// level_0
+    16ULL,	// level_1
+};
+
+
+static const uint64_t SIZES_TEMPORAL_SEARCH_LEVEL[] = {
+    18544ULL,	// level_0
+    48ULL,	// level_1
+};
+
 
 static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
     14704ULL,	// level_0
@@ -101,18 +113,6 @@ static const uint64_t SIZES_GLOBE_COORDINATE_SEARCH_LEVEL[] = {
 static const uint64_t SIZES_OMNI_SEARCH_LEVEL[] = {
     192224ULL,	// level_0
     768ULL,	// level_1
-};
-
-
-static const uint64_t SIZES_TEMPORAL_SEARCH_LEVEL[] = {
-    18544ULL,	// level_0
-    48ULL,	// level_1
-};
-
-
-static const uint64_t SIZES_ASTRONOMICAL_SEARCH_LEVEL[] = {
-    272ULL,	// level_0
-    16ULL,	// level_1
 };
 
 

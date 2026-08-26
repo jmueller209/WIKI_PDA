@@ -743,7 +743,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     for coord_str in coords {
                                         let parts: Vec<&str> = coord_str.split(',').collect();
                                         if parts.len() == 2 {
-                                            if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f64>(), parts[1].parse::<f64>()) {
+                                            if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f32>(), parts[1].parse::<f32>()) {
                                                 let encoded_coord = encoding::safe_spatial_encode(lat, lon, earth_ctx);
                                                 let mut coord_tags = Vec::new();
                                                 for wiki_type in &found_wiki_types {
@@ -830,7 +830,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 if magnitude_ok {
                                     let ra = grouped_claims.get("P6257").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
                                     let dec = grouped_claims.get("P6258").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
-                                    let encoded_astro = encoding::safe_spatial_encode(dec, ra, celestial_ctx);
+                                    let encoded_astro = encoding::safe_spatial_encode(dec as f32, ra as f32, celestial_ctx);
                                     let mut astro_tags = Vec::new();
 
                                     for wiki_type in &found_wiki_types {
