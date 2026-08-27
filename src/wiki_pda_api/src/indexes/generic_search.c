@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
-#include "../../include/database_platform.h"
-
+#include "../../include/wiki_pda_platforms.h"
+#include "../../include/wiki_pda_options.h"
 
 bool load_top_level_index_generic(
     void **out_index,
@@ -26,9 +26,6 @@ bool load_top_level_index_generic(
         return false;
     }
 
-    /*
-     * Check size_t multiplication overflow.
-     */
     if ((size_t)row_count > SIZE_MAX / row_size) {
         return false;
     }
@@ -74,17 +71,6 @@ void free_top_level_index_generic(
     free(top_level_index);
 }
 
-
-/*
- * The database row layout is assumed to be:
- *
- * bytes 0..7   : key
- * bytes 8..11  : target row
- *
- * These functions use memcpy, so they are safe with respect to
- * alignment.
- */
-
 static inline int64_t read_term_safely_i64(
     const uint8_t *ptr
 ) {
@@ -129,14 +115,6 @@ static inline uint32_t read_row_safely(
     return row;
 }
 
-
-/*
- * Safely calculate:
- *
- *     section_offset + row_index * row_size
- *
- * while making sure the complete row lies inside the section.
- */
 static bool get_row_offset_checked(
     uint64_t section_offset,
     uint64_t section_size,
@@ -152,24 +130,15 @@ static bool get_row_offset_checked(
     const uint64_t row_size_u64 =
         (uint64_t)row_size;
 
-    /*
-     * A complete row must fit inside the section.
-     */
     if (section_size < row_size_u64) {
         return false;
     }
 
-    /*
-     * Validate the section end itself.
-     */
     if (section_offset >
         UINT64_MAX - section_size) {
         return false;
     }
 
-    /*
-     * The largest valid row index.
-     */
     const uint64_t max_row_index =
         (section_size - row_size_u64) / row_size_u64;
 
@@ -177,9 +146,6 @@ static bool get_row_offset_checked(
         return false;
     }
 
-    /*
-     * Safe because row_index <= max_row_index.
-     */
     const uint64_t row_offset =
         row_index * row_size_u64;
 
@@ -194,10 +160,6 @@ static bool get_row_offset_checked(
     return true;
 }
 
-
-/*
- * Read exactly one row, guaranteed to stay inside the supplied section.
- */
 static bool read_row_checked(
     DatabasePlatform platform,
     uint64_t section_offset,
@@ -231,16 +193,6 @@ static bool read_row_checked(
     );
 }
 
-
-/*
- * Find the lower bound inside [begin, end).
- *
- * That means:
- *
- *     first element >= search_term
- *
- * If all elements are smaller, *out_index becomes end.
- */
 #define GENERATE_SEARCH_FUNCTION(FUNC_NAME, KEY_TYPE, READ_TERM_FUNC) \
 bool FUNC_NAME( \
     KEY_TYPE search_term, \
@@ -256,9 +208,6 @@ bool FUNC_NAME( \
     DatabasePlatform platform \
 ) \
 { \
-    /* -------------------------------------------------------------- */ \
-    /* Basic validation                                                */ \
-    /* -------------------------------------------------------------- */ \
     if (top_level_ram_index == NULL || \
         out_abs_pointer == NULL || \
         top_level_rows == 0 || \
@@ -272,26 +221,16 @@ bool FUNC_NAME( \
         return false; \
     } \
 \
-    /* read_row_safely() requires at least 12 bytes. */ \
     if (sparse_row_size < sizeof(uint64_t) + sizeof(uint32_t) || \
         base_row_size < sizeof(KEY_TYPE)) { \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Validate top-level RAM index size                               */ \
-    /* -------------------------------------------------------------- */ \
     if ((size_t)top_level_rows > \
         SIZE_MAX / sparse_row_size) { \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Top-level search                                                 */ \
-    /*                                                                  */ \
-    /* We choose the last key <= search_term.                           */ \
-    /* If search_term is smaller than the first key, row 0 is used.    */ \
-    /* -------------------------------------------------------------- */ \
     const uint8_t *ram_index_bytes = \
         (const uint8_t *)top_level_ram_index; \
 \
@@ -319,10 +258,6 @@ bool FUNC_NAME( \
             } \
         } \
 \
-        /* \
-         * If every top-level key is > search_term, use the first \
-         * chunk. This is correct for a lower-bound search. \
-         */ \
         if (lo == 0) { \
             target_row = \
                 (uint64_t)read_row_safely(ram_index_bytes); \
@@ -338,9 +273,6 @@ bool FUNC_NAME( \
         } \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Temporary row buffer                                             */ \
-    /* -------------------------------------------------------------- */ \
     const size_t max_row_size = \
         base_row_size > sparse_row_size \
             ? base_row_size \
@@ -353,12 +285,6 @@ bool FUNC_NAME( \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Sparse levels                                                    */ \
-    /* -------------------------------------------------------------- */ \
-    /* Level 0 is the final base data.                                 */ \
-    /* Therefore we search levels N-1 ... 1.                          */ \
-    /* -------------------------------------------------------------- */ \
     for (uint32_t level = num_sparse_levels; \
          level > 1; \
          --level) { \
@@ -371,7 +297,6 @@ bool FUNC_NAME( \
         const uint64_t section_size = \
             level_sizes[lvl]; \
 \
-        /* Entire section must consist of complete rows. */ \
         if (section_size == 0 || \
             section_size % sparse_row_size != 0) { \
             free(temp_row_bytes); \
@@ -387,9 +312,6 @@ bool FUNC_NAME( \
             return false; \
         } \
 \
-        /* ---------------------------------------------------------- */ \
-        /* Build [chunk_begin, chunk_end) without overflow.            */ \
-        /* ---------------------------------------------------------- */ \
         const uint64_t chunk_begin = \
             target_row; \
 \
@@ -406,9 +328,6 @@ bool FUNC_NAME( \
             return false; \
         } \
 \
-        /* ---------------------------------------------------------- */ \
-        /* Lower bound in sparse chunk                                 */ \
-        /* ---------------------------------------------------------- */ \
         uint64_t lo = chunk_begin; \
         uint64_t hi = chunk_end; \
 \
@@ -438,14 +357,9 @@ bool FUNC_NAME( \
             } \
         } \
 \
-        /* \
-         * lo is now the first key > search_term, or chunk_end.       \
-         * For the sparse index we need the predecessor chunk.         \
-         */ \
         uint64_t selected_row; \
 \
         if (lo == chunk_begin) { \
-            /* Every key in this chunk is > search_term. */ \
             selected_row = chunk_begin; \
         } else { \
             selected_row = lo - 1; \
@@ -463,14 +377,10 @@ bool FUNC_NAME( \
             return false; \
         } \
 \
-        /* target_row is untrusted database data. */ \
         target_row = \
             (uint64_t)read_row_safely(temp_row_bytes); \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Final base level                                                 */ \
-    /* -------------------------------------------------------------- */ \
     const uint64_t base_offset = \
         level_offsets[0]; \
 \
@@ -508,11 +418,6 @@ bool FUNC_NAME( \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Actual lower bound                                               */ \
-    /*                                                                  */ \
-    /* Find first key >= search_term.                                   */ \
-    /* -------------------------------------------------------------- */ \
     uint64_t lo = chunk_begin; \
     uint64_t hi = chunk_end; \
 \
@@ -542,10 +447,6 @@ bool FUNC_NAME( \
         } \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* If no matching element exists in this chunk, lo == chunk_end.   */ \
-    /* In that case the next global row is exactly chunk_end.           */ \
-    /* -------------------------------------------------------------- */ \
     uint64_t first_match = lo; \
 \
     if (first_match >= chunk_end) { \
@@ -557,15 +458,11 @@ bool FUNC_NAME( \
         first_match = chunk_end; \
     } \
 \
-    /* Final safety validation. */ \
     if (first_match >= total_base_rows) { \
         free(temp_row_bytes); \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Final read + definitive check                                   */ \
-    /* -------------------------------------------------------------- */ \
     if (!read_row_checked( \
             platform, \
             base_offset, \
@@ -582,18 +479,10 @@ bool FUNC_NAME( \
         READ_TERM_FUNC(temp_row_bytes); \
 \
     if (final_key < search_term) { \
-        /* \
-         * This should be impossible if the database is sorted and     \
-         * the lower-bound search is correct.                           \
-         * Treat it as corruption instead of returning a false result.  \
-         */ \
         free(temp_row_bytes); \
         return false; \
     } \
 \
-    /* -------------------------------------------------------------- */ \
-    /* Calculate final absolute pointer safely                          */ \
-    /* -------------------------------------------------------------- */ \
     uint64_t final_offset; \
 \
     if (!get_row_offset_checked( \

@@ -1,4 +1,4 @@
-#include "../common/generated_database_constants.h"
+#include "../../include/wiki_pda_options.h"
 
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
 

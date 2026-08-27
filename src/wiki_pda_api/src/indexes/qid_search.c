@@ -1,8 +1,8 @@
 #include "qid_search.h"
 #include <stddef.h>
 #include <stdlib.h>
-#include "../../include/database_platform.h"
-#include "../api/wiki_pda_internal.h"
+#include "../../include/wiki_pda_platforms.h"
+#include "../common/common.h"
 
 bool get_qid_hash_map_row(uint32_t qid, QIDHashMapRow* out_hash_map_row, DatabasePlatform platform) {
     if (qid == 0 || out_hash_map_row == NULL) {

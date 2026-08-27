@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../common/generated_database_constants.h"
-#include "../../include/database_platform.h"
+#include "../../include/wiki_pda_options.h"
+#include "../../include/wiki_pda_platforms.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
 
@@ -31,6 +35,10 @@ bool astronomical_search(
     DatabasePlatform platform
 );
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // ASTRONOMICAL_SEARCH_H

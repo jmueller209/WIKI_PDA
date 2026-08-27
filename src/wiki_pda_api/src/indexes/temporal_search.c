@@ -1,4 +1,4 @@
-#include "../common/generated_database_constants.h"
+#include "../common/common.h"
 
 #if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
 

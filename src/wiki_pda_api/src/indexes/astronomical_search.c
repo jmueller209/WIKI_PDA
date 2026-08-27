@@ -1,4 +1,4 @@
-#include "../common/generated_database_constants.h"
+#include "../../include/wiki_pda_options.h"
 
 #if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
 
@@ -22,8 +22,8 @@ void free_astronomical_top_index(AstronomicalSparseRow* top_level_index) {
 
 bool astronomical_search(
     uint64_t search_term,
-    const AstronomicalSparseRow* top_level_ram_index, 
-    uint64_t* out_abs_pointer, 
+    const AstronomicalSparseRow* top_level_ram_index,
+    uint64_t* out_abs_pointer,
     DatabasePlatform platform
 ) {
     return generic_int64_search(

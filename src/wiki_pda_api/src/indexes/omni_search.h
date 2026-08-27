@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../common/generated_database_constants.h"
-#include "../../include/database_platform.h"
+#include "../../include/wiki_pda_platforms.h"
+#include "../../include/wiki_pda_options.h"
 
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct __attribute__((packed)) {
     char term[OMNI_SEARCH_TERM_SIZE];
@@ -17,7 +21,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     char term[OMNI_SEARCH_TERM_SIZE];
     uint32_t target_row;
-    uint8_t _padding[OMNI_SEARCH_TOTAL_ROW_SIZE - OMNI_SEARCH_TERM_SIZE - 4]; 
+    uint8_t _padding[4];
 } OmniSparseRow;
 
 bool load_omni_top_index(OmniSparseRow** out_top_level_index, DatabasePlatform platform);
@@ -30,6 +34,10 @@ bool omni_search(
     DatabasePlatform platform
 );
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // OMNI_SEARCH_H

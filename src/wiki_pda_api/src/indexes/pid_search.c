@@ -1,9 +1,7 @@
 #include "pid_search.h"
 #include <stddef.h>
 #include <stdlib.h>
-#include "../../include/database_platform.h"
-#include "../api/wiki_pda_internal.h"
-
+#include "../../include/wiki_pda_platforms.h"
 
 static bool get_pid_hash_map_row(uint32_t pid, PIDHashMapRow* out_hash_map_row, DatabasePlatform platform) {
     if (pid == 0 || out_hash_map_row == NULL) return false;

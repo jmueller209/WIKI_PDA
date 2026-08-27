@@ -1,19 +1,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../lib/zstd/src/zstd.h"
-#include "wiki_pda_internal.h"
-#include "../common/generated_database_constants.h"
 
-struct DataStream_t {
-    DatabaseContext* ctx;
-    uint64_t current_read_offset;
-    uint32_t bytes_remaining_on_disk;
-    ZSTD_DCtx* dctx;
-    ZSTD_inBuffer input;
-    uint8_t compressed_chunk[512]; 
-    bool is_compressed;
-};
+#include "../common/common.h"
 
 DataStream* data_stream_begin(DatabaseContext* ctx, uint64_t data_offset, uint32_t data_length) {
     DEBUG_PRINT("data_stream_begin called. ctx=%p, offset=%llu, len=%u", 

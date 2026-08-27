@@ -1,0 +1,15 @@
+P19	de	Geburtsort	Ort, in dem eine Person, ein Tier oder ein fiktiver Charakter geboren wurde (so genau wie bekannt, z. B. Stadt anstatt von Land oder Krankenhaus anstatt von Stadt)	wikibase-item
+P19	en	place of birth	most specific known birth location of a person, animal or fictional character	wikibase-item
+P19	es	lugar de nacimiento	lugar de nacimiento más específico conocido de una persona, animal o personaje ficticio	wikibase-item
+P22	de	Vater	männlicher Elternteil, ausgenommen Stiefväter	wikibase-item
+P22	en	father	male parent of the subject. For stepfather, use "stepparent" (P3448)	wikibase-item
+P22	es	padre	progenitor masculino	wikibase-item
+P39	de	öffentliches Amt oder Stellung	Amt oder Position, das eine Person aktuell bekleidet oder früher bekleidet hat	wikibase-item
+P39	en	position held	subject currently or formerly holds the object position or public office	wikibase-item
+P39	es	cargo ocupado	cargo público, político o eclesiástico que ocupa o ha ocupado la persona	wikibase-item
+P88	de	Auftraggeber	Auftraggeber eines Kunstwerks oder Bauwerks	wikibase-item
+P88	en	commissioned by	person or organization that commissioned this work	wikibase-item
+P88	es	comitente	persona u organización que encargó la obra creativa	wikibase-item
+P102	de	Parteizugehörigkeit	politische Partei, deren Mitglied die Person ist oder war	wikibase-item
+P102	en	member of political party	the political party of which a person is or has been a member or otherwise affiliated	wikibase-item
+P102	es	miembro del partido político	partido político del cual forma parte	wikibase-item

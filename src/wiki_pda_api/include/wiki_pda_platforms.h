@@ -1,10 +1,19 @@
-#ifndef DATABASE_PLATFORM_H
-#define DATABASE_PLATFORM_H
+/**
+ * @file platform_providers.h
+ * @brief Storage abstraction layer and built-in platform providers.
+ */
+
+#ifndef PLATFORM_PROVIDERS_H
+#define PLATFORM_PROVIDERS_H
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Function signature for reading raw bytes from the database storage medium.
@@ -25,8 +34,8 @@ typedef bool (*DatabaseReadFn)(uint64_t absolute_offset, uint8_t* buffer, uint32
 /**
  * @brief An abstraction layer binding the database engine to the underlying hardware or OS.
  *
- * Create an instance of this struct and pass it to db_init() to tell the search engine
- * how to fetch data from your specific storage backend.
+ * Create an instance of this struct and pass it to your initialization function to tell 
+ * the search engine how to fetch data from your specific storage backend.
  */
 typedef struct {
     /** 
@@ -42,4 +51,34 @@ typedef struct {
     void* user_data;
 } DatabasePlatform;
 
+
+// ============================================================================
+// BUILT-IN PLATFORM PROVIDERS
+// ============================================================================
+
+/**
+ * @brief Creates a platform interface for Desktop/PC environments.
+ * @param f An opened standard C file handle (must be opened in "rb" mode).
+ * @return A populated DatabasePlatform struct ready to be passed to the database.
+ */
+DatabasePlatform platform_desktop(FILE* f);
+
+/**
+ * @brief Creates a platform interface for the ESP32.
+ * @param file_handle A pointer to your opened C++ File or SD object.
+ * @return A populated DatabasePlatform struct.
+ */
+DatabasePlatform platform_esp32(void* file_handle);
+
+/**
+ * @brief Creates a platform interface for the Teensy.
+ * @param file_handle A pointer to your opened C++ File or SD object.
+ * @return A populated DatabasePlatform struct.
+ */
+DatabasePlatform platform_teensy(void* file_handle);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif // PLATFORM_PROVIDERS_H

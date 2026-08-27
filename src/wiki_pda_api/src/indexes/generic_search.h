@@ -3,7 +3,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../../include/database_platform.h"
+#include "../../include/wiki_pda_platforms.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 bool load_top_level_index_generic(void** out_index,
                               uint32_t row_count,
@@ -42,6 +46,8 @@ bool generic_uint64_search(
     DatabasePlatform platform
 );
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GENERIC_SEARCH_H

@@ -8,7 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "../src/common/generated_database_constants.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Bitmask flags representing the available database indexes.
@@ -201,5 +204,9 @@ typedef struct SearchCursor_t SearchCursor;
 
 /** @brief Opaque handle for reading compressed payload data chunks. */
 typedef struct DataStream_t DataStream;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

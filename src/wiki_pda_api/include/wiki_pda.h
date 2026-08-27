@@ -1,17 +1,15 @@
 #ifndef KNOWLEDGE_API_H
 #define KNOWLEDGE_API_H
-/* use this 
- * comment style
- */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "search_types.h"
-#include "database_platform.h"
-#include "platform_providers.h"
+#include "wiki_pda_types.h"
+#include "wiki_pda_options.h"
+#include "wiki_pda_platforms.h"
 
-DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform platform);
+DatabaseContext* db_init();
 
 bool db_end(DatabaseContext* ctx);
 
@@ -21,7 +19,7 @@ bool search_next(SearchCursor* cursor, SearchResult* out_result);
 
 bool search_end(SearchCursor* cursor);
 
-DataStream* data_stream_begin(DatabaseContext* ctx, uint64_t data_offset, uint32_t data_length);
+DataStream* data_stream_begin(DatabaseContext* ctx, uint64_t data_offset, uint32_t buffer_capacity, uint32_t* out_bytes_read);
 
 bool data_stream_read(DataStream* stream, char* out_buffer, uint32_t buffer_capacity, uint32_t* out_bytes_read);
 
