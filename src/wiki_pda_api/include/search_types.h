@@ -183,7 +183,7 @@ typedef struct {
  * @brief Represents a single matched item returned by the database engine.
  */
 typedef struct {
-    uint32_t qid;               /**< The Wikidata ID of the matched item. */
+    uint32_t id;                /**< The Wikidata ID of the matched item. (QID or PID based on search type) */
     SearchTagMask tags;         /**< The category tags associated with this item. */
     ArticleType article_type;   /**< The type of payload available at the data offset. */
     const char* title;          /**< Pointer to a temporary buffer holding the article title. */

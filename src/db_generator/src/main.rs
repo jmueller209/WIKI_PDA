@@ -25,6 +25,7 @@ pub enum RunMode {
     ResumeAll,
     CleanAll,
     CleanAllExceptDownloads,
+    ExtractSampleArticles,
     TestArticleProcessing,
     TestPipeline,
     Test,
@@ -68,6 +69,7 @@ fn main() {
         "--restart-clean" => RunMode::RestartAllClean,
         "--restart-purge" => RunMode::RestartAllPurge,
         "--test-pipeline" => RunMode::TestPipeline,
+        "--extract-sample-articles" => RunMode::ExtractSampleArticles,
         "--test-article-processing" => RunMode::TestArticleProcessing,
         "--test" => RunMode::Test,
         _ => {

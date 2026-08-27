@@ -29,15 +29,15 @@ pub fn make_checkpoint(
 }
 
 pub enum CheckpointState {
-    exists_empty,             // exists but does not contain any data
-    exists_with_data(String), // exists and contains any data. Variant contains the data as
+    ExistsEmpty,            // exists but does not contain any data
+    ExistsWithData(String), // exists and contains any data. Variant contains the data as
     // String
-    exists_in_bad_state(i8), // The checkpoint exists but checkpoints before that checkpoint do
+    ExistsInBadState(i8), // The checkpoint exists but checkpoints before that checkpoint do
     // not exist. Variant holds the number of the
     // last valid checkpoint: E.g. we have
     // checkpoints 0, 1, 2, 3, 6, 7 -> The last
     // valid checkpoint is 3, because 4 is missing
-    does_not_exist, // The checkpoint does not exist
+    DoesNotExist, // The checkpoint does not exist
 }
 
 pub fn checkpoint_exists(settings: &Settings, number: i8) -> CheckpointState {
@@ -63,7 +63,7 @@ pub fn checkpoint_exists(settings: &Settings, number: i8) -> CheckpointState {
 
     let file_path = match checkpoints.get(&number) {
         Some(path) => path,
-        None => return CheckpointState::does_not_exist,
+        None => return CheckpointState::DoesNotExist,
     };
 
     let mut last_valid: i8 = -1;
@@ -79,18 +79,18 @@ pub fn checkpoint_exists(settings: &Settings, number: i8) -> CheckpointState {
     }
 
     if bad_state {
-        return CheckpointState::exists_in_bad_state(last_valid);
+        return CheckpointState::ExistsInBadState(last_valid);
     }
 
     match fs::read_to_string(file_path) {
         Ok(content) => {
             if content.is_empty() {
-                CheckpointState::exists_empty
+                CheckpointState::ExistsEmpty
             } else {
-                CheckpointState::exists_with_data(content)
+                CheckpointState::ExistsWithData(content)
             }
         }
-        Err(_) => CheckpointState::does_not_exist,
+        Err(_) => CheckpointState::DoesNotExist,
     }
 }
 

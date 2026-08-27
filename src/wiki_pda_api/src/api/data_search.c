@@ -10,6 +10,7 @@
 #include "../common/generated_database_constants.h"
 #include "../common/database_customizable_constants.h"
 #include "../indexes/qid_search.h"
+#include "../indexes/pid_search.h"
 #include "../indexes/omni_search.h"
 #include "../indexes/astronomical_search.h"
 #include "../storage/decompress.h"
@@ -315,7 +316,7 @@ bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
                 if (get_article_index_data(current_id, (uint16_t)cursor->query.article_type, &relative_data_offset, &out_result->data_length, &title_offset, cursor->ctx->platform)) {
                     out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
                     out_result->article_type = cursor->query.article_type;
-                    out_result->qid = current_id;
+                    out_result->id = current_id;
                     out_result->tags = 0;
                     out_result->term = "";
 
@@ -323,7 +324,8 @@ bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
                     out_result->title = cursor->article_title_buffer;
 
                     return true;
-                } else {                    if (current_id == cursor->query.target.qid.id && cursor->query.target.qid.first_result_must_match) {
+                } else {
+                    if (current_id == cursor->query.target.qid.id && cursor->query.target.qid.first_result_must_match) {
                         cursor->end_of_results = true;
                         return false;
                     }
@@ -332,7 +334,53 @@ bool _search_next_id(SearchCursor* cursor, SearchResult* out_result) {
             return false;
         }
         case SEARCH_TYPE_PID: {
-            // (Analog implementieren, falls du das auch für PIDs brauchst)
+            int dir = cursor->state.id.search_forward ? 1 : -1;
+            uint32_t max_valid_pid = SIZES_PID_HASHMAP / sizeof(PIDHashMapRow);
+
+            if (cursor->state.id.id == cursor->query.target.pid.id && !cursor->query.target.qid.first_result_must_match) {
+                if (!cursor->state.id.search_forward && cursor->state.id.id > max_valid_pid) {
+                    cursor->state.id.id = max_valid_pid;
+                }
+                else if (cursor->state.id.search_forward && cursor->state.id.id == 0) {
+                    cursor->state.id.id = 1;
+                }
+            }
+
+            while (!cursor->end_of_results) {
+                uint32_t current_id = cursor->state.id.id;
+
+                if (current_id == 0 || current_id > max_valid_pid) {
+                    cursor->end_of_results = true;
+                    return false;
+                }
+
+                cursor->state.id.id += dir;
+
+                uint32_t title_offset = 0;
+                uint32_t desc_offset = 0;
+
+                if (get_property_index_data(current_id, (uint16_t)cursor->query.article_type, &title_offset, &desc_offset, cursor->ctx->platform)) {
+
+                    out_result->data_offset = 0; 
+                    out_result->data_length = 0;
+                    out_result->article_type = cursor->query.article_type;
+                    out_result->id = current_id;
+                    out_result->tags = 0;
+
+                    get_property_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+                    out_result->title = cursor->article_title_buffer;
+
+                    get_property_desc(desc_offset, cursor->match_term_buffer, sizeof(cursor->match_term_buffer), cursor->ctx->platform);
+                    out_result->term = cursor->match_term_buffer;
+
+                    return true;
+                } else {
+                    if (current_id == cursor->query.target.pid.id && cursor->query.target.pid.first_result_must_match) {
+                        cursor->end_of_results = true;
+                        return false;
+                    }
+                }
+            }
             return false;
         }
         default: {
@@ -366,7 +414,7 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
                                         &relative_data_offset, &data_length, &title_offset, cursor->ctx->platform)) {
                 continue;
             }
-            out_result->qid = match.qid;
+            out_result->id = match.qid;
             out_result->tags = match.tags;
             out_result->article_type = cursor->query.article_type;
             out_result->data_length = data_length;
@@ -479,7 +527,7 @@ bool _search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
 
         cursor->seen_qids[(cursor->seen_qid_count++) % MAX_DEDUPLICATION_CACHE] = qid;
 
-        out_result->qid = qid;
+        out_result->id = qid;
         out_result->tags = tags;
         out_result->article_type = cursor->query.article_type;
         out_result->data_length = data_length;
@@ -815,12 +863,16 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             cursor->row_size = sizeof(QIDHashMapRow);
             cursor->state.id.id = query->target.qid.id;
             cursor->state.id.search_forward = query->target.qid.search_forward;
-            DEBUG_PRINT("Temporal-Search: Starting search for %" PRId64, cursor->state.id.id);
+            DEBUG_PRINT("QID-Search: Starting search for %" PRId64, cursor->state.id.id);
             break;
         }
 
         case SEARCH_TYPE_PID: {
-            goto fail;
+            cursor->row_size = sizeof(PIDHashMapRow);
+            cursor->state.id.id = query->target.pid.id;
+            cursor->state.id.search_forward = query->target.pid.search_forward;
+            DEBUG_PRINT("PID-Search: Starting search for %" PRId64, cursor->state.id.id);
+            break;
         }
 
         default:

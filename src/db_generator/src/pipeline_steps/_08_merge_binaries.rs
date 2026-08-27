@@ -1,5 +1,5 @@
 // use indicatif::{ProgressBar, ProgressStyle};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};

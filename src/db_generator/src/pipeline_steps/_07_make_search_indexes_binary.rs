@@ -19,17 +19,17 @@ pub struct IndexMetadata {
     pub top_level_rows: u32,
 }
 
-impl IndexMetadata {
-    pub fn empty() -> Self {
-        Self {
-            total_row_size: 0,
-            term_size: 0,
-            chunk_size_rows: 0,
-            num_sparse_levels: 0,
-            top_level_rows: 0,
-        }
-    }
-}
+// impl IndexMetadata {
+//     pub fn empty() -> Self {
+//         Self {
+//             total_row_size: 0,
+//             term_size: 0,
+//             chunk_size_rows: 0,
+//             num_sparse_levels: 0,
+//             top_level_rows: 0,
+//         }
+//     }
+// }
 
 #[derive(Debug)]
 struct IndexConfig<'a> {
@@ -47,21 +47,21 @@ struct IndexConfig<'a> {
 
 pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
     match checkpoints::checkpoint_exists(&settings, 7) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Binary index creation has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Binary index checkpoint should not contain data: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint found in bad state. Cleaned up checkpoints.".into());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
 
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);

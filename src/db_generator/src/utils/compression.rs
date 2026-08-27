@@ -3,8 +3,10 @@ use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::time::Instant;
-use zstd::dict::{DecoderDictionary, EncoderDictionary};
-use zstd::stream::{read::Decoder, write::Encoder};
+// use zstd::dict::{DecoderDictionary, EncoderDictionary};
+use zstd::dict::EncoderDictionary;
+// use zstd::stream::{read::Decoder, write::Encoder};
+use zstd::stream::write::Encoder;
 
 pub fn train_and_save_zstd_dictionary<T: AsRef<[u8]>>(
     samples: &[T],
@@ -176,14 +178,14 @@ pub fn load_zstd_encoder_dictionary(
     Ok(prepared_dict)
 }
 
-pub fn load_zstd_decoder_dictionary(dict_path: &Path) -> io::Result<DecoderDictionary<'static>> {
-    let mut file = File::open(dict_path)?;
-    let mut dict_bytes = Vec::new();
-    file.read_to_end(&mut dict_bytes)?;
-
-    let prepared_dict = DecoderDictionary::copy(&dict_bytes);
-    Ok(prepared_dict)
-}
+// pub fn load_zstd_decoder_dictionary(dict_path: &Path) -> io::Result<DecoderDictionary<'static>> {
+//     let mut file = File::open(dict_path)?;
+//     let mut dict_bytes = Vec::new();
+//     file.read_to_end(&mut dict_bytes)?;
+//
+//     let prepared_dict = DecoderDictionary::copy(&dict_bytes);
+//     Ok(prepared_dict)
+// }
 
 pub fn compress_data_zstd(
     raw_data: &[u8],
@@ -200,14 +202,14 @@ pub fn compress_data_zstd(
     Ok(buffer)
 }
 
-pub fn decompress_data_zstd(
-    compressed_data: &[u8],
-    prepared_dict: &DecoderDictionary,
-) -> io::Result<Vec<u8>> {
-    let actual_zstd_data = &compressed_data[4..];
-    let mut buffer = Vec::new();
-    let mut decoder = Decoder::with_prepared_dictionary(actual_zstd_data, prepared_dict)?;
-    decoder.read_to_end(&mut buffer)?;
-
-    Ok(buffer)
-}
+// pub fn decompress_data_zstd(
+//     compressed_data: &[u8],
+//     prepared_dict: &DecoderDictionary,
+// ) -> io::Result<Vec<u8>> {
+//     let actual_zstd_data = &compressed_data[4..];
+//     let mut buffer = Vec::new();
+//     let mut decoder = Decoder::with_prepared_dictionary(actual_zstd_data, prepared_dict)?;
+//     decoder.read_to_end(&mut buffer)?;
+//
+//     Ok(buffer)
+// }

@@ -3,7 +3,7 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
-use sysinfo::Disks;
+// use sysinfo::Disks;
 
 use crate::utils::constants;
 use crate::utils::settings::Settings;

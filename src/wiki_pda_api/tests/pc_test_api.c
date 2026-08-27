@@ -28,7 +28,7 @@ void str_to_lowercase(char* str) {
 
 void read_article(DatabaseContext* ctx, SearchResult* selected) {
     if (selected->data_length == 0) {
-        printf("Empty article.\n");
+        printf("Empty article (Metadata or PID).\n");
         return;
     }
 
@@ -68,7 +68,9 @@ void read_article(DatabaseContext* ctx, SearchResult* selected) {
         data_stream_end(stream);
 
         printf("\033[H\033[J");
-        printf("=== READING Q%u ===\n\n", selected->qid);
+
+        char prefix = (selected->article_type == 0) ? 'M' : 'Q';
+        printf("=== READING %c%u ===\n\n", (selected->data_length > 0 ? 'Q' : 'P'), selected->id);
 
         if (total_read > 0) {
             printf("%s\n", esp32_screen_buffer);
@@ -102,12 +104,18 @@ bool build_query(SearchQuery* query, int* out_max_results) {
     printf("3. Astronomical Search (Dec/RA)\n");
     printf("4. Temporal Search (Date)\n");
     printf("5. QID Search (Direct ID)\n");
+    printf("6. PID Search (Property ID)\n");
 
-    if (!get_input("Choice (1-5) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
-
+    if (!get_input("Choice (1-6) or 'q' to quit: ", temp_input, sizeof(temp_input))) return false;
     int choice = atoi(temp_input);
+
     memset(query, 0, sizeof(SearchQuery));
-    query->article_type = 1;
+
+    printf("\n--- SELECT ARTICLE TYPE ---\n");
+    printf("0. Metadata (Only works for QIDs)\n");
+    printf("1, 2, 3... Language ID (Check wiki_lang_mapping.txt for mapping)\n");
+    if (!get_input("Enter Article Type (0+): ", temp_input, sizeof(temp_input))) return false;
+    query->article_type = atoi(temp_input);
 
     switch (choice) {
         case 1:
@@ -119,10 +127,10 @@ bool build_query(SearchQuery* query, int* out_max_results) {
 
         case 2:
             query->type = SEARCH_TYPE_GLOBE_COORDINATE;
-            if (!get_input("Enter Latitude: ", temp_input, sizeof(temp_input))) return false;
+            if (!get_input("Enter Latitude (-180 to 180): ", temp_input, sizeof(temp_input))) return false;
             query->target.globe.lat = atof(temp_input);
 
-            if (!get_input("Enter Longitude: ", temp_input, sizeof(temp_input))) return false;
+            if (!get_input("Enter Longitude (-90 to 90): ", temp_input, sizeof(temp_input))) return false;
             query->target.globe.lon = atof(temp_input);
 
             if (!get_input("Enter search radius (km): ", temp_input, sizeof(temp_input))) return false;
@@ -134,10 +142,10 @@ bool build_query(SearchQuery* query, int* out_max_results) {
 
         case 3:
             query->type = SEARCH_TYPE_ASTRONOMICAL;
-            if (!get_input("Enter Declination: ", temp_input, sizeof(temp_input))) return false;
+            if (!get_input("Enter Declination (0 to 360): ", temp_input, sizeof(temp_input))) return false;
             query->target.astronomical.dec = atof(temp_input);
 
-            if (!get_input("Enter Right Ascension: ", temp_input, sizeof(temp_input))) return false;
+            if (!get_input("Enter Right Ascension (-90 to 90): ", temp_input, sizeof(temp_input))) return false;
             query->target.astronomical.ra = atof(temp_input);
 
             if (!get_input("Enter search radius (degrees): ", temp_input, sizeof(temp_input))) return false;
@@ -154,7 +162,7 @@ bool build_query(SearchQuery* query, int* out_max_results) {
             int64_t date_code = 0;
             if (sscanf(temp_input, "%" SCNd64, &date_code) != 1) {
                 printf("Invalid input! Please enter a valid integer date code.\n");
-                return build_query(query, out_max_results);            
+                return build_query(query, out_max_results);
             }
             query->target.temporal.date_code = date_code;
 
@@ -165,19 +173,41 @@ bool build_query(SearchQuery* query, int* out_max_results) {
         case 5:
             query->type = SEARCH_TYPE_QID;
             if (!get_input("Enter target QID (e.g., 42): ", temp_input, sizeof(temp_input))) return false;
-            
+
             uint64_t qid = 0;
             if (sscanf(temp_input, "%" SCNu64, &qid) != 1) {
                 printf("Invalid input! Please enter a valid QID.\n");
                 return build_query(query, out_max_results);
             }
-            query->target.qid.id = qid;
+            query->target.qid.id = (uint32_t)qid;
 
             if (!get_input("Search forward? (1 = Yes, 0 = No [Backwards]): ", temp_input, sizeof(temp_input))) return false;
             query->target.qid.search_forward = (atoi(temp_input) == 1);
 
             if (!get_input("Must match exactly? (1 = Yes [Strict], 0 = No [Paging]): ", temp_input, sizeof(temp_input))) return false;
             query->target.qid.first_result_must_match = (atoi(temp_input) == 1);
+            break;
+
+        case 6:
+            query->type = SEARCH_TYPE_PID;
+            if (query->article_type == 0) {
+                printf("Warning: PIDs do not have metadata (Article Type 0). Results may fail.\n");
+            }
+
+            if (!get_input("Enter target PID (e.g., 31 for P31): ", temp_input, sizeof(temp_input))) return false;
+
+            uint64_t pid = 0;
+            if (sscanf(temp_input, "%" SCNu64, &pid) != 1) {
+                printf("Invalid input! Please enter a valid PID.\n");
+                return build_query(query, out_max_results);
+            }
+            query->target.pid.id = (uint32_t)pid;
+
+            if (!get_input("Search forward? (1 = Yes, 0 = No [Backwards]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.pid.search_forward = (atoi(temp_input) == 1);
+
+            if (!get_input("Must match exactly? (1 = Yes [Strict], 0 = No [Paging]): ", temp_input, sizeof(temp_input))) return false;
+            query->target.pid.first_result_must_match = (atoi(temp_input) == 1);
             break;
 
         default:
@@ -214,6 +244,8 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
 
     printf("\n--- SEARCH RESULTS ---\n");
 
+    char id_prefix = (query->type == SEARCH_TYPE_PID) ? 'P' : 'Q';
+
     while (search_next(cursor, &result)) {
         if (match_count < max_matches) {
             displayed_results[match_count] = result;
@@ -222,7 +254,7 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
 
         printf("[%d] Title: %s\n", match_count, result.title);
         printf("    Match: %s\n", result.term); 
-        printf("    QID: Q%u | Length: %u bytes\n", result.qid, result.data_length);
+        printf("    ID: %c%u | Length: %u bytes\n", id_prefix, result.id, result.data_length);
         printf("------------------------\n");
 
         if (match_count >= max_matches) break;

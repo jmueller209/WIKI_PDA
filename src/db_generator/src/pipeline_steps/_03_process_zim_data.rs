@@ -1,5 +1,5 @@
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use redb::{Database, TableDefinition};
+// use redb::{Database, TableDefinition};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
@@ -16,14 +16,14 @@ use crate::utils::compression;
 use crate::utils::constants;
 use crate::utils::logs;
 use crate::utils::settings::Settings;
+use crate::utils::sitelinks_lookup;
 use crate::utils::txt_file_processing::{self, SortMode};
 
 #[derive(Default, Debug)]
 struct ZimMetrics {
     total_zim_files_processed: u64,
-    articles_found_per_wiki: HashMap<String, u64>,
-    article_lookup_fails_per_wiki: HashMap<String, u64>,
-    total_setup: std::time::Duration,
+    articles_found_per_lang: HashMap<String, u64>,
+    article_lookup_fails_per_lang: HashMap<String, u64>,
     total_db: std::time::Duration,
     total_zim_read: std::time::Duration,
     total_process: std::time::Duration,
@@ -40,15 +40,14 @@ impl ZimMetrics {
     fn merge(&mut self, other: Self) {
         self.total_zim_files_processed += other.total_zim_files_processed;
 
-        for (k, v) in other.articles_found_per_wiki {
-            *self.articles_found_per_wiki.entry(k).or_insert(0) += v;
+        for (k, v) in other.articles_found_per_lang {
+            *self.articles_found_per_lang.entry(k).or_insert(0) += v;
         }
 
-        for (k, v) in other.article_lookup_fails_per_wiki {
-            *self.article_lookup_fails_per_wiki.entry(k).or_insert(0) += v;
+        for (k, v) in other.article_lookup_fails_per_lang {
+            *self.article_lookup_fails_per_lang.entry(k).or_insert(0) += v;
         }
 
-        self.total_setup += other.total_setup;
         self.total_db += other.total_db;
         self.total_zim_read += other.total_zim_read;
         self.total_process += other.total_process;
@@ -64,7 +63,6 @@ impl ZimMetrics {
 
         let total_wall_secs = self.total_worker_wall_time.as_secs_f64().max(0.0001);
 
-        let pct_setup = (self.total_setup.as_secs_f64() / total_wall_secs) * 100.0;
         let pct_db = (self.total_db.as_secs_f64() / total_wall_secs) * 100.0;
         let pct_read = (self.total_zim_read.as_secs_f64() / total_wall_secs) * 100.0;
         let pct_proc = (self.total_process.as_secs_f64() / total_wall_secs) * 100.0;
@@ -81,8 +79,7 @@ impl ZimMetrics {
              Binary data total size:        {:.2} MB\n\
              \n\
              Worker Thread Time Profiling (Cumulative):\n\
-             - String Setup:                {:<10.2?} ({:05.2}%)\n\
-             - Database Lookup:             {:<10.2?} ({:05.2}%)\n\
+             - Database Lookup (incl String): {:<10.2?} ({:05.2}%)\n\
              - ZIM Read & Decode:           {:<10.2?} ({:05.2}%)\n\
              - Article Processing:          {:<10.2?} ({:05.2}%)\n\
              - ZSTD Compression:            {:<10.2?} ({:05.2}%)\n\
@@ -90,13 +87,11 @@ impl ZimMetrics {
              --------------------------------------------------\n\
              - Total Worker Wall Time:      {:.2?}\n\
              \n\
-             Breakdown by Wiki:\n",
+             Breakdown by Language:\n",
             self.program_total_duration,
             self.total_zim_files_processed,
             new_data_mb,
             total_data_mb,
-            self.total_setup,
-            pct_setup,
             self.total_db,
             pct_db,
             self.total_zim_read,
@@ -110,17 +105,17 @@ impl ZimMetrics {
             self.total_worker_wall_time
         );
 
-        let mut wikis: Vec<&String> = self.articles_found_per_wiki.keys().collect();
-        wikis.sort();
+        let mut langs: Vec<&String> = self.articles_found_per_lang.keys().collect();
+        langs.sort();
 
-        for wiki_lang in wikis {
-            let found = self.articles_found_per_wiki.get(wiki_lang).unwrap_or(&0);
+        for lang in langs {
+            let found = self.articles_found_per_lang.get(lang).unwrap_or(&0);
             let fails = self
-                .article_lookup_fails_per_wiki
-                .get(wiki_lang)
+                .article_lookup_fails_per_lang
+                .get(lang)
                 .unwrap_or(&0);
 
-            writeln!(&mut summary, "   - {:<18}", wiki_lang).unwrap();
+            writeln!(&mut summary, "   - {:<18}", lang).unwrap();
             writeln!(&mut summary, "       Articles found:        {}", found).unwrap();
             writeln!(&mut summary, "       Article lookup fails:  {}", fails).unwrap();
         }
@@ -142,7 +137,7 @@ enum WorkItem {
 
 struct ProcessedArticle {
     qid: String,
-    wiki_lang: String,
+    lang: String,
     title: String,
     binary_data: Vec<u8>,
 }
@@ -155,11 +150,11 @@ pub fn process_directories(
     let mut checkpoint_data = String::new();
 
     match checkpoints::checkpoint_exists(&settings, 3) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Zim processing has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             for line in data.lines() {
                 let trimmed = line.trim();
                 if !trimmed.is_empty() {
@@ -171,11 +166,11 @@ pub fn process_directories(
                 checkpoint_data.push('\n');
             }
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".into());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
 
     let program_start_time = Instant::now();
@@ -197,55 +192,42 @@ pub fn process_directories(
     let qid_idx_txt_path = tmp_dir.join(constants::QID_INDEX_TXT);
     let zstd_dictionary_bin_path = bin_dir.join(constants::ZSTD_DICTIONARY_BIN);
     let content_bin_path = bin_dir.join(constants::CONTENT_BIN);
-    let sitelinks_qid_mapping_db_path = tmp_dir.join(constants::SITELINKS_QID_MAPPING_DB);
+    // let sitelinks_qid_mapping_db_path = tmp_dir.join(constants::SITELINKS_QID_MAPPING_DB);
 
     let text_delimiter = settings.other.text_delimiter.clone();
     let text_delim_str = text_delimiter.as_str();
     let ram_limit_mb = settings.performance.ram_limit_mb;
 
     let previously_completed_count = completed_zims.len() as u64;
-    let mut zim_files_with_size: Vec<(PathBuf, u64, String, String)> = Vec::new();
+    let mut zim_files_with_size: Vec<(PathBuf, u64, String)> = Vec::new(); // path, length,
+                                                                           // language
 
-    for wiki in &settings.database_content.wikis_to_include {
-        let dir = data_dir.join(wiki);
+    let dir = data_dir.join("wiki");
+    let raw_pattern = &settings.match_patterns.wiki_zim_file_match_pattern;
+    let regex_str = raw_pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
+    let re = Regex::new(&regex_str).expect("Invalid Regex Pattern in config");
 
-        let raw_pattern = match wiki.as_str() {
-            "wiki" => &settings.match_patterns.wiki_zim_file_match_pattern,
-            "wiktionary" => &settings.match_patterns.wiktionary_zim_file_match_pattern,
-            "wikiquote" => &settings.match_patterns.wikiquote_zim_file_match_pattern,
-            "wikisource" => &settings.match_patterns.wikisource_zim_file_match_pattern,
-            "wikivoyage" => &settings.match_patterns.wikivoyage_zim_file_match_pattern,
-            "wikiversity" => &settings.match_patterns.wikiversity_zim_file_match_pattern,
-            "wikibooks" => &settings.match_patterns.wikibooks_zim_file_match_pattern,
-            _ => continue,
-        };
+    if let Ok(entries) = fs::read_dir(&dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let file_name = path.file_name().unwrap().to_string_lossy().to_string();
+            let path_str = path.to_string_lossy().to_string();
 
-        let regex_str = raw_pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
-        let re = Regex::new(&regex_str).expect("Invalid Regex Pattern in config");
+            if completed_zims.contains(&path_str) {
+                continue;
+            }
 
-        if let Ok(entries) = fs::read_dir(&dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                let file_name = path.file_name().unwrap().to_string_lossy().to_string();
-                let path_str = path.to_string_lossy().to_string();
+            if let Some(captures) = re.captures(&file_name) {
+                if let Some(lang_match) = captures.name("lang") {
+                    let lang = lang_match.as_str().to_string();
 
-                if completed_zims.contains(&path_str) {
-                    continue;
-                }
-
-                if let Some(captures) = re.captures(&file_name) {
-                    if let Some(lang_match) = captures.name("lang") {
-                        let lang = lang_match.as_str().to_string();
-
-                        if languages_to_include.contains(&lang) {
-                            if let Ok(metadata) = entry.metadata() {
-                                zim_files_with_size.push((
-                                    path,
-                                    metadata.len(),
-                                    lang,
-                                    wiki.clone(),
-                                ));
-                            }
+                    if languages_to_include.contains(&lang) {
+                        if let Ok(metadata) = entry.metadata() {
+                            zim_files_with_size.push((
+                                path,
+                                metadata.len(),
+                                lang,
+                            ));
                         }
                     }
                 }
@@ -253,8 +235,9 @@ pub fn process_directories(
         }
     }
 
+
     let total_zims_to_process = zim_files_with_size.len();
-    zim_files_with_size.sort_by_key(|&(_, size, _, _)| size);
+    zim_files_with_size.sort_by_key(|&(_, size, _)| size);
     let shared_queue = Arc::new(Mutex::new(zim_files_with_size));
 
     if total_zims_to_process == 0 {
@@ -279,7 +262,7 @@ pub fn process_directories(
         let reader = BufReader::new(qid_idx_file);
         for line in reader.lines().flatten() {
             let parts: Vec<&str> = line.split(text_delim_str).collect();
-            if parts.len() == 4 {
+            if parts.len() == 5 {
                 if let (Ok(offset), Ok(length)) = (parts[2].parse::<u64>(), parts[3].parse::<u64>())
                 {
                     let end_of_article = offset + length;
@@ -337,7 +320,7 @@ pub fn process_directories(
                     writeln!(
                         idx_writer,
                         "{0}{1}{2}{1}{3}{1}{4}{1}{5}",
-                        article.qid, d, article.wiki_lang, current_offset, data_len, article.title
+                        article.qid, d, article.lang, current_offset, data_len, article.title
                     )
                     .unwrap();
 
@@ -384,16 +367,14 @@ pub fn process_directories(
 
         (global_metrics, current_offset)
     });
+
     let thread_count = settings.performance.thread_count;
     let worker_thread_count = std::cmp::max(1, thread_count - 2);
 
     println!("Starting {worker_thread_count} worker threads...");
     println!("Opening Key-Value Store for multi-threaded access...");
 
-    let shared_db = Arc::new(
-        Database::open(&sitelinks_qid_mapping_db_path).expect("Failed to open sitelink database"),
-    );
-    const SITELINKS_TABLE: TableDefinition<&str, &str> = TableDefinition::new("sitelinks");
+    let shared_db = Arc::new(sitelinks_lookup::open_sitelinks_db(&settings));
 
     thread::scope(|s| {
         for worker_id in 0..worker_thread_count {
@@ -403,9 +384,10 @@ pub fn process_directories(
             let db_clone = Arc::clone(&shared_db);
 
             let zstd_dictionary_bin_path_clone = zstd_dictionary_bin_path.clone();
+
             s.spawn(move || {
                 let read_txn = db_clone.begin_read().expect("Could not begin read transaction");
-                let table = read_txn.open_table(SITELINKS_TABLE).expect("Table not found");
+                let table = read_txn.open_table(sitelinks_lookup::SITELINKS_TABLE).expect("Table not found");
 
                 let encoder_dict = compression::load_zstd_encoder_dictionary(&zstd_dictionary_bin_path_clone, settings.performance.zstd_compression_level).expect("Failed to load zstd encoder dictionary");
 
@@ -417,13 +399,12 @@ pub fn process_directories(
                         queue.pop()
                     };
 
-                    let (zim_path, _, lang, wiki_type) = match next_zim {
+                    let (zim_path, _, lang) = match next_zim {
                         Some(data) => data,
                         None => break,
                     };
 
                     let path_string = zim_path.to_string_lossy().to_string();
-                    let combined_lang = format!("{}_{}", wiki_type, lang);
 
                     let zim_file = zim::Zim::new(&zim_path).expect("Could not open/parse ZIM file");
 
@@ -434,14 +415,13 @@ pub fn process_directories(
                             .unwrap()
                             .progress_chars("#>-"),
                     );
-                    pb.set_message(format!("T{} | {} (KV-Store)", worker_id, combined_lang));
+                    pb.set_message(format!("T{} | {} (KV-Store)", worker_id, lang));
 
                     let mut articles_found = 0;
                     let mut lookup_fails = 0;
                     let mut num_articles_processed = 0;
 
                     let zim_wall_clock = Instant::now();
-                    let mut dur_setup = std::time::Duration::ZERO;
                     let mut dur_db = std::time::Duration::ZERO;
                     let mut dur_zim_read = std::time::Duration::ZERO;
                     let mut dur_process = std::time::Duration::ZERO;
@@ -462,76 +442,26 @@ pub fn process_directories(
                             continue;
                         }
 
-                        let t_setup = Instant::now();
-                        let decoded_url;
-                        let raw_title = if !direntry.title.is_empty() {
-                            direntry.title.as_str()
-                        } else {
-                            decoded_url = urlencoding::decode(&direntry.url).unwrap_or(std::borrow::Cow::Borrowed(&direntry.url));
-                            &decoded_url
-                        };
-                        let primary_title = if raw_title.contains('_') {
-                            raw_title.replace('_', " ").trim().to_string()
-                        } else {
-                            raw_title.trim().to_string()
-                        };
-                        dur_setup += t_setup.elapsed();
+                        let t_db_lookup = Instant::now();
 
-                        let t_db = Instant::now();
-                        let mut qid = String::new();
-                        let mut found = false;
+                        let (qid_opt, primary_title) = sitelinks_lookup::lookup_qid_from_sitelinks(
+                            &table,
+                            &mut search_key,
+                            settings,
+                            &lang,
+                            direntry.title.as_str(),
+                            &direntry.url,
+                        );
 
-                        search_key.clear();
-                        search_key.push_str(&lang);
-                        search_key.push_str(text_delim_str);
-                        search_key.push_str(&wiki_type);
-                        search_key.push_str(text_delim_str);
-                        search_key.push_str(&primary_title);
+                        dur_db += t_db_lookup.elapsed();
 
-                        if let Ok(Some(q)) = table.get(search_key.as_str()) {
-                            qid = q.value().to_string();
-                            found = true;
-                        }
-                        dur_db += t_db.elapsed();
-
-                        if !found {
-                            let t_setup_fb = Instant::now();
-                            let decoded_url_fb = urlencoding::decode(&direntry.url).unwrap_or(std::borrow::Cow::Borrowed(&direntry.url));
-                            let mut fallback_title = if decoded_url_fb.contains('_') {
-                                decoded_url_fb.replace('_', " ").trim().to_string()
-                            } else {
-                                decoded_url_fb.trim().to_string()
-                            };
-
-                            if let Some(first_char) = fallback_title.chars().next() {
-                                if first_char.is_lowercase() {
-                                    let mut chars = fallback_title.chars();
-                                    if let Some(f) = chars.next() {
-                                        fallback_title = f.to_uppercase().collect::<String>() + chars.as_str();
-                                    }
-                                }
+                        let qid = match qid_opt {
+                            Some(q) => q,
+                            None => {
+                                lookup_fails += 1;
+                                continue;
                             }
-                            dur_setup += t_setup_fb.elapsed();
-
-                            let t_db_fb = Instant::now();
-                            search_key.clear();
-                            search_key.push_str(&lang);
-                            search_key.push_str(text_delim_str);
-                            search_key.push_str(&wiki_type);
-                            search_key.push_str(text_delim_str);
-                            search_key.push_str(&fallback_title);
-
-                            if let Ok(Some(q)) = table.get(search_key.as_str()) {
-                                qid = q.value().to_string();
-                                found = true;
-                            }
-                            dur_db += t_db_fb.elapsed();
-                        }
-
-                        if !found {
-                            lookup_fails += 1;
-                            continue;
-                        }
+                        };
 
                         let t_read = Instant::now();
                         let content = match zim_file.entry_content(&direntry) {
@@ -554,7 +484,25 @@ pub fn process_directories(
                         dur_zim_read += t_read.elapsed();
 
                         let t_process = Instant::now();
-                        let raw_bin_data = article_processing::process_article(&wiki_type, &qid, &article_text);
+
+                        let process_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                            article_processing::process_wikipedia_article(
+                                &qid,
+                                &article_text,
+                                &table,
+                                &mut search_key,
+                                settings,
+                                &lang
+                            )
+                        }));
+
+                        let raw_bin_data = match process_result {
+                            Ok(data) => data,
+                            Err(_) => {
+                                lookup_fails += 1;
+                                continue; 
+                            }
+                        };
                         dur_process += t_process.elapsed();
 
                         let t_compress = Instant::now();
@@ -565,7 +513,7 @@ pub fn process_directories(
                         tx_clone
                             .send(WorkItem::Article(ProcessedArticle {
                                 qid,
-                                wiki_lang: combined_lang.clone(),
+                                lang: lang.clone(),
                                 title: primary_title,
                                 binary_data: compressed_data,
                             }))
@@ -575,18 +523,17 @@ pub fn process_directories(
                         num_articles_processed += 1;
 
                         if num_articles_processed % 1000 == 0 {
-                            let dur_total_measured = dur_setup + dur_db + dur_zim_read + dur_process + dur_compress;
+                            let dur_total_measured = dur_db + dur_zim_read + dur_process + dur_compress;
                             let total = dur_total_measured.as_secs_f64().max(0.0001);
 
-                            let pct_setup = (dur_setup.as_secs_f64() / total) * 100.0;
                             let pct_db = (dur_db.as_secs_f64() / total) * 100.0;
                             let pct_read = (dur_zim_read.as_secs_f64() / total) * 100.0;
                             let pct_proc = (dur_process.as_secs_f64() / total) * 100.0;
                             let pct_zstd = (dur_compress.as_secs_f64() / total) * 100.0;
 
                             pb.set_message(format!(
-                                "T{} | {} (KV-Store) [Setup: {:02.0}% | DB: {:02.0}% | Read: {:02.0}% | Proc: {:02.0}% | Zstd: {:02.0}%]",
-                                worker_id, combined_lang, pct_setup, pct_db, pct_read, pct_proc, pct_zstd
+                                "T{} | {} (KV-Store) [DB: {:02.0}% | Read: {:02.0}% | Proc: {:02.0}% | Zstd: {:02.0}%]",
+                                worker_id, lang, pct_db, pct_read, pct_proc, pct_zstd
                             ));
                         }
 
@@ -596,12 +543,11 @@ pub fn process_directories(
                     }
 
                     let wall_elapsed = zim_wall_clock.elapsed();
-                    let measured_sum = dur_setup + dur_db + dur_zim_read + dur_process + dur_compress;
+                    let measured_sum = dur_db + dur_zim_read + dur_process + dur_compress;
                     let dur_overhead = wall_elapsed.saturating_sub(measured_sum);
 
                     let mut local_metrics = ZimMetrics {
                         total_zim_files_processed: 1,
-                        total_setup: dur_setup,
                         total_db: dur_db,
                         total_zim_read: dur_zim_read,
                         total_process: dur_process,
@@ -611,10 +557,10 @@ pub fn process_directories(
                         ..Default::default()
                     };
 
-                    local_metrics.articles_found_per_wiki.insert(combined_lang.clone(), articles_found);
-                    local_metrics.article_lookup_fails_per_wiki.insert(combined_lang.clone(), lookup_fails);
+                    local_metrics.articles_found_per_lang.insert(lang.clone(), articles_found);
+                    local_metrics.article_lookup_fails_per_lang.insert(lang.clone(), lookup_fails);
 
-                    pb.finish_with_message(format!("T{} | {} Done", worker_id, combined_lang));
+                    pb.finish_with_message(format!("T{} | {} Done", worker_id, lang));
                     tx_clone.send(WorkItem::ZimFinished(path_string, local_metrics)).unwrap();
                 }
             });

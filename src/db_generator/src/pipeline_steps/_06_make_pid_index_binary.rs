@@ -1,7 +1,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
 use crate::utils::checkpoints;
@@ -9,56 +9,6 @@ use crate::utils::constants;
 use crate::utils::logs;
 use crate::utils::settings::Settings;
 
-/* ============================================================================
- * WIKIDATA PROPERTY (PID) BINARY INDEX ARCHITECTURE
- * ============================================================================
- *
- * FILE 1: pid_hashmap.bin (Direct-Mapped PID Lookup)
- * ----------------------------------------------------------------------------
- * This file acts as an O(1) lookup table. There are no actual PIDs stored here.
- * Instead, the PID itself is the row index. Missing PIDs are padded with zeros.
- *
- * Formula to find PID 'x':  file_offset = (x - 1) * 6 bytes
- *
- * Row Layout (6 bytes total, Little-Endian):
- * [ Bytes 0-3 ] : u32 - start_index (Row number in pid_index.bin where entries begin)
- * [ Bytes 4-5 ] : u16 - entry_count (Number of available translations/rows for this PID)
- *
- *
- * FILE 2: pid_index.bin (The Entries / Translations)
- * ----------------------------------------------------------------------------
- * This file holds the actual target data. Rows are strictly 10 bytes each.
- *
- * Formula to find Row 'y': file_offset = y * 10 bytes
- *
- * Row Layout (10 bytes total, Little-Endian):
- * [ Bytes 0-1 ] : u16 - project_id (Shares the same ID mapping as QIDs! e.g., 2=dewiki)
- * [ Bytes 2-5 ] : u32 - title_offset (Points to the label string in pid_strings.bin)
- * [ Bytes 6-9 ] : u32 - desc_offset (Points to the description string in pid_strings.bin)
- *
- *
- * FILE 3: pid_strings.bin (String Pool)
- * ----------------------------------------------------------------------------
- * Contains null-terminated UTF-8 strings. Byte 0 is always '\0'.
- * Strings are deduplicated during generation to save space.
- *
- *
- * C++ STRUCTS FOR ESP32:
- * ----------------------------------------------------------------------------
- * struct __attribute__((packed)) PropertyHashMapRow {
- *     uint32_t start_index;
- *     uint16_t entry_count;
- * }; // Exactly 6 bytes
- *
- * struct __attribute__((packed)) PropertyIndexRow {
- *     uint16_t project_id;
- *     uint32_t title_offset;
- *     uint32_t desc_offset;
- * }; // Exactly 10 bytes
- * ============================================================================
- */
-
-// Helper function to deduplicate strings on the fly
 fn get_string_offset(
     s: &str,
     pool: &mut HashMap<String, u32>,
@@ -80,40 +30,45 @@ fn get_string_offset(
 }
 
 pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
-    // Assuming ID 6 for PID binary index checkpoint
+    println!("\n[DEBUG PAUSE]");
+    println!("Please paste the correct properties_search.txt into the tmp folder.");
+    print!("Press ENTER to continue...");
+    io::stdout().flush().unwrap();
+
+    let mut _dummy_input = String::new();
+    io::stdin().read_line(&mut _dummy_input).unwrap();
+
+    println!("Resuming script...\n");
     match checkpoints::checkpoint_exists(&settings, 6) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Creation of the PID binary index has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Make PID binary index checkpoint should not contain any data, but contains: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
 
     let txt_delimiter = &settings.other.text_delimiter;
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
 
-    // I assume these constants exist. If not, add them to constants.rs
     let pid_index_txt_path = tmp_dir.join(constants::PROPERTIES_SEARCH_TXT);
     let pid_hashmap_bin_path = bin_dir.join(constants::PID_HASHMAP_BIN);
     let pid_index_bin_path = bin_dir.join(constants::PID_INDEX_BIN);
     let pid_strings_bin_path = bin_dir.join(constants::PID_STRINGS_BIN);
 
-    // The mapping created by the QID script
     let wiki_lang_mapping_txt_path = tmp_dir.join(constants::WIKI_LANG_MAPPING_TXT);
 
-    // 1. LOAD GLOBAL PROJECT MAPPING (from QID generation)
-    let mut project_dict: HashMap<String, u16> = HashMap::new();
+    let mut lang_dict: HashMap<String, u16> = HashMap::new();
     let mapping_file = File::open(&wiki_lang_mapping_txt_path).map_err(|e| {
         format!(
             "Could not open wiki_lang_mapping.txt. Did you run the QID script first? Error: {}",
@@ -125,17 +80,16 @@ pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
         let line = line_result.unwrap();
         let parts: Vec<&str> = line.split('\t').collect();
         if parts.len() == 2 {
-            let project_name = parts[0].to_string(); // Key
-            let id: u16 = parts[1].parse().unwrap(); // Value
-            project_dict.insert(project_name, id);
+            let lang = parts[0].to_string();
+            let id: u16 = parts[1].parse().unwrap();
+            lang_dict.insert(lang, id);
         }
     }
     println!(
-        "Loaded {} existing project mappings for PIDs.",
-        project_dict.len()
+        "Loaded {} existing language mappings for PIDs.",
+        lang_dict.len()
     );
 
-    // 2. PREPARE FILES
     let input_file = File::open(&pid_index_txt_path)
         .map_err(|e| format!("Could not open PID index txt: {}", e))?;
     let file_size = input_file
@@ -175,28 +129,31 @@ pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
 
         let parts: Vec<&str> = line.split(txt_delimiter).collect();
         if parts.len() < 3 {
-            continue; // Skip malformed
+            println!("DEBUG: Skipped due to delimiter! Line: {}", line);
+            continue;
         }
 
-        // Parse PID ("P31" -> 31)
         let pid_num: u32 = match parts[0].trim_start_matches('P').parse() {
             Ok(val) => val,
-            Err(_) => continue,
+            Err(_) => {
+                println!("DEBUG: Failed to parse PID: {}", parts[0]);
+                continue;
+            }
         };
 
-        let lang_code = parts[1]; // e.g., "de"
-        let project_name = format!("{}wiki", lang_code); // "dewiki"
+        let lang_code = parts[1];
 
-        // Map to global project_id. If missing, skip this language translation.
-        let project_id = match project_dict.get(&project_name) {
+        let lang_id = match lang_dict.get(lang_code) {
             Some(&id) => id,
-            None => continue,
+            None => {
+                println!("DEBUG: Missing mapping for language: {}", lang_code);
+                continue;
+            }
         };
 
         let title_str = parts[2];
         let desc_str = if parts.len() >= 4 { parts[3] } else { "" };
 
-        // O(1) Padding: Fill gaps if PIDs were skipped
         while expected_pid < pid_num {
             assert!(
                 current_pid_count <= u16::MAX as u32,
@@ -215,7 +172,6 @@ pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
             current_pid_count = 0;
         }
 
-        // Process strings with deduplication
         let row_title_offset = get_string_offset(
             title_str,
             &mut string_pool,
@@ -229,8 +185,7 @@ pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
             &mut current_string_offset,
         );
 
-        // Write 10 bytes to index.bin
-        index_writer.write_all(&project_id.to_le_bytes()).unwrap();
+        index_writer.write_all(&lang_id.to_le_bytes()).unwrap();
         index_writer
             .write_all(&row_title_offset.to_le_bytes())
             .unwrap();

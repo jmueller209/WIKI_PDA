@@ -1,8 +1,18 @@
 use html2text::from_read;
 use kuchikiki::traits::*;
-use std::panic::catch_unwind;
+use redb::ReadOnlyTable;
+// use std::panic::catch_unwind;
 
-pub fn process_wiki(raw_html: &str) -> String {
+use crate::utils::settings::Settings;
+use crate::utils::sitelinks_lookup;
+
+fn clean_html_tree(
+    raw_html: &str,
+    table: &ReadOnlyTable<&str, &str>,
+    search_key_buffer: &mut String,
+    settings: &Settings,
+    lang: &str,
+) -> String {
     let document = kuchikiki::parse_html().one(raw_html);
 
     let content_node = match document.select_first("div.mw-parser-output") {
@@ -10,14 +20,28 @@ pub fn process_wiki(raw_html: &str) -> String {
         Err(_) => document.clone(),
     };
 
-
     let selectors_to_remove = [
-        "table",              
-        "div.navbox",         
-        "div.metadata",       
-        "div.printfooter",    
-        "div.mw-editsection", 
-        "sup.reference",     
+        // --- WE ARE KEEPING TABLES NOW (removed "table") ---
+
+        // --- META, NAVIGATION & HATNOTES ---
+        "div.navbox",         // Bottom navigation boxes
+        "div.metadata",       // Meta warnings
+        "div.printfooter",    // Print info
+        "div.mw-editsection", // "Edit" links
+        "div.hatnote",        // "See also", "Main article", "Not to be confused with"
+        "div.rellink",        // Alternative cross-reference links
+        "dl.rellink",         // Sometimes used for cross-references
+        // --- SOURCES & FOOTNOTES ---
+        "sup.reference", // Standard Wikipedia footnotes
+        "sup.mw-ref",    // ZIM / Parsoid footnotes
+        ".mw-ref",       // Fallback for other footnote tags
+        "sup.noprint",   // Often used for [note 1] or [citation needed]
+        "div.reflist",   // The entire references block at the bottom
+        "ol.references", // The references list itself
+        // --- MATH CLEANUP (Prevents triple duplication) ---
+        "span.mwe-math-mathml-a11y", // Hidden MathML for screen readers
+        "math",                      // MathML tags
+        "annotation",                // Raw TeX annotations
     ];
 
     for selector in selectors_to_remove.iter() {
@@ -28,59 +52,68 @@ pub fn process_wiki(raw_html: &str) -> String {
         }
     }
 
+    if let Ok(a_tags) = content_node.select("a") {
+        for a_node in a_tags {
+            let mut attrs = a_node.attributes.borrow_mut();
+
+            if let Some(href) = attrs.get("href") {
+                let is_external =
+                    href.starts_with("http") || href.starts_with("//") || href.starts_with("www.");
+                let is_anchor = href.starts_with('#');
+
+                let title_attr = attrs.get("title").map(|s| s.to_string());
+                let href_val = href.to_string();
+
+                attrs.remove("href");
+                drop(attrs);
+
+                if !is_external && !is_anchor {
+                    let target_title = title_attr.unwrap_or_default();
+
+                    if !target_title.is_empty() {
+                        let (qid_opt, _) = sitelinks_lookup::lookup_qid_from_sitelinks(
+                            table,
+                            search_key_buffer,
+                            settings,
+                            lang,
+                            &target_title,
+                            &href_val,
+                        );
+
+                        let qid_str = qid_opt.unwrap_or_else(|| "NOT_FOUND".to_string());
+
+                        let node_ref = a_node.as_node();
+                        node_ref.insert_before(kuchikiki::NodeRef::new_text("["));
+                        node_ref
+                            .insert_after(kuchikiki::NodeRef::new_text(format!("][#{}]", qid_str)));
+                    }
+                }
+            }
+        }
+    }
+
     let mut cleaned_html = Vec::new();
     let _ = content_node.serialize(&mut cleaned_html);
-    let cleaned_html_string = String::from_utf8_lossy(&cleaned_html);
-
-    let plain_text = catch_unwind(|| from_read(cleaned_html_string.as_bytes(), 100))
-        .unwrap_or_else(|_| Ok(cleaned_html_string.to_string()))
-        .unwrap_or_else(|_| cleaned_html_string.to_string());
-
-    plain_text
+    String::from_utf8_lossy(&cleaned_html).to_string()
 }
 
-pub fn process_wiktionary(raw_html: &str) -> String {
-    process_wiki(raw_html)
+fn convert_html_to_plain_text(cleaned_html: &str) -> String {
+    from_read(cleaned_html.as_bytes(), 100).unwrap_or_default()
 }
 
-pub fn process_wikiquote(raw_html: &str) -> String {
-    process_wiki(raw_html)
-}
+pub fn process_wikipedia_article(
+    qid: &str,
+    raw_html: &str,
+    table: &ReadOnlyTable<&str, &str>,
+    search_key_buffer: &mut String,
+    settings: &Settings,
+    lang: &str,
+) -> Vec<u8> {
+    let cleaned_html = clean_html_tree(raw_html, table, search_key_buffer, settings, lang);
 
-pub fn process_wikisource(raw_html: &str) -> String {
-    process_wiki(raw_html)
-}
+    let plain_text = convert_html_to_plain_text(&cleaned_html);
 
-pub fn process_wikivoyage(raw_html: &str) -> String {
-    process_wiki(raw_html)
-}
-
-pub fn process_wikiversity(raw_html: &str) -> String {
-    process_wiki(raw_html)
-}
-
-pub fn process_wikibooks(raw_html: &str) -> String {
-    process_wiki(raw_html)
-}
-
-
-// Wrapper function: Do NOT change this!
-pub fn process_article(article_kind: &str, qid: &str, article_string: &str) -> Vec<u8> {
-    let plain_text = match article_kind {
-        "wiki" => process_wiki(article_string),
-        "wiktionary" => process_wiktionary(article_string),
-        "wikiquote" => process_wikiquote(article_string),
-        "wikisource" => process_wikisource(article_string),
-        "wikivoyage" => process_wikivoyage(article_string),
-        "wikiversity" => process_wikiversity(article_string),
-        "wikibooks" => process_wikibooks(article_string),
-        w => panic!("{w} is not a valid wiki"),
-    };
-
-    let formatted_output = format!(
-        "--- WIKI KIND: {} | QID: {} ---\n\n{}\n\n",
-        article_kind, qid, plain_text
-    );
+    let formatted_output = format!("--- QID: {} ---\n\n{}\n\n", qid, plain_text);
 
     formatted_output.into_bytes()
 }

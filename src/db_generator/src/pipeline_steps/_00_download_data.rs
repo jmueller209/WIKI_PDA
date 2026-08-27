@@ -37,21 +37,21 @@ impl DownloadMetrics {
 
 pub fn download_data(settings: &Settings) -> Result<(), String> {
     match checkpoints::checkpoint_exists(&settings, 0) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Download has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Download checkpoint should not contain any data, but contains: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
     println!("Starting Download");
 

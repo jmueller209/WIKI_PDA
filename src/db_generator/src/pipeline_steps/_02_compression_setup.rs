@@ -1,5 +1,6 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::Rng;
+use redb::ReadOnlyTable;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -11,6 +12,7 @@ use crate::utils::compression;
 use crate::utils::constants;
 use crate::utils::logs;
 use crate::utils::settings::Settings;
+use crate::utils::sitelinks_lookup;
 
 pub struct CompressionMetrics {
     pub zstd_compression_level: i8,
@@ -70,21 +72,21 @@ impl CompressionMetrics {
 
 pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
     match checkpoints::checkpoint_exists(&settings, 2) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Compression Setup has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Download checkpoint should not contain any data, but contains: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
 
     let wikis_to_include = &settings.database_content.wikis_to_include;
@@ -111,7 +113,7 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
     let zstd_compression_level = settings.performance.zstd_compression_level;
     let zstd_window_size_kb = settings.performance.zstd_window_size_kb;
 
-    let mut allowed_zim_files_with_size: Vec<(PathBuf, u64, String)> = Vec::new();
+    let mut allowed_zim_files_with_size: Vec<(PathBuf, u64, String, String)> = Vec::new();
 
     for wiki in wikis_to_include {
         let dir = data_dir.join(wiki);
@@ -151,6 +153,7 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
                                         path,
                                         metadata.len(),
                                         wiki.clone(),
+                                        lang.to_string(),
                                     ));
                                 }
                             }
@@ -166,10 +169,18 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
         return Err("No valid ZIM files found for dictionary training.".to_string());
     }
 
+    let db = sitelinks_lookup::open_sitelinks_db(settings);
+    let read_txn = db.begin_read().map_err(|e| e.to_string())?;
+    let table = read_txn
+        .open_table(sitelinks_lookup::SITELINKS_TABLE)
+        .map_err(|e| e.to_string())?;
+
     let (train_samples, train_sample_size_bytes) = create_random_samples(
         &allowed_zim_files_with_size,
         zstd_sample_size_mb,
         "Sampling for training...",
+        settings,
+        &table,
     )?;
 
     let target_dictionary_size_bytes = zstd_dict_size_kb * 1024;
@@ -192,6 +203,8 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
         &allowed_zim_files_with_size,
         zstd_sample_size_mb,
         "Sampling for unbiased testing...",
+        settings,
+        &table,
     )?;
 
     println!("Testing newly created dictionary with fresh samples...");
@@ -234,9 +247,11 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
 }
 
 fn create_random_samples(
-    allowed_zim_files_with_size: &[(PathBuf, u64, String)],
+    allowed_zim_files_with_size: &[(PathBuf, u64, String, String)],
     target_sample_size_mb: usize,
     progress_msg: &str,
+    settings: &Settings,
+    table: &ReadOnlyTable<&str, &str>,
 ) -> Result<(Vec<Vec<u8>>, usize), String> {
     if allowed_zim_files_with_size.is_empty() {
         return Err("No valid ZIM files available for sampling.".to_string());
@@ -247,7 +262,7 @@ fn create_random_samples(
 
     let total_size: u64 = allowed_zim_files_with_size
         .iter()
-        .map(|(_, size, _)| *size)
+        .map(|(_, size, _, _)| *size)
         .sum();
 
     if total_size == 0 {
@@ -273,15 +288,18 @@ fn create_random_samples(
     let mut samples: Vec<Vec<u8>> = Vec::new();
     let mut open_zims: HashMap<PathBuf, zim::Zim> = HashMap::new();
 
+    // NEU: Puffer für den DB-Lookup
+    let mut search_key_buffer = String::with_capacity(256);
+
     while current_sample_bytes < target_sample_bytes {
         let mut random_weight = rng.gen_range(0..total_size);
         let mut selected_zim_path = &allowed_zim_files_with_size[0].0;
-        let mut selected_wiki_type = &allowed_zim_files_with_size[0].2;
+        let mut selected_lang = &allowed_zim_files_with_size[0].3;
 
-        for (path, size, wiki_type) in allowed_zim_files_with_size {
+        for (path, size, _, lang) in allowed_zim_files_with_size {
             if random_weight < *size {
                 selected_zim_path = path;
-                selected_wiki_type = wiki_type;
+                selected_lang = lang;
                 break;
             }
             random_weight = random_weight.saturating_sub(*size);
@@ -315,10 +333,13 @@ fn create_random_samples(
                 if let Ok(article_text) =
                     content.with(|bytes| String::from_utf8_lossy(bytes).into_owned())
                 {
-                    let bin_data = article_processing::process_article(
-                        selected_wiki_type,
+                    let bin_data = article_processing::process_wikipedia_article(
                         "Q_TRAIN",
                         &article_text,
+                        table,
+                        &mut search_key_buffer,
+                        settings,
+                        selected_lang,
                     );
 
                     if !bin_data.is_empty() {

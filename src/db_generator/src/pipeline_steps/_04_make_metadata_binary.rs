@@ -11,21 +11,21 @@ use crate::utils::txt_file_processing::{self, SortMode};
 
 pub fn make_metadata_binary(settings: &Settings) -> Result<(), String> {
     match checkpoints::checkpoint_exists(&settings, 4) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Generating metadata binary has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Checkpoint should not contain any data, but contains: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
     let txt_delimiter = &settings.other.text_delimiter;
     let thread_count = settings.performance.thread_count;

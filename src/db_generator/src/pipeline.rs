@@ -33,10 +33,12 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
         RunMode::FlashDisk => {
             disk_flasher::cli(&settings)?;
         }
-
         RunMode::TestPipeline => {
             cleanup::clean(&settings)?;
-            run_all(&settings, Some(500000))?;
+            run_all(&settings, Some(2000))?;
+        }
+        RunMode::ExtractSampleArticles => {
+            test_article_processing::extract_sample_articles(&settings)?;
         }
         RunMode::TestArticleProcessing => {
             test_article_processing::test_article_processing(&settings)?;

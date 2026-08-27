@@ -5,4 +5,5 @@ pub mod constants;
 pub mod encoding;
 pub mod logs;
 pub mod settings;
+pub mod sitelinks_lookup;
 pub mod txt_file_processing;

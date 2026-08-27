@@ -49,6 +49,9 @@ restart-purge: $(GENERATOR_BIN)
 test-pipeline: $(GENERATOR_BIN)
 	$(GENERATOR_BIN) $(CONFIG_FILE) --test-pipeline
 
+extract-sample-articles: $(GENERATOR_BIN)
+	$(GENERATOR_BIN) $(CONFIG_FILE) --extract-sample-articles
+
 test-article-processing: $(GENERATOR_BIN)
 	$(GENERATOR_BIN) $(CONFIG_FILE) --test-article-processing
 

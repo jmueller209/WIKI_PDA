@@ -176,21 +176,21 @@ impl PreparedBatch {
 
 pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Result<(), String> {
     match checkpoints::checkpoint_exists(&settings, 1) {
-        checkpoints::CheckpointState::exists_empty => {
+        checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Wikidata parser has already finished");
             return Ok(());
         }
-        checkpoints::CheckpointState::exists_with_data(data) => {
+        checkpoints::CheckpointState::ExistsWithData(data) => {
             return Err(format!(
                 "Download checkpoint should not contain any data, but contains: \n {}",
                 data
             ));
         }
-        checkpoints::CheckpointState::exists_in_bad_state(i) => {
+        checkpoints::CheckpointState::ExistsInBadState(i) => {
             let _ = checkpoints::clear_checkpoints(&settings, i);
             return Err("Checkpoint was found in bad state. Cleaned up checkpoints.".to_string());
         }
-        checkpoints::CheckpointState::does_not_exist => (),
+        checkpoints::CheckpointState::DoesNotExist => (),
     }
 
     let num_threads = settings.performance.thread_count;
@@ -205,12 +205,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         .build_global()
         .unwrap();
 
-    let wikis_to_include: HashSet<String> = settings
-        .database_content
-        .wikis_to_include
-        .clone()
-        .into_iter()
-        .collect();
     let include_concepts_with_given_property_in_omni_search_index: HashSet<String> = settings
         .database_content
         .include_concepts_with_given_property_in_omni_search_index
@@ -510,29 +504,23 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                     if is_q_item {
                         local_metrics.qids_found_total += 1;
                         let mut has_relevant_sitelink = false;
-                        let mut found_wiki_types = std::collections::HashSet::new();
                         let mut valid_sitelinks = Vec::new();
 
                         if let Some(sitelinks) = parsed["sitelinks"].as_object() {
                             for (site_key, site_data) in sitelinks {
-                                for configured_wiki in &wikis_to_include {
-                                    if site_key.ends_with(configured_wiki) {
-                                        let lang_code_len = site_key.len() - configured_wiki.len();
-                                        let lang_code = &site_key[..lang_code_len];
+                                if site_key.ends_with("wiki") {
+                                    let lang_code_len = site_key.len() - 4;
+                                    let lang_code = &site_key[..lang_code_len];
 
-                                        if languages_to_include.contains(lang_code) {
-                                            has_relevant_sitelink = true;
-                                            found_wiki_types.insert(configured_wiki.to_string());
+                                    if languages_to_include.contains(lang_code) {
+                                        has_relevant_sitelink = true;
 
-                                            if let Some(title) = site_data["title"].as_str() {
-                                                valid_sitelinks.push((
-                                                    lang_code.to_string(),
-                                                    configured_wiki.to_string(),
-                                                    title.to_string(),
-                                                ));
-                                            }
+                                        if let Some(title) = site_data["title"].as_str() {
+                                            valid_sitelinks.push((
+                                                lang_code.to_string(),
+                                                title.to_string(),
+                                            ));
                                         }
-                                        break;
                                     }
                                 }
                             }
@@ -673,8 +661,8 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
 
                         if is_omni_match {
                             let mut tags = Vec::new();
-                            for wiki_type in &found_wiki_types {
-                                let tag_name = format!("is_in_{}", wiki_type);
+                            if has_relevant_sitelink {
+                                let tag_name = "has_wikipedia_article".to_string(); 
                                 if omni_search_index_tags.contains(&tag_name) {
                                     tags.push(tag_name);
                                 }
@@ -725,9 +713,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 local_metrics.omni_search_entries_created += search_terms.len() as u64;
                                 if has_relevant_sitelink {
                                     local_metrics.qids_used_in_omni_search_with_wiki_total += 1;
-                                    for wiki in &found_wiki_types {
-                                        *local_metrics.qids_used_in_omni_search_with_wiki.entry(wiki.clone()).or_insert(0) += 1;
-                                    }
                                 } else {
                                     local_metrics.qids_used_in_omni_search_no_wiki_total += 1;
                                     for concept in &matched_omni_concepts {
@@ -746,8 +731,8 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                             if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f32>(), parts[1].parse::<f32>()) {
                                                 let encoded_coord = encoding::safe_spatial_encode(lat, lon, earth_ctx);
                                                 let mut coord_tags = Vec::new();
-                                                for wiki_type in &found_wiki_types {
-                                                    let tag_name = format!("is_in_{}", wiki_type);
+                                                if has_relevant_sitelink {
+                                                    let tag_name = "has_wikipedia_article".to_string(); 
                                                     if globe_coordinate_search_index_tags.contains(&tag_name) {
                                                         coord_tags.push(tag_name);
                                                     }
@@ -767,9 +752,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                         local_metrics.qids_used_in_coordinate_search += 1;
                                         if has_relevant_sitelink {
                                             local_metrics.qids_used_in_coordinate_search_with_wiki_total += 1;
-                                            for wiki in &found_wiki_types {
-                                                *local_metrics.qids_used_in_coordinate_search_with_wiki.entry(wiki.clone()).or_insert(0) += 1;
-                                            }
                                         } else {
                                             local_metrics.qids_used_in_coordinate_search_without_wiki += 1;
                                         }
@@ -785,13 +767,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                         for time_val in times {
                                             let timestamp = encoding::safe_temporal_encode(time_val.as_str());
                                             let mut temp_tags = Vec::new();
-                                            for wiki_type in &found_wiki_types {
-                                                let tag_name = format!("is_in_{}", wiki_type);
+                                            if has_relevant_sitelink {
+                                                let tag_name = "has_wikipedia_article".to_string(); 
                                                 if temporal_search_index_tags.contains(&tag_name) {
                                                     temp_tags.push(tag_name);
                                                 }
                                             }
-
                                             for p31 in &p31_qids {
                                                 if temporal_search_index_tags.contains(p31) {
                                                     temp_tags.push(p31.clone());
@@ -807,9 +788,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     local_metrics.qids_used_in_temporal_search += 1;
                                     if has_relevant_sitelink {
                                         local_metrics.qids_used_in_temporal_search_with_wiki_total += 1;
-                                        for wiki in &found_wiki_types {
-                                            *local_metrics.qids_used_in_temporal_search_with_wiki.entry(wiki.clone()).or_insert(0) += 1;
-                                        }
                                     } else {
                                         local_metrics.qids_used_in_temporal_search_without_wiki += 1;
                                     }
@@ -832,14 +810,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     let dec = grouped_claims.get("P6258").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
                                     let encoded_astro = encoding::safe_spatial_encode(dec as f32, ra as f32, celestial_ctx);
                                     let mut astro_tags = Vec::new();
-
-                                    for wiki_type in &found_wiki_types {
-                                        let tag_name = format!("is_in_{}", wiki_type);
+                                    if has_relevant_sitelink {
+                                        let tag_name = "has_wikipedia_article".to_string(); 
                                         if astronomical_search_index_tags.contains(&tag_name) {
                                             astro_tags.push(tag_name);
                                         }
                                     }
-
                                     for p31 in &p31_qids {
                                         if astronomical_search_index_tags.contains(p31) {
                                             astro_tags.push(p31.clone());
@@ -856,9 +832,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     local_metrics.qids_used_in_astronomical_search += 1;
                                     if has_relevant_sitelink {
                                         local_metrics.qids_used_in_astronomical_search_with_wiki_total += 1;
-                                        for wiki in &found_wiki_types {
-                                            *local_metrics.qids_used_in_astronomical_search_with_wiki.entry(wiki.clone()).or_insert(0) += 1;
-                                        }
                                     } else {
                                         local_metrics.qids_used_in_astronomical_search_without_wiki += 1;
                                     }
@@ -876,8 +849,8 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                             return Some((PreparedBatch::empty(), local_metrics));
                         }
 
-                        for (lang, wiki_type, title) in valid_sitelinks {
-                            entity_data.sitelinks_mapping_lines.push_str(&format!("{lang}{text_delimiter}{wiki_type}{text_delimiter}{title}{text_delimiter}{entity_id}\n"));
+                        for (lang, title) in valid_sitelinks {
+                            entity_data.sitelinks_mapping_lines.push_str(&format!("{lang}{text_delimiter}{title}{text_delimiter}{entity_id}\n"));
                         }
 
                         let mut metadata_pairs = Vec::new();
