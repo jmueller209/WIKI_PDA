@@ -7,11 +7,6 @@ use crate::utils::article_processing;
 use crate::utils::settings::Settings;
 use crate::utils::sitelinks_lookup;
 
-// ============================================================================
-// HILFSFUNKTIONEN FÜR DIE EXTRAKTION
-// ============================================================================
-
-/// Sucht die passende ZIM-Datei für eine bestimmte Sprache im Verzeichnis
 fn find_zim_file(dir: &Path, pattern: &str, target_lang: &str) -> Option<PathBuf> {
     let regex_str = pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
     let re = Regex::new(&regex_str).ok()?;
@@ -33,7 +28,6 @@ fn find_zim_file(dir: &Path, pattern: &str, target_lang: &str) -> Option<PathBuf
     None
 }
 
-/// Extrahiert die angegebenen Test-Artikel aus der ZIM-Datei und speichert sie als HTML
 fn extract_from_zim(zim_path: &Path, lang: &str, out_dir: &Path, titles: &[&str]) {
     let zim_file = match zim::Zim::new(zim_path) {
         Ok(z) => z,
@@ -47,7 +41,7 @@ fn extract_from_zim(zim_path: &Path, lang: &str, out_dir: &Path, titles: &[&str]
 
     for direntry_result in zim_file.iterate_by_urls() {
         if remaining.is_empty() {
-            break; // Alle gefunden!
+            break;
         }
 
         let direntry = match direntry_result {
@@ -104,11 +98,6 @@ fn extract_from_zim(zim_path: &Path, lang: &str, out_dir: &Path, titles: &[&str]
     }
 }
 
-// ============================================================================
-// HILFSFUNKTION FÜR DAS TESTEN (PARSEN)
-// ============================================================================
-
-/// Liest eine extrahierte HTML-Datei, jagt sie durch den Parser und speichert das .txt Resultat
 fn test_single_article(
     path: &Path,
     out_dir: &Path,
@@ -119,7 +108,6 @@ fn test_single_article(
     let filename = path.file_name().unwrap().to_string_lossy().to_string();
     let parts: Vec<&str> = filename.splitn(4, '_').collect();
 
-    // Ignoriere Dateien, die nicht unserem Namensschema entsprechen
     if parts.len() < 4 || parts[0] != "sample" {
         return Ok(());
     }
@@ -137,7 +125,6 @@ fn test_single_article(
     println!("Processing [{}] -> {}", wiki_type, safe_title);
     let raw_html = fs::read_to_string(path)?;
 
-    // Aufruf unserer neuen sauberen Funktion mit durchgereichter Datenbank.
     let processed_data_bytes = article_processing::process_wikipedia_article(
         "QID_TEST",
         &raw_html,
@@ -164,22 +151,17 @@ fn test_single_article(
     Ok(())
 }
 
-// ============================================================================
-// ÖFFENTLICHE HAUPTFUNKTIONEN
-// ============================================================================
-
 pub fn extract_sample_articles(settings: &Settings) -> Result<(), Box<dyn std::error::Error>> {
     let data_dir = PathBuf::from(&settings.paths.data_dir);
     let out_dir = PathBuf::from(&settings.paths.example_articles_dir);
     fs::create_dir_all(&out_dir)?;
 
-    // Hier definieren wir die härtesten Wikipedia-Artikel (Edge-Cases) zum Testen
     let target_lang = "en";
     let target_titles = vec![
-        "Fourier transform",         // Schweres LaTeX / Math
-        "List of chemical elements", // Riesige Tabellen
-        "Musical notation",          // Spezielle Tags (<score>)
-        "Software Engineering",      // Tiefe Schachtelungen
+        "Fourier transform",
+        "List of chemical elements",
+        "Musical notation",
+        "Software Engineering",
     ];
 
     println!("Extraction of test articles started...");
@@ -232,12 +214,10 @@ pub fn test_article_processing(settings: &Settings) -> Result<(), Box<dyn std::e
 
     println!("Starting local parser tests...");
 
-    // --- DATENBANK LADEN (Echt oder Dummy-In-Memory) ---
     let db = sitelinks_lookup::open_sitelinks_db(settings);
     let read_txn = db.begin_read()?;
     let table = read_txn.open_table(sitelinks_lookup::SITELINKS_TABLE)?;
     let mut search_key_buffer = String::with_capacity(256);
-    // ---------------------------------------------------
 
     if let Ok(entries) = fs::read_dir(&dir) {
         for entry in entries.flatten() {
