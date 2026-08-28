@@ -26,25 +26,25 @@ struct ParserMetrics {
 
     qids_used_in_omni_search: u64,
     omni_search_entries_created: u64,
-    qids_used_in_omni_search_with_wiki_total: u64,
-    qids_used_in_omni_search_no_wiki_total: u64,
-    qids_used_in_omni_search_with_wiki: HashMap<String, u64>,
-    qids_used_in_omni_search_with_included_concept_and_no_wiki: HashMap<String, u64>,
+    qids_used_in_omni_search_with_article_total: u64,
+    qids_used_in_omni_search_no_article_total: u64,
+    qids_used_in_omni_search_by_lang: HashMap<String, u64>,
+    qids_used_in_omni_search_with_included_concept_and_no_article: HashMap<String, u64>,
 
     qids_used_in_coordinate_search: u64,
-    qids_used_in_coordinate_search_with_wiki_total: u64,
-    qids_used_in_coordinate_search_without_wiki: u64,
-    qids_used_in_coordinate_search_with_wiki: HashMap<String, u64>,
+    qids_used_in_coordinate_search_with_article_total: u64,
+    qids_used_in_coordinate_search_without_article: u64,
+    qids_used_in_coordinate_search_by_lang: HashMap<String, u64>,
 
     qids_used_in_temporal_search: u64,
-    qids_used_in_temporal_search_with_wiki_total: u64,
-    qids_used_in_temporal_search_without_wiki: u64,
-    qids_used_in_temporal_search_with_wiki: HashMap<String, u64>,
+    qids_used_in_temporal_search_with_article_total: u64,
+    qids_used_in_temporal_search_without_article: u64,
+    qids_used_in_temporal_search_by_lang: HashMap<String, u64>,
 
     qids_used_in_astronomical_search: u64,
-    qids_used_in_astronomical_search_with_wiki_total: u64,
-    qids_used_in_astronomical_search_without_wiki: u64,
-    qids_used_in_astronomical_search_with_wiki: HashMap<String, u64>,
+    qids_used_in_astronomical_search_with_article_total: u64,
+    qids_used_in_astronomical_search_without_article: u64,
+    qids_used_in_astronomical_search_by_lang: HashMap<String, u64>,
     concept_usage_count_in_astronomical_search: HashMap<String, u64>,
 
     metadata_entries_written: u64,
@@ -55,73 +55,68 @@ struct ParserMetrics {
 
     property_usage_count: HashMap<String, u64>,
 }
+
 impl ParserMetrics {
     fn merge(&mut self, other: Self) {
         self.num_lines_read += other.num_lines_read;
         self.num_lines_skipped += other.num_lines_skipped;
-
         self.qids_found_total += other.qids_found_total;
         self.qids_used_total += other.qids_used_total;
 
         self.qids_used_in_omni_search += other.qids_used_in_omni_search;
         self.omni_search_entries_created += other.omni_search_entries_created;
-        self.qids_used_in_omni_search_with_wiki_total +=
-            other.qids_used_in_omni_search_with_wiki_total;
-        self.qids_used_in_omni_search_no_wiki_total += other.qids_used_in_omni_search_no_wiki_total;
+        self.qids_used_in_omni_search_with_article_total +=
+            other.qids_used_in_omni_search_with_article_total;
+        self.qids_used_in_omni_search_no_article_total +=
+            other.qids_used_in_omni_search_no_article_total;
 
         self.qids_used_in_coordinate_search += other.qids_used_in_coordinate_search;
-        self.qids_used_in_coordinate_search_with_wiki_total +=
-            other.qids_used_in_coordinate_search_with_wiki_total;
-        self.qids_used_in_coordinate_search_without_wiki +=
-            other.qids_used_in_coordinate_search_without_wiki;
+        self.qids_used_in_coordinate_search_with_article_total +=
+            other.qids_used_in_coordinate_search_with_article_total;
+        self.qids_used_in_coordinate_search_without_article +=
+            other.qids_used_in_coordinate_search_without_article;
 
         self.qids_used_in_temporal_search += other.qids_used_in_temporal_search;
-        self.qids_used_in_temporal_search_with_wiki_total +=
-            other.qids_used_in_temporal_search_with_wiki_total;
-        self.qids_used_in_temporal_search_without_wiki +=
-            other.qids_used_in_temporal_search_without_wiki;
+        self.qids_used_in_temporal_search_with_article_total +=
+            other.qids_used_in_temporal_search_with_article_total;
+        self.qids_used_in_temporal_search_without_article +=
+            other.qids_used_in_temporal_search_without_article;
 
         self.qids_used_in_astronomical_search += other.qids_used_in_astronomical_search;
-        self.qids_used_in_astronomical_search_with_wiki_total +=
-            other.qids_used_in_astronomical_search_with_wiki_total;
-        self.qids_used_in_astronomical_search_without_wiki +=
-            other.qids_used_in_astronomical_search_without_wiki;
+        self.qids_used_in_astronomical_search_with_article_total +=
+            other.qids_used_in_astronomical_search_with_article_total;
+        self.qids_used_in_astronomical_search_without_article +=
+            other.qids_used_in_astronomical_search_without_article;
 
         self.metadata_entries_written += other.metadata_entries_written;
-
+        self.empty_metadata_entries_written += other.empty_metadata_entries_written;
         self.pids_found += other.pids_found;
         self.pids_used += other.pids_used;
 
-        for (k, v) in other.qids_used_in_omni_search_with_wiki {
+        for (k, v) in other.qids_used_in_omni_search_by_lang {
+            *self.qids_used_in_omni_search_by_lang.entry(k).or_insert(0) += v;
+        }
+        for (k, v) in other.qids_used_in_omni_search_with_included_concept_and_no_article {
             *self
-                .qids_used_in_omni_search_with_wiki
+                .qids_used_in_omni_search_with_included_concept_and_no_article
                 .entry(k)
                 .or_insert(0) += v;
         }
-        for (k, v) in other.qids_used_in_omni_search_with_included_concept_and_no_wiki {
+        for (k, v) in other.qids_used_in_coordinate_search_by_lang {
             *self
-                .qids_used_in_omni_search_with_included_concept_and_no_wiki
+                .qids_used_in_coordinate_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
-
-        for (k, v) in other.qids_used_in_coordinate_search_with_wiki {
+        for (k, v) in other.qids_used_in_temporal_search_by_lang {
             *self
-                .qids_used_in_coordinate_search_with_wiki
+                .qids_used_in_temporal_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
-
-        for (k, v) in other.qids_used_in_temporal_search_with_wiki {
+        for (k, v) in other.qids_used_in_astronomical_search_by_lang {
             *self
-                .qids_used_in_temporal_search_with_wiki
-                .entry(k)
-                .or_insert(0) += v;
-        }
-
-        for (k, v) in other.qids_used_in_astronomical_search_with_wiki {
-            *self
-                .qids_used_in_astronomical_search_with_wiki
+                .qids_used_in_astronomical_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
@@ -131,10 +126,339 @@ impl ParserMetrics {
                 .entry(k)
                 .or_insert(0) += v;
         }
-
         for (k, v) in other.property_usage_count {
             *self.property_usage_count.entry(k).or_insert(0) += v;
         }
+    }
+
+    pub fn make_summary(&self) -> String {
+        let mut summary = String::new();
+
+        writeln!(
+            &mut summary,
+            "\n================ PARSING SUMMARY ================"
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Total Lines Read:                         {}",
+            self.num_lines_read
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Total Lines Skipped:                      {}",
+            self.num_lines_skipped
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Unique QIDs Found:                        {}",
+            self.qids_found_total
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Unique QIDs Used (In Any Index):          {}",
+            self.qids_used_total
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "P-IDs Found:                              {}",
+            self.pids_found
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "P-IDs Added (Psearch):                    {}",
+            self.pids_used
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Metadata Entries Written (Total):         {}",
+            self.metadata_entries_written
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "Empty Metadata Entries Written:           {}",
+            self.empty_metadata_entries_written
+        )
+        .unwrap();
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(&mut summary, "INDEX: OMNI SEARCH").unwrap();
+        writeln!(
+            &mut summary,
+            "  Total Unique QIDs:                      {}",
+            self.qids_used_in_omni_search
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "  Total Entries Created (Lines):          {}",
+            self.omni_search_entries_created
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs with Wikipedia Article:  {}",
+            self.qids_used_in_omni_search_with_article_total
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "     (Breakdown by language - items can match multiple languages)"
+        )
+        .unwrap();
+
+        let mut lang_vec: Vec<(&String, &u64)> =
+            self.qids_used_in_omni_search_by_lang.iter().collect();
+        lang_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (lang, count) in lang_vec {
+            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
+        }
+
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs added via Concept (No Article): {}",
+            self.qids_used_in_omni_search_no_article_total
+        )
+        .unwrap();
+        writeln!(&mut summary, "     (Breakdown by concept)").unwrap();
+        let mut concept_vec: Vec<(&String, &u64)> = self
+            .qids_used_in_omni_search_with_included_concept_and_no_article
+            .iter()
+            .collect();
+        concept_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (concept, count) in concept_vec.iter().take(15) {
+            writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
+        }
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(&mut summary, "INDEX: GLOBE COORDINATES").unwrap();
+        writeln!(
+            &mut summary,
+            "  Total Unique QIDs:                      {}",
+            self.qids_used_in_coordinate_search
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs with Wikipedia Article:  {}",
+            self.qids_used_in_coordinate_search_with_article_total
+        )
+        .unwrap();
+        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
+        let mut globe_lang_vec: Vec<(&String, &u64)> =
+            self.qids_used_in_coordinate_search_by_lang.iter().collect();
+        globe_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (lang, count) in globe_lang_vec {
+            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
+        }
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs Without Article (Independent): {}",
+            self.qids_used_in_coordinate_search_without_article
+        )
+        .unwrap();
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(&mut summary, "INDEX: TEMPORAL").unwrap();
+        writeln!(
+            &mut summary,
+            "  Total Unique QIDs:                      {}",
+            self.qids_used_in_temporal_search
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs with Wikipedia Article:  {}",
+            self.qids_used_in_temporal_search_with_article_total
+        )
+        .unwrap();
+        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
+        let mut temp_lang_vec: Vec<(&String, &u64)> =
+            self.qids_used_in_temporal_search_by_lang.iter().collect();
+        temp_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (lang, count) in temp_lang_vec {
+            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
+        }
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs Without Article (Independent): {}",
+            self.qids_used_in_temporal_search_without_article
+        )
+        .unwrap();
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(&mut summary, "INDEX: ASTRONOMICAL").unwrap();
+        writeln!(
+            &mut summary,
+            "  Total Unique QIDs:                      {}",
+            self.qids_used_in_astronomical_search
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs with Wikipedia Article:  {}",
+            self.qids_used_in_astronomical_search_with_article_total
+        )
+        .unwrap();
+        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
+        let mut astro_lang_vec: Vec<(&String, &u64)> = self
+            .qids_used_in_astronomical_search_by_lang
+            .iter()
+            .collect();
+        astro_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (lang, count) in astro_lang_vec {
+            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
+        }
+        writeln!(
+            &mut summary,
+            "  -> Unique QIDs Without Article (Independent): {}",
+            self.qids_used_in_astronomical_search_without_article
+        )
+        .unwrap();
+
+        if !self.concept_usage_count_in_astronomical_search.is_empty() {
+            writeln!(&mut summary, "  -> Included Concepts (Matches):").unwrap();
+            let mut astro_concept_vec: Vec<(&String, &u64)> = self
+                .concept_usage_count_in_astronomical_search
+                .iter()
+                .collect();
+            astro_concept_vec.sort_by(|a, b| b.1.cmp(a.1));
+            for (concept, count) in astro_concept_vec.iter().take(5) {
+                writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
+            }
+        }
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "TOP 25 MOST USED PROPERTIES IN EXPORTED METADATA:"
+        )
+        .unwrap();
+        let mut prop_vec: Vec<(&String, &u64)> = self.property_usage_count.iter().collect();
+        prop_vec.sort_by(|a, b| b.1.cmp(a.1));
+        for (rank, (prop, count)) in prop_vec.iter().take(25).enumerate() {
+            writeln!(&mut summary, "{:>2}. {}: {} times", rank + 1, prop, count).unwrap();
+        }
+
+        writeln!(
+            &mut summary,
+            "--------------------------------------------------------"
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "SANITY CHECKS (Mathematical Integrity Verification):"
+        )
+        .unwrap();
+
+        let meta_ok = self.metadata_entries_written == self.qids_used_total;
+        writeln!(
+            &mut summary,
+            " - Metadata Consistency: [{}] ({} metadata == {} used QIDs)",
+            if meta_ok { "OK" } else { "FAIL" },
+            self.metadata_entries_written,
+            self.qids_used_total
+        )
+        .unwrap();
+
+        let omni_ok = (self.qids_used_in_omni_search_with_article_total
+            + self.qids_used_in_omni_search_no_article_total)
+            == self.qids_used_in_omni_search;
+        writeln!(
+            &mut summary,
+            " - Omni Math Match:      [{}] ({} article + {} no_article == {})",
+            if omni_ok { "OK" } else { "FAIL" },
+            self.qids_used_in_omni_search_with_article_total,
+            self.qids_used_in_omni_search_no_article_total,
+            self.qids_used_in_omni_search
+        )
+        .unwrap();
+
+        let globe_ok = (self.qids_used_in_coordinate_search_with_article_total
+            + self.qids_used_in_coordinate_search_without_article)
+            == self.qids_used_in_coordinate_search;
+        writeln!(
+            &mut summary,
+            " - Globe Math Match:     [{}] ({} article + {} no_article == {})",
+            if globe_ok { "OK" } else { "FAIL" },
+            self.qids_used_in_coordinate_search_with_article_total,
+            self.qids_used_in_coordinate_search_without_article,
+            self.qids_used_in_coordinate_search
+        )
+        .unwrap();
+
+        let temp_ok = (self.qids_used_in_temporal_search_with_article_total
+            + self.qids_used_in_temporal_search_without_article)
+            == self.qids_used_in_temporal_search;
+        writeln!(
+            &mut summary,
+            " - Temporal Math Match:  [{}] ({} article + {} no_article == {})",
+            if temp_ok { "OK" } else { "FAIL" },
+            self.qids_used_in_temporal_search_with_article_total,
+            self.qids_used_in_temporal_search_without_article,
+            self.qids_used_in_temporal_search
+        )
+        .unwrap();
+
+        let astro_ok = (self.qids_used_in_astronomical_search_with_article_total
+            + self.qids_used_in_astronomical_search_without_article)
+            == self.qids_used_in_astronomical_search;
+        writeln!(
+            &mut summary,
+            " - Astro Math Match:     [{}] ({} article + {} no_article == {})",
+            if astro_ok { "OK" } else { "FAIL" },
+            self.qids_used_in_astronomical_search_with_article_total,
+            self.qids_used_in_astronomical_search_without_article,
+            self.qids_used_in_astronomical_search
+        )
+        .unwrap();
+
+        let lines_sum = self.qids_used_total + self.pids_used + self.num_lines_skipped;
+        let lines_ok = lines_sum == self.num_lines_read;
+        writeln!(
+            &mut summary,
+            " - Total Lines Match:    [{}] ({} used QIDs + {} used PIDs + {} skipped == {})",
+            if lines_ok { "OK" } else { "FAIL" },
+            self.qids_used_total,
+            self.pids_used,
+            self.num_lines_skipped,
+            self.num_lines_read
+        )
+        .unwrap();
+        writeln!(
+            &mut summary,
+            "========================================================"
+        )
+        .unwrap();
+
+        summary
     }
 }
 
@@ -525,7 +849,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 }
                             }
                         }
-
+                        let unique_langs: std::collections::HashSet<String> = valid_sitelinks.iter().map(|(l, _)| l.clone()).collect();
                         let mut has_included_concept = false;
                         let mut p31_qids = Vec::new();
                         let mut matched_omni_concepts = Vec::new();
@@ -712,11 +1036,14 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 local_metrics.qids_used_in_omni_search += 1;
                                 local_metrics.omni_search_entries_created += search_terms.len() as u64;
                                 if has_relevant_sitelink {
-                                    local_metrics.qids_used_in_omni_search_with_wiki_total += 1;
+                                    local_metrics.qids_used_in_omni_search_with_article_total += 1;
+                                    for lang in &unique_langs {
+                                        *local_metrics.qids_used_in_omni_search_by_lang.entry(lang.clone()).or_insert(0) += 1;
+                                    }
                                 } else {
-                                    local_metrics.qids_used_in_omni_search_no_wiki_total += 1;
+                                    local_metrics.qids_used_in_omni_search_no_article_total += 1;
                                     for concept in &matched_omni_concepts {
-                                        *local_metrics.qids_used_in_omni_search_with_included_concept_and_no_wiki.entry(concept.clone()).or_insert(0) += 1;
+                                        *local_metrics.qids_used_in_omni_search_with_included_concept_and_no_article.entry(concept.clone()).or_insert(0) += 1;
                                     }
                                 }
                             }
@@ -751,9 +1078,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     if added_to_globe {
                                         local_metrics.qids_used_in_coordinate_search += 1;
                                         if has_relevant_sitelink {
-                                            local_metrics.qids_used_in_coordinate_search_with_wiki_total += 1;
+                                            local_metrics.qids_used_in_coordinate_search_with_article_total += 1;
+                                            for lang in &unique_langs {
+                                                *local_metrics.qids_used_in_coordinate_search_by_lang.entry(lang.clone()).or_insert(0) += 1;
+                                            }
                                         } else {
-                                            local_metrics.qids_used_in_coordinate_search_without_wiki += 1;
+                                            local_metrics.qids_used_in_coordinate_search_without_article += 1;
                                         }
                                     }
                                 }
@@ -787,9 +1117,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 if added_to_temporal {
                                     local_metrics.qids_used_in_temporal_search += 1;
                                     if has_relevant_sitelink {
-                                        local_metrics.qids_used_in_temporal_search_with_wiki_total += 1;
+                                        local_metrics.qids_used_in_temporal_search_with_article_total += 1;
+                                        for lang in &unique_langs {
+                                            *local_metrics.qids_used_in_temporal_search_by_lang.entry(lang.clone()).or_insert(0) += 1;
+                                        }
                                     } else {
-                                        local_metrics.qids_used_in_temporal_search_without_wiki += 1;
+                                        local_metrics.qids_used_in_temporal_search_without_article += 1;
                                     }
                                 }
                             }
@@ -831,9 +1164,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
 
                                     local_metrics.qids_used_in_astronomical_search += 1;
                                     if has_relevant_sitelink {
-                                        local_metrics.qids_used_in_astronomical_search_with_wiki_total += 1;
+                                        local_metrics.qids_used_in_astronomical_search_with_article_total += 1;
+                                        for lang in &unique_langs {
+                                            *local_metrics.qids_used_in_astronomical_search_by_lang.entry(lang.clone()).or_insert(0) += 1;
+                                        }
                                     } else {
-                                        local_metrics.qids_used_in_astronomical_search_without_wiki += 1;
+                                        local_metrics.qids_used_in_astronomical_search_without_article += 1;
                                     }
                                     for concept in &matched_astro_concepts {
                                         *local_metrics.concept_usage_count_in_astronomical_search.entry(concept.clone()).or_insert(0) += 1;
@@ -1021,360 +1357,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         .into_inner()
         .expect("Mutex is bad!");
 
-    make_summary(&m, &settings)?;
+    let summary_text = m.make_summary();
+
+    logs::write_summary_to_log(&summary_text, &settings, true, constants::PARSER_LOG)?;
 
     checkpoints::make_checkpoint(&settings, 1, "parser", None)
         .map_err(|e| format!("Finished parsing, but failed to create checkpoint: {}", e))?;
-
-    Ok(())
-}
-
-fn make_summary(m: &ParserMetrics, settings: &Settings) -> Result<(), String> {
-    let mut summary = String::new();
-
-    writeln!(
-        &mut summary,
-        "\n================ PARSING SUMMARY ================"
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Total Lines Read:                         {}",
-        m.num_lines_read
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Total Lines Skipped:                      {}",
-        m.num_lines_skipped
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Unique QIDs Found:                        {}",
-        m.qids_found_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Unique QIDs Used (In Any Index):          {}",
-        m.qids_used_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "P-IDs Found:                              {}",
-        m.pids_found
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "P-IDs Added (Psearch):                    {}",
-        m.pids_used
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Metadata Entries Written (Total):         {}",
-        m.metadata_entries_written
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "Empty Metadata Entries Written:           {}",
-        m.empty_metadata_entries_written
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(&mut summary, "INDEX: OMNI SEARCH").unwrap();
-    writeln!(
-        &mut summary,
-        "  Total Unique QIDs:                      {}",
-        m.qids_used_in_omni_search
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "  Total Entries Created (Lines):          {}",
-        m.omni_search_entries_created
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs with Wiki Entry:         {}",
-        m.qids_used_in_omni_search_with_wiki_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "     (Breakdown by wiki - items can match multiple wikis)"
-    )
-    .unwrap();
-    let mut wiki_vec: Vec<(&String, &u64)> = m.qids_used_in_omni_search_with_wiki.iter().collect();
-    wiki_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (wiki, count) in wiki_vec {
-        writeln!(&mut summary, "      - {}: {} matches", wiki, count).unwrap();
-    }
-
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs added via Concept (No Wiki): {}",
-        m.qids_used_in_omni_search_no_wiki_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "     (Breakdown by concept - items can match multiple concepts)"
-    )
-    .unwrap();
-    let mut concept_vec: Vec<(&String, &u64)> = m
-        .qids_used_in_omni_search_with_included_concept_and_no_wiki
-        .iter()
-        .collect();
-    concept_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (concept, count) in concept_vec.iter().take(15) {
-        writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
-    }
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(&mut summary, "INDEX: GLOBE COORDINATES").unwrap();
-    writeln!(
-        &mut summary,
-        "  Total Unique QIDs:                      {}",
-        m.qids_used_in_coordinate_search
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs with Wiki Entry:         {}",
-        m.qids_used_in_coordinate_search_with_wiki_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "     (Breakdown by wiki - items can match multiple wikis)"
-    )
-    .unwrap();
-    let mut globe_wiki_vec: Vec<(&String, &u64)> =
-        m.qids_used_in_coordinate_search_with_wiki.iter().collect();
-    globe_wiki_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (wiki, count) in globe_wiki_vec {
-        writeln!(&mut summary, "      - {}: {} matches", wiki, count).unwrap();
-    }
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs Without Wiki (Independent): {}",
-        m.qids_used_in_coordinate_search_without_wiki
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(&mut summary, "INDEX: TEMPORAL").unwrap();
-    writeln!(
-        &mut summary,
-        "  Total Unique QIDs:                      {}",
-        m.qids_used_in_temporal_search
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs with Wiki Entry:         {}",
-        m.qids_used_in_temporal_search_with_wiki_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "     (Breakdown by wiki - items can match multiple wikis)"
-    )
-    .unwrap();
-    let mut temp_wiki_vec: Vec<(&String, &u64)> =
-        m.qids_used_in_temporal_search_with_wiki.iter().collect();
-    temp_wiki_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (wiki, count) in temp_wiki_vec {
-        writeln!(&mut summary, "      - {}: {} matches", wiki, count).unwrap();
-    }
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs Without Wiki (Independent): {}",
-        m.qids_used_in_temporal_search_without_wiki
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(&mut summary, "INDEX: ASTRONOMICAL").unwrap();
-    writeln!(
-        &mut summary,
-        "  Total Unique QIDs:                      {}",
-        m.qids_used_in_astronomical_search
-    )
-    .unwrap();
-
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs with Wiki Entry:         {}",
-        m.qids_used_in_astronomical_search_with_wiki_total
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "     (Breakdown by wiki - items can match multiple wikis)"
-    )
-    .unwrap();
-    let mut astro_wiki_vec: Vec<(&String, &u64)> = m
-        .qids_used_in_astronomical_search_with_wiki
-        .iter()
-        .collect();
-    astro_wiki_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (wiki, count) in astro_wiki_vec {
-        writeln!(&mut summary, "      - {}: {} matches", wiki, count).unwrap();
-    }
-    writeln!(
-        &mut summary,
-        "  -> Unique QIDs Without Wiki (Independent): {}",
-        m.qids_used_in_astronomical_search_without_wiki
-    )
-    .unwrap();
-
-    if !m.concept_usage_count_in_astronomical_search.is_empty() {
-        writeln!(&mut summary, "  -> Included Concepts (Matches):").unwrap();
-        let mut astro_concept_vec: Vec<(&String, &u64)> = m
-            .concept_usage_count_in_astronomical_search
-            .iter()
-            .collect();
-        astro_concept_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (concept, count) in astro_concept_vec.iter().take(5) {
-            writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
-        }
-    }
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "TOP 25 MOST USED PROPERTIES IN EXPORTED METADATA:"
-    )
-    .unwrap();
-    let mut prop_vec: Vec<(&String, &u64)> = m.property_usage_count.iter().collect();
-    prop_vec.sort_by(|a, b| b.1.cmp(a.1));
-    for (rank, (prop, count)) in prop_vec.iter().take(25).enumerate() {
-        writeln!(&mut summary, "{:>2}. {}: {} times", rank + 1, prop, count).unwrap();
-    }
-
-    writeln!(
-        &mut summary,
-        "--------------------------------------------------------"
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "SANITY CHECKS (Mathematical Integrity Verification):"
-    )
-    .unwrap();
-
-    let meta_ok = m.metadata_entries_written == m.qids_used_total;
-    writeln!(
-        &mut summary,
-        " - Metadata Consistency: [{}] ({} metadata == {} used QIDs)",
-        if meta_ok { "OK" } else { "FAIL" },
-        m.metadata_entries_written,
-        m.qids_used_total
-    )
-    .unwrap();
-
-    let omni_ok = (m.qids_used_in_omni_search_with_wiki_total
-        + m.qids_used_in_omni_search_no_wiki_total)
-        == m.qids_used_in_omni_search;
-    writeln!(
-        &mut summary,
-        " - Omni Math Match:      [{}] ({} wiki + {} no_wiki == {})",
-        if omni_ok { "OK" } else { "FAIL" },
-        m.qids_used_in_omni_search_with_wiki_total,
-        m.qids_used_in_omni_search_no_wiki_total,
-        m.qids_used_in_omni_search
-    )
-    .unwrap();
-
-    let globe_ok = (m.qids_used_in_coordinate_search_with_wiki_total
-        + m.qids_used_in_coordinate_search_without_wiki)
-        == m.qids_used_in_coordinate_search;
-    writeln!(
-        &mut summary,
-        " - Globe Math Match:     [{}] ({} wiki + {} no_wiki == {})",
-        if globe_ok { "OK" } else { "FAIL" },
-        m.qids_used_in_coordinate_search_with_wiki_total,
-        m.qids_used_in_coordinate_search_without_wiki,
-        m.qids_used_in_coordinate_search
-    )
-    .unwrap();
-
-    let temp_ok = (m.qids_used_in_temporal_search_with_wiki_total
-        + m.qids_used_in_temporal_search_without_wiki)
-        == m.qids_used_in_temporal_search;
-    writeln!(
-        &mut summary,
-        " - Temporal Math Match:  [{}] ({} wiki + {} no_wiki == {})",
-        if temp_ok { "OK" } else { "FAIL" },
-        m.qids_used_in_temporal_search_with_wiki_total,
-        m.qids_used_in_temporal_search_without_wiki,
-        m.qids_used_in_temporal_search
-    )
-    .unwrap();
-
-    let astro_ok = (m.qids_used_in_astronomical_search_with_wiki_total
-        + m.qids_used_in_astronomical_search_without_wiki)
-        == m.qids_used_in_astronomical_search;
-    writeln!(
-        &mut summary,
-        " - Astro Math Match:     [{}] ({} wiki + {} no_wiki == {})",
-        if astro_ok { "OK" } else { "FAIL" },
-        m.qids_used_in_astronomical_search_with_wiki_total,
-        m.qids_used_in_astronomical_search_without_wiki,
-        m.qids_used_in_astronomical_search
-    )
-    .unwrap();
-
-    let lines_sum = m.qids_used_total + m.pids_used + m.num_lines_skipped;
-    let lines_ok = lines_sum == m.num_lines_read;
-    writeln!(
-        &mut summary,
-        " - Total Lines Match:    [{}] ({} used QIDs + {} used PIDs + {} skipped == {})",
-        if lines_ok { "OK" } else { "FAIL" },
-        m.qids_used_total,
-        m.pids_used,
-        m.num_lines_skipped,
-        m.num_lines_read
-    )
-    .unwrap();
-    writeln!(
-        &mut summary,
-        "========================================================"
-    )
-    .unwrap();
-
-    logs::write_summary_to_log(&summary, &settings, true, constants::PARSER_LOG)?;
 
     Ok(())
 }
