@@ -39,11 +39,12 @@ impl IndexHeader {
         let mut buf = Vec::new();
         buf.push(if self.is_enabled { 1 } else { 0 });
         buf.push(self.num_sparse_levels);
-        buf.extend_from_slice(&[0u8; 2]);
+        buf.extend_from_slice(&[0u8; 2]); //padding for alignment
         buf.extend_from_slice(&self.top_level_rows.to_le_bytes());
         buf.extend_from_slice(&self.term_size.to_le_bytes());
         buf.extend_from_slice(&self.row_size.to_le_bytes());
         buf.extend_from_slice(&self.chunk_size.to_le_bytes());
+        buf.extend_from_slice(&[0u8; 4]); //padding for alignment
         for off in &self.level_offsets {
             buf.extend_from_slice(&off.to_le_bytes());
         }
