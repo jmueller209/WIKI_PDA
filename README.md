@@ -112,7 +112,7 @@ flowchart TD
 * Example program: **Wikipedia Terminal Reader.**
 
 ## Future Plans
-* Multi languages **Wiktionary** support. 
+* Multi language **Wiktionary** support. 
 * Add **Interface to customize article processing:** Turn raw HTML into the format you'd like to have in your database while keeping redirects between articles intact.
 * Add more Examples on how to use the API (on PC and ESP32).
 * Downloadable preconfigured Databases (avoid running the heavy generator).
