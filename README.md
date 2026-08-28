@@ -38,8 +38,8 @@ flowchart TD
     User -->|Params| CS
 
     %% Direct ID Search Routes (Bypassing Phase 1)
-    User ==>|Direct QID Search| HM
-    User ==>|Direct PID Search| PID
+    User -->|Direct QID Search| HM
+    User -->|Direct PID Search| PID
 
     HM{Primary QID HashMap}:::memory
     
