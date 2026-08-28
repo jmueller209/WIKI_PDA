@@ -250,7 +250,19 @@ internet that require you to provide your credentials. You are highly encouraged
   ```bash
   sudo ./src/wiki_pda_tools/target/release/flasher config/config.toml
   ```
-* **Manual Flashing:** If you prefer not to use the automated tool, you can manually partition your SD card and write the generated `.bin` file to it using standard Linux tools like `dd`.
+
+### Manual Flashing with `dd`
+
+If you prefer to flash manually using `dd`, **do not write the database to the root block device** (e.g., `/dev/sdb`). The microcontroller expects the database to be located on **Partition 2** to function properly.
+
+1. **Partition the Drive:** Use `fdisk` or `parted` to create two partitions:
+   * **Partition 1:** FAT32 (Use the majority of the space).
+   * **Partition 2:** RAW / Unformatted (Make it slightly larger than the `.bin` file).
+2. **Flash to Partition 2:** Write the binary directly to the second partition:
+   ```bash
+   sudo dd if=data_base.bin of=/dev/sdb2 bs=4M status=progress conv=fsync
+   ```
+   *(Note: Replace `/dev/sdb2` with your actual partition path. The `conv=fsync` flag is required for block alignment).*
 
 ## Contribution
 Any contributions, thoughts, and suggestions are very welcome. Because I just created this project, my documentation currently focuses mainly on how to get started quickly and how to use the query API. I don't have a lot of the deeper, under-the-hood documentation written yet that makes contributing easy, but I will be adding that step by step in the future. If you would still like to contribute to a specific part of the project right now, please open an issue! This way, I can either answer your questions directly or prioritize writing the documentation for that specific area to help you get started easier.
