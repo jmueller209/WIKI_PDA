@@ -5,9 +5,6 @@ use redb::ReadOnlyTable;
 use crate::utils::settings::Settings;
 use crate::utils::sitelinks_lookup;
 
-/// DAS INTERFACE:
-/// Jeder Nutzer kann sein eigenes Struct bauen und dieses Trait implementieren,
-/// um eine komplett eigene HTML-Verarbeitungslogik einzuschleusen.
 pub trait ArticleProcessor: Send + Sync {
     fn process(
         &self,
@@ -20,7 +17,6 @@ pub trait ArticleProcessor: Send + Sync {
     ) -> Result<Vec<u8>, String>;
 }
 
-/// DEINE STANDARD-IMPLEMENTIERUNG:
 pub struct DefaultArticleProcessor;
 
 impl ArticleProcessor for DefaultArticleProcessor {
@@ -33,20 +29,15 @@ impl ArticleProcessor for DefaultArticleProcessor {
         settings: &Settings,
         lang: &str,
     ) -> Result<Vec<u8>, String> {
-        // 1. HTML bereinigen (jeder Fehler bricht sauber ab via '?')
         let cleaned_html = clean_html_tree(raw_html, table, search_key_buffer, settings, lang)?;
 
-        // 2. In Plain Text umwandeln
         let plain_text = convert_html_to_plain_text(&cleaned_html)?;
 
-        // 3. Formatieren und als Bytes zurückgeben
         let formatted_output = format!("--- QID: {} ---\n\n{}\n\n", qid, plain_text);
 
         Ok(formatted_output.into_bytes())
     }
 }
-
-// --- Hilfsfunktionen für den Default-Processor ---
 
 fn clean_html_tree(
     raw_html: &str,
@@ -55,7 +46,6 @@ fn clean_html_tree(
     settings: &Settings,
     lang: &str,
 ) -> Result<String, String> {
-    // Kuchikiki gibt keinen Fehler beim Parsen zurück, es baut immer einen Baum.
     let document = kuchikiki::parse_html().one(raw_html);
 
     let content_node = match document.select_first("div.mw-parser-output") {
@@ -92,8 +82,6 @@ fn clean_html_tree(
 
     if let Ok(a_tags) = content_node.select("a") {
         for a_node in a_tags {
-            // SICHERHEIT: try_borrow_mut verhindert Panics, falls die Attribute
-            // aus irgendeinem bizarren Grund bereits gemutborrowt sind.
             let mut attrs = match a_node.attributes.try_borrow_mut() {
                 Ok(a) => a,
                 Err(_) => continue,
@@ -108,8 +96,7 @@ fn clean_html_tree(
                 let href_val = href.to_string();
 
                 attrs.remove("href");
-                drop(attrs); // Wichtig: Mutablen Borrow freigeben, bevor wir den DOM manipulieren!
-
+                drop(attrs);
                 if !is_external && !is_anchor {
                     let target_title = title_attr.unwrap_or_default();
 
@@ -126,7 +113,6 @@ fn clean_html_tree(
                         let qid_str = qid_opt.unwrap_or_else(|| "NOT_FOUND".to_string());
                         let node_ref = a_node.as_node();
 
-                        // SICHERHEIT: insert_before panict, wenn der Node kein Parent hat.
                         if node_ref.parent().is_some() {
                             node_ref.insert_before(kuchikiki::NodeRef::new_text("["));
                             node_ref.insert_after(kuchikiki::NodeRef::new_text(format!(
@@ -141,7 +127,6 @@ fn clean_html_tree(
     }
 
     let mut cleaned_html = Vec::new();
-    // SICHERHEIT: Serialize kann bei kaputten Bäumen fehlschlagen
     content_node
         .serialize(&mut cleaned_html)
         .map_err(|e| format!("Failed to serialize HTML tree: {}", e))?;
@@ -150,14 +135,20 @@ fn clean_html_tree(
 }
 
 fn convert_html_to_plain_text(cleaned_html: &str) -> Result<String, String> {
-    let result = std::panic::catch_unwind(|| from_read(cleaned_html.as_bytes(), 100));
+    let result = std::panic::catch_unwind(|| html2text::from_read(cleaned_html.as_bytes(), 10000));
 
     match result {
         Ok(Ok(text)) => Ok(text),
-
         Ok(Err(parse_error)) => Err(format!("html2text parsing error: {}", parse_error)),
-
-        Err(_) => Err("html2text crashed during conversion (Panic caught)".to_string()),
+        Err(panic_payload) => {
+            let panic_msg = if let Some(s) = panic_payload.downcast_ref::<&str>() {
+                s.to_string()
+            } else if let Some(s) = panic_payload.downcast_ref::<String>() {
+                s.clone()
+            } else {
+                "Unknown internal panic".to_string()
+            };
+            Err(format!("html2text library crashed! Reason: {}", panic_msg))
+        }
     }
 }
-
