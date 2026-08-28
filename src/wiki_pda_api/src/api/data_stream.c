@@ -13,11 +13,11 @@ DataStream* data_stream_begin(DatabaseContext* ctx, uint64_t data_offset, uint32
         return NULL;
     }
 
-    bool is_content = (data_offset >= OFFSETS_CONTENT) && 
-                      (data_offset + data_length <= OFFSETS_CONTENT + SIZES_CONTENT);
+    bool is_content = (data_offset >= ctx->header.offset_content) && 
+                      (data_offset + data_length <= ctx->header.offset_content + ctx->header.size_content);
 
-    bool is_metadata = (data_offset >= OFFSETS_METADATA) && 
-                       (data_offset + data_length <= OFFSETS_METADATA + SIZES_METADATA);
+    bool is_metadata = (data_offset >= ctx->header.offset_metadata) && 
+                       (data_offset + data_length <= ctx->header.offset_metadata + ctx->header.size_metadata);
 
     if (!is_content && !is_metadata) {
         DEBUG_PRINT("FAILED: Read offset %llu (len %u) is outside allowed regions or spans bounds.",

@@ -1,5 +1,5 @@
 #if !defined(ARDUINO) && !defined(ESP32)
-#include "../../include/platform_providers.h"
+#include "../../include/wiki_pda_platforms.h"
 
 
 static bool standard_file_read(uint64_t offset, uint8_t* buf, uint32_t len, void* user_data) {

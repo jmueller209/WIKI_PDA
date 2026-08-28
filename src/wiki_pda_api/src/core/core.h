@@ -25,9 +25,9 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result);
 
 bool search_next_in_index(SearchCursor* cursor, SearchResult* out_result);
 
-static bool load_and_verify_header(DatabaseContext* ctx);
+bool load_and_verify_header(DatabaseContext* ctx);
 
-bool load_zstd_dictionary(uint8_t** out_dictionary, uint64_t* out_length, DatabasePlatform platform);
+bool load_zstd_dictionary(uint8_t** out_dictionary, uint64_t* out_length, DatabaseContext* ctx);
 
 void free_zstd_dictionary(uint8_t* dictionary);
 

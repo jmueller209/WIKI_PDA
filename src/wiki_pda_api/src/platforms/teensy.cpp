@@ -1,7 +1,8 @@
 #if defined(TEENSYDUINO)
 #include <Arduino.h>
+#include <stdint.h>
 #include "SdFat.h"
-#include "platform_providers.h"
+#include "../../include/wiki_pda_platforms.h"
 
 #define SD_SECTOR_SIZE 512
 

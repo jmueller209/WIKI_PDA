@@ -9,7 +9,12 @@ use crate::utils::settings::Settings;
 
 const SD_CARD_SECTOR_SIZE: u64 = 512;
 const HEADER_SIZE_BYTES: u64 = 4096;
+
+// If you change this, you need to change
+// MAX_SPARSE_LEVELS in 'wiki_pda_api/src/common/common.h'
+// as well.
 const MAX_SPARSE_LEVELS: usize = 10;
+
 const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = false;
 
 pub struct FileToMerge {
@@ -20,7 +25,7 @@ pub struct FileToMerge {
 #[derive(Default, Debug)]
 struct IndexHeader {
     is_enabled: bool,
-    num_levels: u8,
+    num_sparse_levels: u8,
     top_level_rows: u32,
     term_size: u32,
     row_size: u32,
@@ -33,7 +38,7 @@ impl IndexHeader {
     fn to_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         buf.push(if self.is_enabled { 1 } else { 0 });
-        buf.push(self.num_levels);
+        buf.push(self.num_sparse_levels);
         buf.extend_from_slice(&[0u8; 2]);
         buf.extend_from_slice(&self.top_level_rows.to_le_bytes());
         buf.extend_from_slice(&self.term_size.to_le_bytes());
@@ -259,7 +264,8 @@ fn build_index_header(
     file_info: &HashMap<String, (u64, u64)>,
 ) -> IndexHeader {
     let is_enabled = file_info.contains_key(&format!("{}_level_0", index_name));
-    let num_levels = if is_enabled {
+
+    let num_sparse_levels = if is_enabled {
         extract_sparse_levels(info_json, index_name).unwrap_or(0)
     } else {
         0
@@ -268,7 +274,7 @@ fn build_index_header(
     let mut level_offsets = [0u64; MAX_SPARSE_LEVELS];
     let mut level_sizes = [0u64; MAX_SPARSE_LEVELS];
 
-    for i in 0..num_levels {
+    for i in 0..=num_sparse_levels {
         if let Some(&(off, size)) = file_info.get(&format!("{}_level_{}", index_name, i)) {
             level_offsets[i as usize] = off;
             level_sizes[i as usize] = size;
@@ -277,12 +283,12 @@ fn build_index_header(
 
     let top_level_rows = extract_json_u32(info_json, index_name, "top_level_rows");
     let term_size = extract_json_u32(info_json, index_name, "term_size");
-    let row_size = extract_json_u32(info_json, index_name, "total_row_size"); // Name entsprechend deiner C-Macros
+    let row_size = extract_json_u32(info_json, index_name, "total_row_size");
     let chunk_size = extract_json_u32(info_json, index_name, "chunk_size_rows");
 
     IndexHeader {
         is_enabled,
-        num_levels: num_levels as u8,
+        num_sparse_levels: num_sparse_levels as u8,
         top_level_rows,
         term_size,
         row_size,

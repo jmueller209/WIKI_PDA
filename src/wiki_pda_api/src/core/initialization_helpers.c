@@ -3,16 +3,14 @@
 #include <stdbool.h>
 
 #include "../common/common.h"
-#include "../../lib/zstd/src/zstd.h"
-#include "../../include/wiki_pda_platforms.h"
 
-static bool load_and_verify_header(DatabaseContext* ctx) {
+bool load_and_verify_header(DatabaseContext* ctx) {
     if (!ctx->platform.read_fn(0, (uint8_t*)&(ctx->header), sizeof(DatabaseHeader), ctx->platform.user_data)) {
         DEBUG_PRINT("INIT FAILED: Could not read header block.\n");
         return false;
     }
 
-    if (memcmp(ctx->header.magic, "WPDA", 4) != 0) {
+    if (memcmp(ctx->header.magic, MAGIC, 4) != 0) {
         DEBUG_PRINT("INIT FAILED: Invalid magic bytes.\n");
         return false;
     }
@@ -26,13 +24,13 @@ static bool load_and_verify_header(DatabaseContext* ctx) {
     return true;
 }
 
-bool load_zstd_dictionary(uint8_t** out_dictionary, uint64_t* out_length, DatabasePlatform platform) {
+bool load_zstd_dictionary(uint8_t** out_dictionary, uint64_t* out_length, DatabaseContext* ctx) {
     if (out_dictionary == NULL || out_length == NULL) {
         return false;
     }
 
-    uint64_t dict_size = SIZES_ZSTD_DICTIONARY;
-    uint64_t dict_offset = OFFSETS_ZSTD_DICTIONARY;
+    uint64_t dict_size = ctx->header.size_zstd_dictionary;
+    uint64_t dict_offset = ctx->header.offset_zstd_dictionary;
 
     if (dict_size == 0) {
         return false;
@@ -43,7 +41,7 @@ bool load_zstd_dictionary(uint8_t** out_dictionary, uint64_t* out_length, Databa
         return false;
     }
 
-    if (!platform.read_fn(dict_offset, buffer, dict_size, platform.user_data)) {
+    if (!ctx->platform.read_fn(dict_offset, buffer, dict_size, ctx->platform.user_data)) {
         free(buffer);
         return false;
     }

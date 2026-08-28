@@ -68,7 +68,6 @@ fn run_all(
     _06_make_pid_index_binary::make_pid_index_binary(&settings)?;
     _07_make_search_indexes_binary::make_binary_search_indexes(&settings)?;
     _08_merge_binaries::merge_into_master_database(&settings)?;
-    _09_make_c_header_file::make_c_header_file(&settings)?;
-
+    // _09_make_c_header_file::make_c_header_file(&settings)?;
     Ok(())
 }

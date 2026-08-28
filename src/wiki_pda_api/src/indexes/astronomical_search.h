@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "../../include/wiki_pda_options.h"
 #include "../../include/wiki_pda_platforms.h"
+#include "../../include/wiki_pda_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,15 +25,15 @@ typedef struct __attribute__((packed)) {
     uint8_t _padding[4]; 
 } AstronomicalSparseRow;
 
-bool load_astronomical_top_index(AstronomicalSparseRow** out_top_level_index, DatabasePlatform platform);
+bool load_astronomical_top_index(AstronomicalSparseRow** out_top_level_index, DatabaseContext* ctx);
 
 void free_astronomical_top_index(AstronomicalSparseRow* top_level_index);
 
 bool astronomical_search(
     uint64_t search_term,
-    const AstronomicalSparseRow* top_level_ram_index, 
-    uint64_t* out_abs_pointer, 
-    DatabasePlatform platform
+    const AstronomicalSparseRow* top_level_ram_index,
+    uint64_t* out_abs_pointer,
+    DatabaseContext* ctx
 );
 
 #endif

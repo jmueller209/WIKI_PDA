@@ -4,14 +4,15 @@
 
 #include "astronomical_search.h"
 #include "generic_search.h"
+#include "../common/common.h"
 
-bool load_astronomical_top_index(AstronomicalSparseRow** out_top_level_index, DatabasePlatform platform) {
+bool load_astronomical_top_index(AstronomicalSparseRow** out_top_level_index, DatabaseContext* ctx) {
     return load_top_level_index_generic(
         (void**)out_top_level_index,
-        ASTRONOMICAL_SEARCH_TOP_LEVEL_ROWS,
+        ctx->header.astro_search.top_level_rows,
         sizeof(AstronomicalSparseRow),
-        OFFSETS_ASTRONOMICAL_SEARCH_LEVEL[ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS],
-        platform,
+        ctx->header.astro_search.level_offsets[ctx->header.astro_search.num_sparse_levels],
+        ctx->platform,
         "Astronomical"
     );
 }
@@ -24,20 +25,20 @@ bool astronomical_search(
     uint64_t search_term,
     const AstronomicalSparseRow* top_level_ram_index,
     uint64_t* out_abs_pointer,
-    DatabasePlatform platform
+    DatabaseContext* ctx
 ) {
     return generic_int64_search(
         search_term,
         (const void*)top_level_ram_index,
-        ASTRONOMICAL_SEARCH_TOP_LEVEL_ROWS,
-        ASTRONOMICAL_SEARCH_NUM_SPARSE_LEVELS,
-        ASTRONOMICAL_SEARCH_CHUNK_SIZE_ROWS,
-        OFFSETS_ASTRONOMICAL_SEARCH_LEVEL,
-        SIZES_ASTRONOMICAL_SEARCH_LEVEL,
+        ctx->header.astro_search.top_level_rows,
+        ctx->header.astro_search.num_sparse_levels,
+        ctx->header.astro_search.chunk_size,
+        ctx->header.astro_search.level_offsets,
+        ctx->header.astro_search.level_sizes,
         sizeof(AstronomicalSparseRow),
         sizeof(AstronomicalRow),
         out_abs_pointer,
-        platform
+        ctx->platform
     );
 }
 

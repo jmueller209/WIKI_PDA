@@ -1,3 +1,5 @@
+// temporal_search.c
+#include "../../include/wiki_pda_options.h"
 #include "../common/common.h"
 
 #if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
@@ -5,13 +7,15 @@
 #include "temporal_search.h"
 #include "generic_search.h"
 
-bool load_temporal_top_index(TemporalSparseRow** out_top_level_index, DatabasePlatform platform) {
+bool load_temporal_top_index(TemporalSparseRow** out_top_level_index,DatabaseContext* ctx) {
+    if (ctx == NULL) return false;
+
     return load_top_level_index_generic(
         (void**)out_top_level_index,
-        TEMPORAL_SEARCH_TOP_LEVEL_ROWS,
+        ctx->header.temporal_search.top_level_rows,
         sizeof(TemporalSparseRow),
-        OFFSETS_TEMPORAL_SEARCH_LEVEL[TEMPORAL_SEARCH_NUM_SPARSE_LEVELS],
-        platform,
+        ctx->header.temporal_search.level_offsets[ctx->header.temporal_search.num_sparse_levels],
+        ctx->platform,
         "Temporal"
     );
 }
@@ -24,21 +28,23 @@ bool temporal_search(
     int64_t search_term,
     const TemporalSparseRow* top_level_ram_index,
     uint64_t* out_abs_pointer,
-    DatabasePlatform platform
+    DatabaseContext* ctx
 ) {
+    if (ctx == NULL) return false;
+
     return generic_int64_search(
-            search_term,
-            top_level_ram_index,
-            TEMPORAL_SEARCH_TOP_LEVEL_ROWS,
-            TEMPORAL_SEARCH_NUM_SPARSE_LEVELS,
-            TEMPORAL_SEARCH_CHUNK_SIZE_ROWS,
-            OFFSETS_TEMPORAL_SEARCH_LEVEL,
-            SIZES_TEMPORAL_SEARCH_LEVEL,
-            TEMPORAL_SEARCH_TOTAL_ROW_SIZE,
-            TEMPORAL_SEARCH_TOTAL_ROW_SIZE,
-            out_abs_pointer,
-            platform
-        );
+        search_term,
+        (const void*)top_level_ram_index,
+        ctx->header.temporal_search.top_level_rows,
+        ctx->header.temporal_search.num_sparse_levels,
+        ctx->header.temporal_search.chunk_size,
+        ctx->header.temporal_search.level_offsets,
+        ctx->header.temporal_search.level_sizes,
+        sizeof(TemporalSparseRow),
+        sizeof(TemporalRow),
+        out_abs_pointer,
+        ctx->platform
+    );
 }
 
 #endif

@@ -81,8 +81,8 @@ _build_test_api_norun:
 	mkdir -p $(QUERY_LIB_DIR)/target
 	cd $(QUERY_LIB_DIR) && gcc $(TEST_SRC) \
 		src/api/*.c \
+		src/core/*.c \
 		src/indexes/*.c \
-		src/storage/*.c \
 		src/platforms/desktop.c \
 		lib/zstd/src/common/*.c \
 		lib/zstd/src/decompress/*.c \

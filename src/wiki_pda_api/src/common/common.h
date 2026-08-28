@@ -33,13 +33,17 @@ extern "C" {
     #define DEBUG_PRINT(fmt, ...)
 #endif
 
-#define WIKI_PDA_SUPPORTED_DB_VERSION 1
-
+// If you change this, you need to change
+// the corresponding constants in
+// 'db_generator/src/pipeline_steps/_08_merge_binaries.rs/'
+// as well.
 #define MAX_SPARSE_LEVELS 10
+#define WIKI_PDA_SUPPORTED_DB_VERSION 1
+#define MAGIC "WPDA" // Must be 4 bytes
 
 typedef struct {
     uint8_t is_enabled;
-    uint8_t num_levels;
+    uint8_t num_sparse_levels;
     uint16_t _padding;
     uint32_t top_level_rows;
     uint32_t term_size;

@@ -1,24 +1,25 @@
+// pid_search.c
 #include "pid_search.h"
 #include <stddef.h>
 #include <stdlib.h>
-#include "../../include/wiki_pda_platforms.h"
+#include "../common/common.h"
 
-static bool get_pid_hash_map_row(uint32_t pid, PIDHashMapRow* out_hash_map_row, DatabasePlatform platform) {
-    if (pid == 0 || out_hash_map_row == NULL) return false;
+static bool _get_pid_hash_map_row(uint32_t pid, PIDHashMapRow* out_hash_map_row, DatabaseContext* ctx) {
+    if (pid == 0 || out_hash_map_row == NULL || ctx == NULL) return false;
 
-    uint32_t max_valid_pid = SIZES_PID_HASHMAP / sizeof(PIDHashMapRow);
+    uint32_t max_valid_pid = ctx->header.size_pid_hashmap / sizeof(PIDHashMapRow);
     if (pid > max_valid_pid) return false;
 
-    uint64_t byte_offset = ((uint64_t)(pid - 1) * sizeof(PIDHashMapRow)) + OFFSETS_PID_HASHMAP;
+    uint64_t byte_offset = ((uint64_t)(pid - 1) * sizeof(PIDHashMapRow)) + ctx->header.offset_pid_hashmap;
 
-    if (!platform.read_fn(byte_offset, (uint8_t*)out_hash_map_row, sizeof(PIDHashMapRow), platform.user_data)) {
+    if (!ctx->platform.read_fn(byte_offset, (uint8_t*)out_hash_map_row, sizeof(PIDHashMapRow), ctx->platform.user_data)) {
         return false;
     }
     return true;
 }
 
-static bool get_pid_index_rows(const PIDHashMapRow* row, PIDIndexRow* out_index_rows, DatabasePlatform platform) {
-    if (row == NULL || out_index_rows == NULL) {
+static bool _get_pid_index_rows(const PIDHashMapRow* row, PIDIndexRow* out_index_rows, DatabaseContext* ctx) {
+    if (row == NULL || out_index_rows == NULL || ctx == NULL) {
         return false;
     }
 
@@ -26,23 +27,23 @@ static bool get_pid_index_rows(const PIDHashMapRow* row, PIDIndexRow* out_index_
         return true;
     }
 
-    uint64_t byte_offset = ((uint64_t)row->start_index * sizeof(PIDIndexRow)) + OFFSETS_PID_INDEX;
+    uint64_t byte_offset = ((uint64_t)row->start_index * sizeof(PIDIndexRow)) + ctx->header.offset_pid_index;
     uint32_t total_bytes = (uint32_t)row->entry_count * sizeof(PIDIndexRow);
 
-    if (!platform.read_fn(byte_offset, (uint8_t*)out_index_rows, total_bytes, platform.user_data)) {
+    if (!ctx->platform.read_fn(byte_offset, (uint8_t*)out_index_rows, total_bytes, ctx->platform.user_data)) {
         return false;
     }
 
     return true;
 }
 
-static bool get_all_index_rows_for_pid(uint32_t pid, PIDIndexRow** out_index_rows, uint16_t* out_num_rows, DatabasePlatform platform) {
-    if (pid == 0 || out_index_rows == NULL || out_num_rows == NULL) {
+static bool _get_all_index_rows_for_pid(uint32_t pid, PIDIndexRow** out_index_rows, uint16_t* out_num_rows, DatabaseContext* ctx) {
+    if (pid == 0 || out_index_rows == NULL || out_num_rows == NULL || ctx == NULL) {
         return false;
     }
 
     PIDHashMapRow hash_map_row;
-    if (!get_pid_hash_map_row(pid, &hash_map_row, platform)) {
+    if (!_get_pid_hash_map_row(pid, &hash_map_row, ctx)) {
         return false;
     }
 
@@ -55,7 +56,7 @@ static bool get_all_index_rows_for_pid(uint32_t pid, PIDIndexRow** out_index_row
         return false; 
     }
 
-    if (!get_pid_index_rows(&hash_map_row, allocated_rows, platform)) {
+    if (!_get_pid_index_rows(&hash_map_row, allocated_rows, ctx)) {
         free(allocated_rows);
         return false;
     }
@@ -66,22 +67,18 @@ static bool get_all_index_rows_for_pid(uint32_t pid, PIDIndexRow** out_index_row
     return true;
 }
 
-
-bool get_property_index_data(uint32_t pid, uint16_t lang_id, uint32_t* out_title_offset, uint32_t* out_desc_offset, DatabasePlatform platform) {
-
-    if (pid == 0 || out_title_offset == NULL || out_desc_offset == NULL) return false;
+bool get_property_index_data(uint32_t pid, uint16_t lang_id, uint32_t* out_title_offset, uint32_t* out_desc_offset, DatabaseContext* ctx) {
+    if (pid == 0 || out_title_offset == NULL || out_desc_offset == NULL || ctx == NULL) return false;
 
     PIDIndexRow* index_rows = NULL;
     uint16_t num_rows = 0;
 
-    if (!get_all_index_rows_for_pid(pid, &index_rows, &num_rows, platform)) {
+    if (!_get_all_index_rows_for_pid(pid, &index_rows, &num_rows, ctx)) {
         return false;
     }
 
-
     bool found = false;
     for (uint16_t i = 0; i < num_rows; i++) {
-
         if (index_rows[i].project_id == lang_id) {
             *out_title_offset = index_rows[i].title_offset;
             *out_desc_offset  = index_rows[i].desc_offset;
@@ -94,8 +91,8 @@ bool get_property_index_data(uint32_t pid, uint16_t lang_id, uint32_t* out_title
     return found;
 }
 
-bool get_property_title(uint32_t title_offset, char* out_title, size_t max_length, DatabasePlatform platform) {
-    if (out_title == NULL || max_length == 0) {
+bool get_property_title(uint32_t title_offset, char* out_title, size_t max_length, DatabaseContext* ctx) {
+    if (out_title == NULL || max_length == 0 || ctx == NULL) {
         return false;
     }
     if (title_offset == 0) {
@@ -103,8 +100,8 @@ bool get_property_title(uint32_t title_offset, char* out_title, size_t max_lengt
         return true;
     }
 
-    uint64_t absolute_offset = OFFSETS_PID_STRINGS + title_offset;
-    if (!platform.read_fn(absolute_offset, (uint8_t*)out_title, max_length - 1, platform.user_data)) {
+    uint64_t absolute_offset = ctx->header.offset_pid_strings + title_offset;
+    if (!ctx->platform.read_fn(absolute_offset, (uint8_t*)out_title, max_length - 1, ctx->platform.user_data)) {
         out_title[0] = '\0';
         return false;
     }
@@ -114,8 +111,8 @@ bool get_property_title(uint32_t title_offset, char* out_title, size_t max_lengt
     return true;
 }
 
-bool get_property_desc(uint32_t descr_offset, char* out_descr, size_t max_length, DatabasePlatform platform) {
-    if (out_descr == NULL || max_length == 0) {
+bool get_property_desc(uint32_t descr_offset, char* out_descr, size_t max_length, DatabaseContext* ctx) {
+    if (out_descr == NULL || max_length == 0 || ctx == NULL) {
         return false;
     }
     if (descr_offset == 0) {
@@ -123,8 +120,8 @@ bool get_property_desc(uint32_t descr_offset, char* out_descr, size_t max_length
         return true;
     }
 
-    uint64_t absolute_offset = OFFSETS_PID_STRINGS + descr_offset;
-    if (!platform.read_fn(absolute_offset, (uint8_t*)out_descr, max_length - 1, platform.user_data)) {
+    uint64_t absolute_offset = ctx->header.offset_pid_strings + descr_offset;
+    if (!ctx->platform.read_fn(absolute_offset, (uint8_t*)out_descr, max_length - 1, ctx->platform.user_data)) {
         out_descr[0] = '\0';
         return false;
     }

@@ -17,7 +17,7 @@
 #include "../../lib/tempus/include/tempus.h"
 #include "../../lib/spatial_z/include/spatial_z.h"
 
-bool _check_tags(uint32_t row_tags, SearchTagMask exact_tags, SearchTagMask include_tags, SearchTagMask exclude_tags) {
+bool static _check_tags(uint32_t row_tags, SearchTagMask exact_tags, SearchTagMask include_tags, SearchTagMask exclude_tags) {
     if (exact_tags != 0 && row_tags != exact_tags) return false;
     if (include_tags != 0 && (row_tags & include_tags) != include_tags) return false;
     if (exclude_tags != 0 && (row_tags & exclude_tags) != 0) return false;
@@ -25,7 +25,7 @@ bool _check_tags(uint32_t row_tags, SearchTagMask exact_tags, SearchTagMask incl
 }
 
 // TODO: Improve algorithm (pretty slow right now)
-static void insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, float lat, float lon, uint16_t max_results) {
+void insert_sorted_spatial_match(SpatialCursorState* spatial, uint32_t qid, uint32_t tags, float distance, float lat, float lon, uint16_t max_results) {
     if (max_results == 0 || max_results > MAX_SORTED_RESULTS) max_results = MAX_SORTED_RESULTS;
 
     for (int i = 0; i < spatial->num_sorted_results; i++) {
@@ -96,8 +96,8 @@ static RowEvalResult _evaluate_temporal_row(SearchCursor* cursor, void* raw_row_
     uint64_t offset_in_block = (uint64_t)((uint8_t*)raw_row_ptr - cursor->raw_bytes);
     uint64_t absolute_row_offset = current_block_offset + offset_in_block;
 
-    uint64_t index_start = OFFSETS_TEMPORAL_SEARCH_LEVEL[0];
-    uint64_t index_end = index_start + SIZES_TEMPORAL_SEARCH_LEVEL[0];
+    uint64_t index_start = cursor->ctx->header.temporal_search.level_offsets[0];
+    uint64_t index_end = index_start + cursor->ctx->header.temporal_search.level_sizes[0];
 
     if (forward) {
         if (absolute_row_offset >= index_end) return ROW_END;
@@ -150,7 +150,7 @@ static RowEvalResult _evaluate_globe_row(SearchCursor* cursor, void* raw_row_ptr
         DEBUG_PRINT("Globe-Search: Jumping to next range (Start: %" PRIu64 ").", next_min);
 
         globe_coordinate_search(next_min, cursor->ctx->globe_coordinate_top_index, 
-                            &cursor->next_read_offset, cursor->ctx->platform);
+                            &cursor->next_read_offset, cursor->ctx);
         return ROW_JUMP; 
     }
 
@@ -189,8 +189,8 @@ static RowEvalResult _evaluate_astronomical_row(SearchCursor* cursor, void* raw_
         uint64_t next_min = spatial->ranges[spatial->current_range_index].start_code;
         DEBUG_PRINT("Astro-Search: Jumping to next range (Start: %" PRIu64 ").", next_min);
 
-        astronomical_search(next_min, cursor->ctx->astronomical_top_index, 
-                            &cursor->next_read_offset, cursor->ctx->platform);
+        astronomical_search(next_min, cursor->ctx->astronomical_top_index,
+                            &cursor->next_read_offset, cursor->ctx);
         return ROW_JUMP; 
     }
 
@@ -217,7 +217,8 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result) {
     switch (cursor->query.type) {
         case SEARCH_TYPE_QID: {
             int dir = cursor->state.id.search_forward ? 1 : -1;
-            uint32_t max_valid_qid = SIZES_QID_HASHMAP / sizeof(QIDHashMapRow);
+            uint32_t max_valid_qid = cursor->ctx->header.size_qid_hashmap / sizeof(QIDHashMapRow);
+            // uint32_t max_valid_qid = SIZES_QID_HASHMAP / sizeof(QIDHashMapRow);
 
             if (cursor->state.id.id == cursor->query.target.qid.id && !cursor->query.target.qid.first_result_must_match) {
 
@@ -241,14 +242,15 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result) {
 
                 uint64_t relative_data_offset = 0;
                 uint32_t title_offset = 0;
-                if (get_article_index_data(current_id, (uint16_t)cursor->query.article_type, &relative_data_offset, &out_result->data_length, &title_offset, cursor->ctx->platform)) {
-                    out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+                if (get_article_index_data(current_id, (uint16_t)cursor->query.article_type, &relative_data_offset, &out_result->data_length, &title_offset, cursor->ctx)) {
+                    // out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+                    out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? cursor->ctx->header.offset_metadata : cursor->ctx->header.offset_content);
                     out_result->article_type = cursor->query.article_type;
                     out_result->id = current_id;
                     out_result->tags = 0;
                     out_result->term = "";
 
-                    get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+                    get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx);
                     out_result->title = cursor->article_title_buffer;
 
                     return true;
@@ -263,7 +265,8 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result) {
         }
         case SEARCH_TYPE_PID: {
             int dir = cursor->state.id.search_forward ? 1 : -1;
-            uint32_t max_valid_pid = SIZES_PID_HASHMAP / sizeof(PIDHashMapRow);
+            // uint32_t max_valid_pid = SIZES_PID_HASHMAP / sizeof(PIDHashMapRow);
+            uint32_t max_valid_pid = cursor->ctx->header.size_pid_hashmap / sizeof(PIDHashMapRow);
 
             if (cursor->state.id.id == cursor->query.target.pid.id && !cursor->query.target.qid.first_result_must_match) {
                 if (!cursor->state.id.search_forward && cursor->state.id.id > max_valid_pid) {
@@ -287,7 +290,7 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result) {
                 uint32_t title_offset = 0;
                 uint32_t desc_offset = 0;
 
-                if (get_property_index_data(current_id, (uint16_t)cursor->query.article_type, &title_offset, &desc_offset, cursor->ctx->platform)) {
+                if (get_property_index_data(current_id, (uint16_t)cursor->query.article_type, &title_offset, &desc_offset, cursor->ctx)) {
 
                     out_result->data_offset = 0; 
                     out_result->data_length = 0;
@@ -295,10 +298,10 @@ bool search_next_id(SearchCursor* cursor, SearchResult* out_result) {
                     out_result->id = current_id;
                     out_result->tags = 0;
 
-                    get_property_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+                    get_property_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx);
                     out_result->title = cursor->article_title_buffer;
 
-                    get_property_desc(desc_offset, cursor->match_term_buffer, sizeof(cursor->match_term_buffer), cursor->ctx->platform);
+                    get_property_desc(desc_offset, cursor->match_term_buffer, sizeof(cursor->match_term_buffer), cursor->ctx);
                     out_result->term = cursor->match_term_buffer;
 
                     return true;
@@ -339,19 +342,20 @@ bool search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
             uint32_t data_length = 0;
             uint32_t title_offset = 0;
             if (!get_article_index_data(match.qid, (uint16_t)cursor->query.article_type, 
-                                        &relative_data_offset, &data_length, &title_offset, cursor->ctx->platform)) {
+                                        &relative_data_offset, &data_length, &title_offset, cursor->ctx)) {
                 continue;
             }
             out_result->id = match.qid;
             out_result->tags = match.tags;
             out_result->article_type = cursor->query.article_type;
             out_result->data_length = data_length;
-            out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+            // out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+            out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? cursor->ctx->header.offset_metadata : cursor->ctx->header.offset_content);
 
             snprintf(cursor->match_term_buffer, sizeof(cursor->match_term_buffer), "%.4f, %.4f", match.lat, match.lon);
             out_result->term = cursor->match_term_buffer;
 
-            get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+            get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx);
             out_result->title = cursor->article_title_buffer;
 
             return true;
@@ -449,7 +453,7 @@ bool search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
         uint32_t data_length = 0;
         uint32_t title_offset = 0;
         if (!get_article_index_data(qid, (uint16_t)cursor->query.article_type,
-                                    &relative_data_offset, &data_length, &title_offset, cursor->ctx->platform)) {
+                                    &relative_data_offset, &data_length, &title_offset, cursor->ctx)) {
             continue;
         }
 
@@ -459,10 +463,11 @@ bool search_next_in_index(SearchCursor* cursor, SearchResult* out_result) {
         out_result->tags = tags;
         out_result->article_type = cursor->query.article_type;
         out_result->data_length = data_length;
-        out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+        // out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? OFFSETS_METADATA : OFFSETS_CONTENT);
+        out_result->data_offset = relative_data_offset + (cursor->query.article_type == 0 ? cursor->ctx->header.offset_metadata : cursor->ctx->header.offset_content);
         out_result->term = cursor->match_term_buffer;
 
-        get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx->platform);
+        get_article_title(title_offset, cursor->article_title_buffer, sizeof(cursor->article_title_buffer), cursor->ctx);
         out_result->title = cursor->article_title_buffer;
 
         return true;

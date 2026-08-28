@@ -1,17 +1,18 @@
-#include "../common/generated_database_constants.h"
+#include "../../include/wiki_pda_options.h"
 
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
 
 #include "globe_coordinate_search.h"
 #include "generic_search.h"
+#include "../common/common.h"
 
-bool load_globe_coordinate_top_index(GlobeCoordinateSparseRow** out_top_level_index, DatabasePlatform platform) {
+bool load_globe_coordinate_top_index(GlobeCoordinateSparseRow** out_top_level_index, DatabaseContext* ctx) {
     return load_top_level_index_generic(
         (void**)out_top_level_index,
-        GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS,
+        ctx->header.globe_search.top_level_rows,
         sizeof(GlobeCoordinateSparseRow),
-        OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL[GLOBE_COORDINATE_SEARCH_NUM_SPARSE_LEVELS],
-        platform,
+        ctx->header.globe_search.level_offsets[ctx->header.globe_search.num_sparse_levels],
+        ctx->platform,
         "Globe Coordinate"
     );
 }
@@ -24,20 +25,20 @@ bool globe_coordinate_search(
     uint64_t search_term,
     const GlobeCoordinateSparseRow* top_level_ram_index,
     uint64_t* out_abs_pointer,
-    DatabasePlatform platform
+    DatabaseContext* ctx
 ) {
     return generic_uint64_search(
         search_term,
-        top_level_ram_index,
-        GLOBE_COORDINATE_SEARCH_TOP_LEVEL_ROWS,
-        GLOBE_COORDINATE_SEARCH_NUM_SPARSE_LEVELS,
-        GLOBE_COORDINATE_SEARCH_CHUNK_SIZE_ROWS,
-        OFFSETS_GLOBE_COORDINATE_SEARCH_LEVEL,
-        SIZES_GLOBE_COORDINATE_SEARCH_LEVEL,
-        GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE,
-        GLOBE_COORDINATE_SEARCH_TOTAL_ROW_SIZE,
+        (const void*)top_level_ram_index,
+        ctx->header.globe_search.top_level_rows,
+        ctx->header.globe_search.num_sparse_levels,
+        ctx->header.globe_search.chunk_size,
+        ctx->header.globe_search.level_offsets,
+        ctx->header.globe_search.level_sizes,
+        sizeof(GlobeCoordinateSparseRow),
+        sizeof(GlobeCoordinateRow),
         out_abs_pointer,
-        platform
+        ctx->platform
     );
 }
 

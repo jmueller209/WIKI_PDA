@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "../../include/wiki_pda_options.h"
 #include "../../include/wiki_pda_platforms.h"
+#include "../../include/wiki_pda_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,18 +22,23 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
     int64_t term;
     uint32_t target_row;
-    uint8_t _padding[4]; 
+    uint8_t _padding[4];
 } GlobeCoordinateSparseRow;
 
-bool load_globe_coordinate_top_index(GlobeCoordinateSparseRow** out_top_level_index, DatabasePlatform platform);
+bool load_globe_coordinate_top_index(
+        GlobeCoordinateSparseRow** out_top_level_index,
+        DatabaseContext* ctx
+);
 
-void free_globe_coordinate_top_index(GlobeCoordinateSparseRow* top_level_index);
+void free_globe_coordinate_top_index(
+        GlobeCoordinateSparseRow* top_level_index
+);
 
 bool globe_coordinate_search(
     uint64_t search_term,
-    const GlobeCoordinateSparseRow* top_level_ram_index, 
-    uint64_t* out_abs_pointer, 
-    DatabasePlatform platform
+    const GlobeCoordinateSparseRow* top_level_ram_index,
+    uint64_t* out_abs_pointer,
+    DatabaseContext* ctx
 );
 
 #endif

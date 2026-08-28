@@ -44,14 +44,14 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
     }
 
 
-    if (!load_zstd_dictionary(&(ctx->zstd_dict), &(ctx->zstd_dict_length), ctx->platform)) {
+    if (!load_zstd_dictionary(&(ctx->zstd_dict), &(ctx->zstd_dict_length), ctx)) {
         db_end(ctx);
         return NULL;
     }
 
 #if WIKI_PDA_ENABLE_GLOBE_COORDINATE_SEARCH
     if ((indexes_to_load & INDEX_GLOBE_COORDINATE) && ctx->header.globe_search.is_enabled) {
-        if (!load_globe_coordinate_top_index(&(ctx->globe_coordinate_top_index), ctx->platform)) {
+        if (!load_globe_coordinate_top_index(&(ctx->globe_coordinate_top_index), ctx)) {
             db_end(ctx); return NULL;
         }
     }
@@ -59,7 +59,7 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
 
 #if WIKI_PDA_ENABLE_TEMPORAL_SEARCH
     if ((indexes_to_load & INDEX_TEMPORAL) && ctx->header.temporal_search.is_enabled) {
-        if (!load_temporal_top_index(&(ctx->temporal_top_index), ctx->platform)) {
+        if (!load_temporal_top_index(&(ctx->temporal_top_index), ctx)) {
             db_end(ctx); return NULL;
         }
     }
@@ -67,7 +67,7 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
 
 #if WIKI_PDA_ENABLE_ASTRONOMICAL_SEARCH
     if ((indexes_to_load & INDEX_ASTRONOMICAL) && ctx->header.astro_search.is_enabled) {
-        if (!load_astronomical_top_index(&(ctx->astronomical_top_index), ctx->platform)) {
+        if (!load_astronomical_top_index(&(ctx->astronomical_top_index), ctx)) {
             db_end(ctx); return NULL;
         }
     }
@@ -75,7 +75,7 @@ DatabaseContext* db_init(DatabaseIndexMask indexes_to_load, DatabasePlatform pla
 
 #if WIKI_PDA_ENABLE_OMNI_SEARCH
     if ((indexes_to_load & INDEX_OMNI) && ctx->header.omni_search.is_enabled) {
-        if (!load_omni_top_index(&(ctx->omni_top_index), ctx->platform)) {
+        if (!load_omni_top_index(&(ctx->omni_top_index), ctx)) {
             db_end(ctx); return NULL;
         }
     }
@@ -110,7 +110,7 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             cursor->state.omni.search_term[OMNI_SEARCH_TERM_SIZE - 1] = '\0';
             cursor->state.omni.term_length = strlen(cursor->state.omni.search_term);
             DEBUG_PRINT("Omni-Search: Starting search for '%s'", cursor->state.omni.search_term);
-            if (!omni_search(cursor->state.omni.search_term, ctx->omni_top_index, &cursor->next_read_offset, ctx->platform)) {
+            if (!omni_search(cursor->state.omni.search_term, ctx->omni_top_index, &cursor->next_read_offset, ctx)) {
                 cursor->end_of_results = true;
             }
             break;
@@ -129,10 +129,12 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
             cursor->state.temporal.date_code = query->target.temporal.date_code;
             cursor->state.temporal.search_forward = query->target.temporal.search_forward;
             DEBUG_PRINT("Temporal-Search: Starting search for %" PRId64, cursor->state.temporal.date_code);
-            if (!temporal_search(cursor->state.temporal.date_code, ctx->temporal_top_index, &cursor->next_read_offset, ctx->platform)){
+            if (!temporal_search(cursor->state.temporal.date_code, ctx->temporal_top_index, &cursor->next_read_offset, ctx)){
                 if (!cursor->state.temporal.search_forward) {
-                    uint64_t index_start = OFFSETS_TEMPORAL_SEARCH_LEVEL[0];
-                    uint64_t index_size  = SIZES_TEMPORAL_SEARCH_LEVEL[0];
+                    uint64_t index_start = ctx->header.temporal_search.level_offsets[0];
+                    // uint64_t index_start = OFFSETS_TEMPORAL_SEARCH_LEVEL[0];
+                    uint64_t index_size = ctx->header.temporal_search.level_sizes[0];
+                    // uint64_t index_size  = SIZES_TEMPORAL_SEARCH_LEVEL[0];
                     cursor->next_read_offset = index_start + ((index_size - 1) / 512) * 512;
                     DEBUG_PRINT("Temporal-Search: Target out of bounds. Warping backward search to last block");
                 } else {
@@ -193,7 +195,7 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 for (int r = 0; r < cursor->state.spatial.num_ranges; r++) {
                     MortonRange range = cursor->state.spatial.ranges[r];
                     uint64_t read_offset = 0;
-                    if (!globe_coordinate_search(range.start_code, ctx->globe_coordinate_top_index, &read_offset, ctx->platform)) {
+                    if (!globe_coordinate_search(range.start_code, ctx->globe_coordinate_top_index, &read_offset, ctx)) {
                         continue;
                     }
 
@@ -232,10 +234,10 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 DEBUG_PRINT("Globe-Search: Stream mode active. Invoking globe_coordinate_search...");
                 uint64_t target_code = cursor->state.spatial.ranges[0].start_code;
                 bool search_success = globe_coordinate_search(
-                    target_code, 
-                    ctx->globe_coordinate_top_index, 
-                    &cursor->next_read_offset, 
-                    ctx->platform
+                    target_code,
+                    ctx->globe_coordinate_top_index,
+                    &cursor->next_read_offset,
+                    ctx
                 );
 
                 if (!search_success) {
@@ -298,7 +300,7 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 for (int r = 0; r < cursor->state.spatial.num_ranges; r++) {
                     MortonRange range = cursor->state.spatial.ranges[r];
                     uint64_t read_offset = 0;
-                    if (!astronomical_search(range.start_code, ctx->astronomical_top_index, &read_offset, ctx->platform)) {
+                    if (!astronomical_search(range.start_code, ctx->astronomical_top_index, &read_offset, ctx)) {
                         continue;
                     }
 
@@ -337,10 +339,10 @@ SearchCursor* search_begin(DatabaseContext* ctx, const SearchQuery* query) {
                 DEBUG_PRINT("Astro-Search: Stream mode active. Invoking astronomical_search...");
                 uint64_t target_code = cursor->state.spatial.ranges[0].start_code;
                 bool search_success = astronomical_search(
-                    target_code, 
-                    ctx->astronomical_top_index, 
-                    &cursor->next_read_offset, 
-                    ctx->platform
+                    target_code,
+                    ctx->astronomical_top_index,
+                    &cursor->next_read_offset,
+                    ctx
                 );
 
                 if (!search_success) {
