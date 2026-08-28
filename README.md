@@ -32,32 +32,34 @@ flowchart TD
     end
 
     %% Normal Search Routes
-    User -->|String / Text| OS
-    User -.->|Parameters| AS
-    User -.->|Parameters| TS
-    User -.->|Parameters| CS
+    User -->|Text| OS
+    User -->|Params| AS
+    User -->|Params| TS
+    User -->|Params| CS
 
     %% Direct ID Search Routes (Bypassing Phase 1)
-    User == Direct QID Search ==> HM
-    User == Direct PID Search ==> PID
+    User ==>|Direct QID Search| HM
+    User ==>|Direct PID Search| PID
 
     HM{Primary QID HashMap}:::memory
     
-    OS -- Yields QID --> HM
-    AS -.-> HM
-    TS -.-> HM
-    CS -.-> HM
+    OS -->|Yields QID| HM
+    AS -->|Yields QID| HM
+    TS -->|Yields QID| HM
+    CS -->|Yields QID| HM
 
     subgraph Phase2 [2. Multi-Language / Project Routing]
         R1(Row: Metadata)
-        R2(Row: enwiki)
-        R3(Row: dewiki)
+        R2(Row: en)
+        R3(Row: de)
     end
 
-    HM -- Yields multiple rows<br>per QID --> R1 & R2 & R3
+    HM -->|Yields multiple rows<br>per QID| R1
+    HM --> R2
+    HM --> R3
 
     subgraph Phase3 [3. Storage Layer]
-        MD[(Metadata)]:::storage
+        MD[(Metadata<br>PID Tags & Values)]:::storage
         DAT[(Compressed<br>Payload)]:::storage
     end
 
@@ -66,9 +68,9 @@ flowchart TD
     R3 -->|Reads| DAT
 
     PID{PID Index HashMap<br>Property Descriptions}:::meta
-    MD -. Looks up properties .-> PID
+    MD -.->|Resolves PID tags<br>to readable text| PID
 
-    DAT -- Optional: Internal Redirects<br>& Link Routing --> HM
+    DAT -.->|Optional: Internal Redirects<br>& Link Routing| HM
 
     ZDICT>Pre-trained<br>Zstd Dictionary]:::tool
     ZDICT -.->|Decompresses| DAT
