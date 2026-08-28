@@ -76,107 +76,15 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
     println!("Downloading wikidata dump from: {}", wiki_data_url);
     download_wikidata_dump(wiki_data_url, &settings.paths.wikidata_dump_path, &client)?;
 
-    let wikis_to_include = &settings.database_content.wikis_to_include;
     let mut total_metrics = DownloadMetrics::new();
-    for wiki in wikis_to_include {
-        match wiki.as_str() {
-            "wiki" => {
-                println!("Searching wikipedia...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wiki_base_url,
-                    &settings.match_patterns.wiki_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path).join("wiki").to_str().unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wiktionary" => {
-                println!("Searching wiktionary...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wiktionary_base_url,
-                    &settings.match_patterns.wiktionary_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path)
-                        .join("wiktionary")
-                        .to_str()
-                        .unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wikiquote" => {
-                println!("Searching wikiquote...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikiquote_base_url,
-                    &settings.match_patterns.wikiquote_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path).join("wikiquote").to_str().unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wikisource" => {
-                println!("Searching wikisource...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikisource_base_url,
-                    &settings.match_patterns.wikisource_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path)
-                        .join("wikisource")
-                        .to_str()
-                        .unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wikivoyage" => {
-                println!("Searching wikivoyage...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikivoyage_base_url,
-                    &settings.match_patterns.wikivoyage_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path)
-                        .join("wikivoyage")
-                        .to_str()
-                        .unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wikiversity" => {
-                println!("Searching wikiversity...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikiversity_base_url,
-                    &settings.match_patterns.wikiversity_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path)
-                        .join("wikiversity")
-                        .to_str()
-                        .unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            "wikibooks" => {
-                println!("Searching wikibooks...");
-                let new_metrics = download_wikis_from_base_url(
-                    &settings.urls.wikibooks_base_url,
-                    &settings.match_patterns.wikibooks_zim_file_match_pattern,
-                    &languages_vec,
-                    &client,
-                    &Path::new(data_dir_path).join("wikibooks").to_str().unwrap(),
-                )?;
-                total_metrics.merge(new_metrics);
-            }
-            _ => {
-                return Err(
-                    "Found invalid wiki in config 'wikis_to_include' while downloading data."
-                        .to_string(),
-                );
-            }
-        }
-    }
+    let new_metrics = download_wikis_from_base_url(
+        &settings.urls.wikipedia_base_url,
+        &settings.match_patterns.wikipedia_zim_file_match_pattern,
+        &languages_vec,
+        &client,
+        &Path::new(data_dir_path).join("wiki").to_str().unwrap(),
+    )?;
+    total_metrics.merge(new_metrics);
 
     make_summary(total_metrics, &settings)?;
 

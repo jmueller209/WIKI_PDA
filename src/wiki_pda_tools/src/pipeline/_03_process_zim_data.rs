@@ -1,5 +1,4 @@
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-// use redb::{Database, TableDefinition};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
@@ -192,7 +191,6 @@ pub fn process_directories(
     let qid_idx_txt_path = tmp_dir.join(constants::QID_INDEX_TXT);
     let zstd_dictionary_bin_path = bin_dir.join(constants::ZSTD_DICTIONARY_BIN);
     let content_bin_path = bin_dir.join(constants::CONTENT_BIN);
-    // let sitelinks_qid_mapping_db_path = tmp_dir.join(constants::SITELINKS_QID_MAPPING_DB);
 
     let text_delimiter = settings.other.text_delimiter.clone();
     let text_delim_str = text_delimiter.as_str();
@@ -203,7 +201,7 @@ pub fn process_directories(
                                                                            // language
 
     let dir = data_dir.join("wiki");
-    let raw_pattern = &settings.match_patterns.wiki_zim_file_match_pattern;
+    let raw_pattern = &settings.match_patterns.wikipedia_zim_file_match_pattern;
     let regex_str = raw_pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
     let re = Regex::new(&regex_str).expect("Invalid Regex Pattern in config");
 

@@ -166,35 +166,24 @@ pub fn extract_sample_articles(settings: &Settings) -> Result<(), Box<dyn std::e
 
     println!("Extraction of test articles started...");
 
-    for wiki in &settings.database_content.wikis_to_include {
-        if wiki != "wiki" {
-            println!(
-                "Skipping {}, only 'wiki' is supported for sample extraction.",
-                wiki
-            );
-            continue;
-        }
+    let dir = data_dir.join("wiki");
+    if !dir.exists() {
+        panic!("Directory for wiki does not exist, skipping.");
+    }
 
-        let dir = data_dir.join(wiki);
-        if !dir.exists() {
-            println!("Directory for {} does not exist, skipping.", wiki);
-            continue;
-        }
+    let pattern = &settings.match_patterns.wikipedia_zim_file_match_pattern;
 
-        let pattern = &settings.match_patterns.wiki_zim_file_match_pattern;
-
-        if let Some(zim_path) = find_zim_file(&dir, pattern, target_lang) {
-            println!(
-                "Searching in ZIM ({}_{}) for {:?}...",
-                wiki, target_lang, target_titles
-            );
-            extract_from_zim(&zim_path, target_lang, &out_dir, &target_titles);
-        } else {
-            println!(
-                "   -> No matching ZIM file found for {} and language '{}'",
-                wiki, target_lang
-            );
-        }
+    if let Some(zim_path) = find_zim_file(&dir, pattern, target_lang) {
+        println!(
+            "Searching in ZIM (Wikipedia_{}) for {:?}...",
+            target_lang, target_titles
+        );
+        extract_from_zim(&zim_path, target_lang, &out_dir, &target_titles);
+    } else {
+        println!(
+            "   -> No matching Wikipedia ZIM file found for language '{}'",
+            target_lang
+        );
     }
 
     println!("Finished extracting sample articles.");

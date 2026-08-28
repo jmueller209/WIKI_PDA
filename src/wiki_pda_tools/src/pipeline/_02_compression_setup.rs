@@ -89,7 +89,6 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
         checkpoints::CheckpointState::DoesNotExist => (),
     }
 
-    let wikis_to_include = &settings.database_content.wikis_to_include;
     let language_conf_path = &settings.paths.language_config_path;
 
     let languages_to_include: HashSet<String> = fs::read_to_string(language_conf_path)
@@ -115,47 +114,29 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
 
     let mut allowed_zim_files_with_size: Vec<(PathBuf, u64, String, String)> = Vec::new();
 
-    for wiki in wikis_to_include {
-        let dir = data_dir.join(wiki);
+    let dir = data_dir.join("wiki");
+    let raw_pattern = &settings.match_patterns.wikipedia_zim_file_match_pattern;
 
-        let raw_pattern = match wiki.as_str() {
-            "wiki" => &settings.match_patterns.wiki_zim_file_match_pattern,
-            "wiktionary" => &settings.match_patterns.wiktionary_zim_file_match_pattern,
-            "wikiquote" => &settings.match_patterns.wikiquote_zim_file_match_pattern,
-            "wikisource" => &settings.match_patterns.wikisource_zim_file_match_pattern,
-            "wikivoyage" => &settings.match_patterns.wikivoyage_zim_file_match_pattern,
-            "wikiversity" => &settings.match_patterns.wikiversity_zim_file_match_pattern,
-            "wikibooks" => &settings.match_patterns.wikibooks_zim_file_match_pattern,
-            _ => {
-                eprintln!(
-                    "Warning: No match pattern defined for wiki '{}'. Skipping.",
-                    wiki
-                );
-                continue;
-            }
-        };
+    let regex_str = raw_pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
+    let re = Regex::new(&regex_str)
+        .map_err(|e| format!("Invalid Regex Pattern '{}' in config: {}", regex_str, e))?;
 
-        let regex_str = raw_pattern.replace("{lang}", "(?P<lang>[a-zA-Z-]+)");
-        let re = Regex::new(&regex_str)
-            .map_err(|e| format!("Invalid Regex Pattern '{}' in config: {}", regex_str, e))?;
-
-        if let Ok(entries) = fs::read_dir(&dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if let Some(file_name) = path.file_name() {
-                    let filename = file_name.to_string_lossy().to_string();
-                    if let Some(captures) = re.captures(&filename) {
-                        if let Some(lang_match) = captures.name("lang") {
-                            let lang = lang_match.as_str();
-                            if languages_to_include.contains(lang) {
-                                if let Ok(metadata) = fs::metadata(&path) {
-                                    allowed_zim_files_with_size.push((
-                                        path,
-                                        metadata.len(),
-                                        wiki.clone(),
-                                        lang.to_string(),
-                                    ));
-                                }
+    if let Ok(entries) = fs::read_dir(&dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if let Some(file_name) = path.file_name() {
+                let filename = file_name.to_string_lossy().to_string();
+                if let Some(captures) = re.captures(&filename) {
+                    if let Some(lang_match) = captures.name("lang") {
+                        let lang = lang_match.as_str();
+                        if languages_to_include.contains(lang) {
+                            if let Ok(metadata) = fs::metadata(&path) {
+                                allowed_zim_files_with_size.push((
+                                    path,
+                                    metadata.len(),
+                                    "wiki".to_string(),
+                                    lang.to_string(),
+                                ));
                             }
                         }
                     }
@@ -288,7 +269,6 @@ fn create_random_samples(
     let mut samples: Vec<Vec<u8>> = Vec::new();
     let mut open_zims: HashMap<PathBuf, zim::Zim> = HashMap::new();
 
-    // NEU: Puffer für den DB-Lookup
     let mut search_key_buffer = String::with_capacity(256);
 
     while current_sample_bytes < target_sample_bytes {

@@ -1,6 +1,4 @@
 use serde::Deserialize;
-// use std::fs;
-// use std::path::Path;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Settings {
@@ -25,7 +23,6 @@ impl Settings {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DatabaseContent {
-    pub wikis_to_include: Vec<String>,
     pub include_concepts_with_given_property_in_omni_search_index: Vec<String>,
     pub omni_search_index_tags: Vec<String>,
     pub omni_search_index_case_sensitive: bool,
@@ -50,24 +47,12 @@ pub struct DatabaseContent {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Urls {
     pub wikidata_dump_url: String,
-    pub wiki_base_url: String,
-    pub wiktionary_base_url: String,
-    pub wikiquote_base_url: String,
-    pub wikisource_base_url: String,
-    pub wikivoyage_base_url: String,
-    pub wikiversity_base_url: String,
-    pub wikibooks_base_url: String,
+    pub wikipedia_base_url: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct MatchPatterns {
-    pub wiki_zim_file_match_pattern: String,
-    pub wiktionary_zim_file_match_pattern: String,
-    pub wikiquote_zim_file_match_pattern: String,
-    pub wikisource_zim_file_match_pattern: String,
-    pub wikivoyage_zim_file_match_pattern: String,
-    pub wikiversity_zim_file_match_pattern: String,
-    pub wikibooks_zim_file_match_pattern: String,
+    pub wikipedia_zim_file_match_pattern: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
