@@ -1,7 +1,8 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, BufWriter, Write};
+// use std::io::{self, BufRead, BufReader, BufWriter, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
 use crate::utils::checkpoints;
@@ -30,15 +31,15 @@ fn get_string_offset(
 }
 
 pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
-    println!("\n[DEBUG PAUSE]");
-    println!("Please paste the correct properties_search.txt into the tmp folder.");
-    print!("Press ENTER to continue...");
-    io::stdout().flush().unwrap();
+    // println!("\n[DEBUG PAUSE]");
+    // println!("Please paste the correct properties_search.txt into the tmp folder.");
+    // print!("Press ENTER to continue...");
+    // io::stdout().flush().unwrap();
+    //
+    // let mut _dummy_input = String::new();
+    // io::stdin().read_line(&mut _dummy_input).unwrap();
 
-    let mut _dummy_input = String::new();
-    io::stdin().read_line(&mut _dummy_input).unwrap();
-
-    println!("Resuming script...\n");
+    // println!("Resuming script...\n");
     match checkpoints::checkpoint_exists(&settings, 6) {
         checkpoints::CheckpointState::ExistsEmpty => {
             println!("Checkpoint found: Creation of the PID binary index has already finished");
