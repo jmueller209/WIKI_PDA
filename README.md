@@ -163,11 +163,11 @@ cd WIKI_PDA
 
 ### 2. Customize Configuration
 Before running the database generator, you can customize the configuration [here](config/config.toml). The file contains comments explaining what each setting does. If you only want to get started quickly and do not want to spend much time reading docs, you might only want to consider the following settings:
-*   `create_globe_coordinate_search_index` // Supported by generator but not by API as of right now
-*   `create_temporal_search_index` // Supported by generator but not by API as of right now
-*   `create_astronomical_search_index` // Supported by generator but not by API as of right now
-*   `ram_limit_mb`  // RAM your computer is allowed to use for the database generation
-*   `thread_count` // Number of threads/cores the generator is allowed to use
+*   `create_globe_coordinate_search_index`
+*   `create_temporal_search_index`
+*   `create_astronomical_search_index`
+*   `ram_limit_mb`
+*   `thread_count`
 
 To configure which languages you want to include, take a look at the [official Wikipedia Documentation](https://en.wikipedia.org/wiki/List_of_Wikipedias). Here you’ll find a table containing information about the Wikipedias in all available languages. Even though this documentation only talks about Wikipedia articles and no other Wikis, the language codes used are the same. Open the [language configuration](config/languages.config) and add the language codes referring to the languages you want to include. 
 
@@ -222,6 +222,35 @@ If you want to profile heap memory usage, run:
 ```bash
 make test-db-api-valgrind
 ```
+
+### 5. Flash Database to Storage Media
+
+Once the database generation is complete, you can flash the output directly to a storage medium (such as a MicroSD card or USB drive) to use it with microcontrollers and embedded devices (e.g., Teensy 4.1, ESP32). 
+
+Insert your storage device into your computer and run:
+
+```bash
+make flash
+```
+
+**Why does this require `sudo` / Administrator privileges?**
+To achieve maximum read speeds on microcontrollers with limited RAM, the database is not simply copied as a normal file. Instead, the flasher performs low-level hardware modifications:
+1. It unmounts the drive and completely rewrites the partition table (via `parted`).
+2. It creates a visible FAT32 partition (for general files) and a hidden RAW partition.
+3. It writes the database byte-by-byte directly to the raw block device (bypassing the filesystem entirely).
+
+Because these operations interact directly with the kernel's block devices and partition tables, the operating system requires root access.
+
+**Transparency & Verification**
+I understand that granting `sudo` privileges to an automated script requires trust. You are highly encouraged to verify the operations yourself:
+* **Audit the code:** You can review the exact system commands and flashing logic in the source code at [`src/wiki_pda_tools/src/tools/disk_flasher.rs`](src/wiki_pda_tools/src/tools/disk_flasher.rs).
+* **Compile it yourself:** You can build the flasher binary directly from source without using the Makefile:
+  ```bash
+  cargo build --manifest-path src/wiki_pda_tools/Cargo.toml --release --bin flasher
+  ```
+* **Verify the executable:** Once built, you can run it manually to know exactly what is being executed: 
+  `sudo ./src/wiki_pda_tools/target/release/flasher config/config.toml`
+* **Manual Flashing:** If you prefer not to use the automated tool, you can manually partition your SD card and write the generated `.bin` file to it using standard Linux tools like `dd`.
 
 ## Contribution
 Any contributions, thoughts, and suggestions are very welcome. Because I just created this project, my documentation currently focuses mainly on how to get started quickly and how to use the query API. I don't have a lot of the deeper, under-the-hood documentation written yet that makes contributing easy, but I will be adding that step by step in the future. If you would still like to contribute to a specific part of the project right now, please open an issue! This way, I can either answer your questions directly or prioritize writing the documentation for that specific area to help you get started easier.
