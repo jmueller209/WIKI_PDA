@@ -15,7 +15,7 @@ const HEADER_SIZE_BYTES: u64 = 4096;
 // as well.
 const MAX_SPARSE_LEVELS: usize = 10;
 
-const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = false;
+const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = true;
 
 pub struct FileToMerge {
     pub key_name: String,
