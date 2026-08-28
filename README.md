@@ -31,10 +31,15 @@ flowchart TD
         CS[Globe Index<br>Coordinates]:::search
     end
 
-    User --> OS
-    User -.-> AS
-    User -.-> TS
-    User -.-> CS
+    %% Normal Search Routes
+    User -->|String / Text| OS
+    User -.->|Parameters| AS
+    User -.->|Parameters| TS
+    User -.->|Parameters| CS
+
+    %% Direct ID Search Routes (Bypassing Phase 1)
+    User == Direct QID Search ==> HM
+    User == Direct PID Search ==> PID
 
     HM{Primary QID HashMap}:::memory
     
@@ -51,7 +56,7 @@ flowchart TD
 
     HM -- Yields multiple rows<br>per QID --> R1 & R2 & R3
 
-    subgraph Phase3 [4. Storage Layer]
+    subgraph Phase3 [3. Storage Layer]
         MD[(Metadata)]:::storage
         DAT[(Compressed<br>Payload)]:::storage
     end
