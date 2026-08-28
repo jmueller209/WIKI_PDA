@@ -5,8 +5,7 @@ use crate::tests::test_article_processing;
 use crate::pipeline_steps::{
     _00_download_data, _01_parse_wikidata, _02_compression_setup, _03_process_zim_data,
     _04_make_metadata_binary, _05_make_qid_index_binary, _06_make_pid_index_binary,
-    _07_make_search_indexes_binary, _08_merge_binaries, _09_make_c_header_file, cleanup,
-    disk_flasher,
+    _07_make_search_indexes_binary, _08_merge_binaries, cleanup, disk_flasher,
 };
 use crate::utils::settings::Settings;
 
@@ -68,6 +67,5 @@ fn run_all(
     _06_make_pid_index_binary::make_pid_index_binary(&settings)?;
     _07_make_search_indexes_binary::make_binary_search_indexes(&settings)?;
     _08_merge_binaries::merge_into_master_database(&settings)?;
-    // _09_make_c_header_file::make_c_header_file(&settings)?;
     Ok(())
 }

@@ -7,6 +7,5 @@ pub mod _05_make_qid_index_binary;
 pub mod _06_make_pid_index_binary;
 pub mod _07_make_search_indexes_binary;
 pub mod _08_merge_binaries;
-pub mod _09_make_c_header_file;
 pub mod cleanup;
 pub mod disk_flasher;

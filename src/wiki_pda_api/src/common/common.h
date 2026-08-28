@@ -41,7 +41,7 @@ extern "C" {
 #define WIKI_PDA_SUPPORTED_DB_VERSION 1
 #define MAGIC "WPDA" // Must be 4 bytes
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     uint8_t is_enabled;
     uint8_t num_sparse_levels;
     uint16_t _padding1;
@@ -50,11 +50,11 @@ typedef struct __attribute__((packed)) {
     uint32_t row_size;
     uint32_t chunk_size;
     uint32_t _padding2;
-    uint64_t level_offsets[MAX_SPARSE_LEVELS]; 
+    uint64_t level_offsets[MAX_SPARSE_LEVELS];
     uint64_t level_sizes[MAX_SPARSE_LEVELS];
 } IndexMetadata;
 
-typedef struct __attribute__((packed)) {
+typedef struct {
     char magic[4];
     uint32_t version;
     uint64_t offset_qid_hashmap;
