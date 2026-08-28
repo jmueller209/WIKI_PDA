@@ -60,6 +60,9 @@ extract-sample-articles: build-rust
 test-article-processing: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --test-article-processing
 
+debug-article-processing-anomalies: build-rust
+	$(GENERATOR_BIN) $(CONFIG_FILE) --debug-article-processing-anomalies
+
 test-db-api-debug:
 	@$(MAKE) _build_test_api CFLAGS_DEBUG="-DDEBUG_MODE -O0 -g" TARGET_NAME="test_api" TEST_SRC="tests/pc_test_api.c"
 

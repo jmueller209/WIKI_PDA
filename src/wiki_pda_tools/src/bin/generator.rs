@@ -35,6 +35,7 @@ fn main() {
         "--test-pipeline" => RunMode::TestPipeline,
         "--extract-sample-articles" => RunMode::ExtractSampleArticles,
         "--test-article-processing" => RunMode::TestArticleProcessing,
+        "--debug-article-processing-anomalies" => RunMode::DebugArticleProcessingAnomalies,
         _ => {
             eprintln!("Invalid run mode: {}", mode_arg);
             process::exit(1);

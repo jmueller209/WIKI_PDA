@@ -21,6 +21,7 @@ pub enum RunMode {
     CleanAllExceptDownloads,
     ExtractSampleArticles,
     TestArticleProcessing,
+    DebugArticleProcessingAnomalies,
     TestPipeline,
 }
 
