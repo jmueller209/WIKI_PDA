@@ -17,4 +17,3 @@ fn main() {
         .file("../wiki_pda_api/lib/tempus/src/codec.c")
         .compile("tempus");
 }
-

@@ -484,31 +484,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "db_generator"
-version = "0.1.0"
-dependencies = [
- "cc",
- "config",
- "crossbeam-channel",
- "flate2",
- "html2text",
- "indicatif 0.17.11",
- "kuchikiki",
- "rand 0.8.7",
- "rayon",
- "redb",
- "regex",
- "reqwest",
- "scraper",
- "serde",
- "serde_json",
- "sysinfo",
- "urlencoding",
- "zim",
- "zstd",
-]
-
-[[package]]
 name = "derive_more"
 version = "0.99.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3176,6 +3151,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b96554aa2acc8ccdb7e1c9a58a7a68dd5d13bccc69cd124cb09406db612a1c9b"
 dependencies = [
  "rustls-pki-types",
+]
+
+[[package]]
+name = "wiki_pda_tools"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "config",
+ "crossbeam-channel",
+ "flate2",
+ "html2text",
+ "indicatif 0.17.11",
+ "kuchikiki",
+ "rand 0.8.7",
+ "rayon",
+ "redb",
+ "regex",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "urlencoding",
+ "zim",
+ "zstd",
 ]
 
 [[package]]

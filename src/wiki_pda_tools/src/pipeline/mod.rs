@@ -1,22 +1,22 @@
+pub mod _00_download_data;
+pub mod _01_parse_wikidata;
+pub mod _02_compression_setup;
+pub mod _03_process_zim_data;
+pub mod _04_make_metadata_binary;
+pub mod _05_make_qid_index_binary;
+pub mod _06_make_pid_index_binary;
+pub mod _07_make_search_indexes_binary;
+pub mod _08_merge_binaries;
+pub mod cleanup;
+
 use crate::RunMode;
-
-use crate::tests::test_article_processing;
-
-use crate::pipeline_steps::{
-    _00_download_data, _01_parse_wikidata, _02_compression_setup, _03_process_zim_data,
-    _04_make_metadata_binary, _05_make_qid_index_binary, _06_make_pid_index_binary,
-    _07_make_search_indexes_binary, _08_merge_binaries, cleanup, disk_flasher,
-};
+use crate::tools::test_article_processing;
 use crate::utils::settings::Settings;
 
 pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::Error>> {
     match mode {
-        RunMode::CleanAllExceptDownloads => {
-            cleanup::clean(&settings)?;
-        }
-        RunMode::CleanAll => {
-            cleanup::purge(&settings)?;
-        }
+        RunMode::CleanAllExceptDownloads => cleanup::clean(&settings)?,
+        RunMode::CleanAll => cleanup::purge(&settings)?,
         RunMode::RestartAllPurge => {
             cleanup::purge(&settings)?;
             run_all(&settings, None)?;
@@ -25,30 +25,19 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
             cleanup::clean(&settings)?;
             run_all(&settings, None)?;
         }
-        RunMode::ResumeAll => {
-            run_all(&settings, None)?;
-        }
+        RunMode::ResumeAll => run_all(&settings, None)?,
 
-        RunMode::FlashDisk => {
-            disk_flasher::cli(&settings)?;
-        }
         RunMode::TestPipeline => {
             cleanup::clean(&settings)?;
             run_all(&settings, Some(2000))?;
         }
         RunMode::ExtractSampleArticles => {
-            test_article_processing::extract_sample_articles(&settings)?;
+            test_article_processing::extract_sample_articles(&settings)?
         }
         RunMode::TestArticleProcessing => {
-            test_article_processing::test_article_processing(&settings)?;
+            test_article_processing::test_article_processing(&settings)?
         }
-        RunMode::Test => {
-            println!("Test mode detected");
-        }
-
-        o => {
-            println!("{:?} not implemented.", o);
-        }
+        o => println!("{:?} not implemented.", o),
     }
 
     Ok(())

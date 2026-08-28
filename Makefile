@@ -1,64 +1,64 @@
 ELEVATE := sudo
 
-GENERATOR_DIR  = ./src/db_generator
+GENERATOR_DIR  = ./src/wiki_pda_tools/
 QUERY_LIB_DIR  = ./src/wiki_pda_api/
 CONFIG_FILE    = ./config/config.toml
-GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/db_generator
 
-.PHONY: $(GENERATOR_BIN) download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind profile-single-query
+GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/generator
+FLASHER_BIN    = $(GENERATOR_DIR)/target/release/flasher
 
-$(GENERATOR_BIN):
+.PHONY: build-rust download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind profile-single-query
+
+build-rust:
 	cargo build --manifest-path $(GENERATOR_DIR)/Cargo.toml --release
 
-download: $(GENERATOR_BIN)
+download: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --download
 
-parse-wikidata: $(GENERATOR_BIN)
+parse-wikidata: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --parse-wikidata
 
-train-dict: $(GENERATOR_BIN)
+train-dict: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --train-dict
 
-process-zim: $(GENERATOR_BIN)
+process-zim: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --process-zim
 
-qid-bin: $(GENERATOR_BIN)
+qid-bin: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --qid-bin
 
-assemble: $(GENERATOR_BIN)
+pid-bin: build-rust
+	$(GENERATOR_BIN) $(CONFIG_FILE) --pid-bin
+
+assemble: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --assemble
 
-flash: $(GENERATOR_BIN)
-	$(ELEVATE) $(GENERATOR_BIN) $(CONFIG_FILE) --flash
+flash: build-rust
+	$(ELEVATE) $(FLASHER_BIN) $(CONFIG_FILE)
 
-clean: $(GENERATOR_BIN)
+clean: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --clean
 
-purge: $(GENERATOR_BIN)
+purge: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --purge
 
-resume: $(GENERATOR_BIN)
+resume: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --resume
 
-restart-clean: $(GENERATOR_BIN)
+restart-clean: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --restart-clean
 
-restart-purge: $(GENERATOR_BIN)
+restart-purge: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --restart-purge
 
-test-pipeline: $(GENERATOR_BIN)
+test-pipeline: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --test-pipeline
 
-extract-sample-articles: $(GENERATOR_BIN)
+extract-sample-articles: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --extract-sample-articles
 
-test-article-processing: $(GENERATOR_BIN)
+test-article-processing: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --test-article-processing
-
-test: $(GENERATOR_BIN)
-	$(GENERATOR_BIN) $(CONFIG_FILE) --test
-
-
 
 test-db-api-debug:
 	@$(MAKE) _build_test_api CFLAGS_DEBUG="-DDEBUG_MODE -O0 -g" TARGET_NAME="test_api" TEST_SRC="tests/pc_test_api.c"
@@ -75,7 +75,6 @@ profile-single-query:
 	@$(MAKE) _build_test_api_norun CFLAGS_DEBUG="-O3 -g" TARGET_NAME="profile_single_query" TEST_SRC="tests/profile_single_query.c"
 	valgrind --tool=callgrind --callgrind-out-file=$(QUERY_LIB_DIR)/target/callgrind.out $(QUERY_LIB_DIR)/target/profile_single_query
 	@echo "CPU profiling complete! Run 'kcachegrind $(QUERY_LIB_DIR)/target/callgrind.out' to view the results."
-
 
 _build_test_api_norun:
 	mkdir -p $(QUERY_LIB_DIR)/target
