@@ -246,8 +246,10 @@ internet that require you to provide your credentials. You are highly encouraged
   ```bash
   cargo build --manifest-path src/wiki_pda_tools/Cargo.toml --release --bin flasher
   ```
-* **Verify the executable:** Once built, you can run it manually to know exactly what is being executed: 
-  `sudo ./src/wiki_pda_tools/target/release/flasher config/config.toml`
+* **Verify the executable:** Once built, you can run it manually to know exactly what is being executed:
+  ```bash
+  sudo ./src/wiki_pda_tools/target/release/flasher config/config.toml
+  ```
 * **Manual Flashing:** If you prefer not to use the automated tool, you can manually partition your SD card and write the generated `.bin` file to it using standard Linux tools like `dd`.
 
 ## Contribution
