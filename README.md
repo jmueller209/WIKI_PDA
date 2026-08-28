@@ -232,18 +232,16 @@ Insert your storage device into your computer and run:
 ```bash
 make flash
 ```
-
-**Why does this require `sudo` / Administrator privileges?**
-To achieve maximum read speeds on microcontrollers with limited RAM, the database is not simply copied as a normal file. Instead, the flasher performs low-level hardware modifications:
+This requires `sudo` priviliges. Why? To achieve maximum read speeds on microcontrollers with limited RAM, the database is not simply copied as a normal file. Instead, the flasher performs low-level hardware modifications:
 1. It unmounts the drive and completely rewrites the partition table (via `parted`).
 2. It creates a visible FAT32 partition (for general files) and a hidden RAW partition.
 3. It writes the database byte-by-byte directly to the raw block device (bypassing the filesystem entirely).
 
 Because these operations interact directly with the kernel's block devices and partition tables, the operating system requires root access.
 
-**Transparency & Verification**
-I understand that granting `sudo` privileges to an automated script requires trust. You are highly encouraged to verify the operations yourself:
-* **Audit the code:** You can review the exact system commands and flashing logic in the source code at [`src/wiki_pda_tools/src/tools/disk_flasher.rs`](src/wiki_pda_tools/src/tools/disk_flasher.rs).
+I understand that granting `sudo` privileges to an automated script requires trust. Never blindly trust scripts on the 
+internet that require you to provide your credentials. You are highly encouraged to verify the operations yourself:
+* **Audit the code:** You can review the flashing logic in the source code at [`src/wiki_pda_tools/src/tools/disk_flasher.rs`](src/wiki_pda_tools/src/tools/disk_flasher.rs).
 * **Compile it yourself:** You can build the flasher binary directly from source without using the Makefile:
   ```bash
   cargo build --manifest-path src/wiki_pda_tools/Cargo.toml --release --bin flasher
