@@ -473,24 +473,12 @@ fn run_writer_thread(
                 error_msg,
                 raw_content,
             } => {
-                let max_chars = 150;
-                let content_snippet = if raw_content.len() > max_chars {
-                    let truncated: String = raw_content.chars().take(max_chars).collect();
-                    format!(
-                        "{} ... [TRUNCATED. Total bytes: {}]",
-                        truncated,
-                        raw_content.len()
-                    )
-                } else {
-                    raw_content
-                };
-
                 let json_line = serde_json::json!({
                     "qid": qid,
                     "lang": lang,
                     "title": title,
                     "error_msg": error_msg,
-                    "content_snippet": content_snippet
+                    "raw_content": raw_content
                 });
 
                 writeln!(anomalies_writer, "{}", json_line.to_string()).unwrap();
