@@ -3,7 +3,7 @@ use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::utils::article_processing;
+use crate::utils::article_processing::{self, ArticleProcessor};
 use crate::utils::settings::Settings;
 use crate::utils::sitelinks_lookup;
 
@@ -125,7 +125,9 @@ fn test_single_article(
     println!("Processing [{}] -> {}", wiki_type, safe_title);
     let raw_html = fs::read_to_string(path)?;
 
-    let processed_data_bytes = article_processing::process_wikipedia_article(
+    let processor = article_processing::DefaultArticleProcessor;
+
+    let process_result = processor.process(
         "QID_TEST",
         &raw_html,
         table,
@@ -134,11 +136,17 @@ fn test_single_article(
         lang,
     );
 
-    let output_text = match std::str::from_utf8(&processed_data_bytes) {
-        Ok(text) => text.to_string(),
-        Err(_) => {
-            println!("   -> Warning: Output is not valid UTF-8. Saving as hex/binary summary.");
-            format!("Binary data length: {} bytes", processed_data_bytes.len())
+    let output_text = match process_result {
+        Ok(processed_data_bytes) => match std::str::from_utf8(&processed_data_bytes) {
+            Ok(text) => text.to_string(),
+            Err(_) => {
+                println!("   -> Warning: Output is not valid UTF-8. Saving as hex/binary summary.");
+                format!("Binary data length: {} bytes", processed_data_bytes.len())
+            }
+        },
+        Err(e) => {
+            println!("   -> ERROR: {}", e);
+            format!("=== PROCESSING ERROR ===\n{}", e)
         }
     };
 

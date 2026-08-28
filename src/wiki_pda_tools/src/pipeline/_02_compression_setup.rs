@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::utils::article_processing;
+use crate::utils::article_processing::{self, ArticleProcessor};
 use crate::utils::checkpoints;
 use crate::utils::compression;
 use crate::utils::constants;
@@ -268,8 +268,9 @@ fn create_random_samples(
 
     let mut samples: Vec<Vec<u8>> = Vec::new();
     let mut open_zims: HashMap<PathBuf, zim::Zim> = HashMap::new();
-
     let mut search_key_buffer = String::with_capacity(256);
+
+    let processor = article_processing::DefaultArticleProcessor;
 
     while current_sample_bytes < target_sample_bytes {
         let mut random_weight = rng.gen_range(0..total_size);
@@ -313,20 +314,20 @@ fn create_random_samples(
                 if let Ok(article_text) =
                     content.with(|bytes| String::from_utf8_lossy(bytes).into_owned())
                 {
-                    let bin_data = article_processing::process_wikipedia_article(
+                    if let Ok(bin_data) = processor.process(
                         "Q_TRAIN",
                         &article_text,
                         table,
                         &mut search_key_buffer,
                         settings,
                         selected_lang,
-                    );
-
-                    if !bin_data.is_empty() {
-                        let len = bin_data.len();
-                        current_sample_bytes += len;
-                        samples.push(bin_data);
-                        pb.inc(len as u64);
+                    ) {
+                        if !bin_data.is_empty() {
+                            let len = bin_data.len();
+                            current_sample_bytes += len;
+                            samples.push(bin_data);
+                            pb.inc(len as u64);
+                        }
                     }
                 }
             }
