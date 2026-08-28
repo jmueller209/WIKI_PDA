@@ -134,13 +134,13 @@ impl ZimMetrics {
             writeln!(&mut summary, "   - {:<18}", lang).unwrap();
             writeln!(
                 &mut summary,
-                "       Erfolgreich verarbeitet:    {}",
+                "       Successfully processed:    {}",
                 m.articles_processed
             )
             .unwrap();
             writeln!(
                 &mut summary,
-                "       Übersprungen (Nicht in DB): {}",
+                "       Skipped (Not QID Lookup table): {}",
                 m.articles_skipped_not_in_db
             )
             .unwrap();
@@ -148,13 +148,13 @@ impl ZimMetrics {
             if m.articles_failed_read > 0 || m.articles_failed_process > 0 {
                 writeln!(
                     &mut summary,
-                    "       FEHLER (Read/UTF8):         {}",
+                    "       ERROR (Read/UTF8):         {}",
                     m.articles_failed_read
                 )
                 .unwrap();
                 writeln!(
                     &mut summary,
-                    "       FEHLER (Processing):        {}",
+                    "       Error (Processing):        {}",
                     m.articles_failed_process
                 )
                 .unwrap();
@@ -162,7 +162,7 @@ impl ZimMetrics {
 
             writeln!(
                 &mut summary,
-                "       Zeitprofil: DB: {:.1}% | Read: {:.1}% | Proc: {:.1}% | Zstd: {:.1}%",
+                "       Time Profile: DB: {:.1}% | Read: {:.1}% | Proc: {:.1}% | Zstd: {:.1}%",
                 (m.dur_db.as_secs_f64() / lang_wall_secs) * 100.0,
                 (m.dur_zim_read.as_secs_f64() / lang_wall_secs) * 100.0,
                 (m.dur_process.as_secs_f64() / lang_wall_secs) * 100.0,
