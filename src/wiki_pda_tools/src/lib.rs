@@ -23,6 +23,7 @@ pub enum RunMode {
     TestArticleProcessing,
     DebugArticleProcessingAnomalies,
     TestPipeline,
+    Test,
 }
 
 pub enum PipelineStep {

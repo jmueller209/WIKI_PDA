@@ -7,7 +7,7 @@ CONFIG_FILE    = ./config/config.toml
 GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/generator
 FLASHER_BIN    = $(GENERATOR_DIR)/target/release/flasher
 
-.PHONY: build-rust download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind profile-single-query
+.PHONY: build-rust download parse-wikidata train-dict process-zim qid-bin assemble flash clean purge resume restart-clean restart-purge test-pipeline extract-sample-articles debug-article-processing-anomalies test test-article-processing test test-db-api-debug test-db-api test-db-api-valgrind profile-single-query
 
 build-rust:
 	cargo build --manifest-path $(GENERATOR_DIR)/Cargo.toml --release
@@ -62,6 +62,9 @@ test-article-processing: build-rust
 
 debug-article-processing-anomalies: build-rust
 	$(GENERATOR_BIN) $(CONFIG_FILE) --debug-article-processing-anomalies
+
+test: build-rust
+	$(GENERATOR_BIN) $(CONFIG_FILE) --test
 
 test-db-api-debug:
 	@$(MAKE) _build_test_api CFLAGS_DEBUG="-DDEBUG_MODE -O0 -g" TARGET_NAME="test_api" TEST_SRC="tests/pc_test_api.c"

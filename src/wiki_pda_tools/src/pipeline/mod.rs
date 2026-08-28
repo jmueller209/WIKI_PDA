@@ -10,7 +10,7 @@ pub mod _08_merge_binaries;
 pub mod cleanup;
 
 use crate::RunMode;
-use crate::tools::{debug_article_processing_anomalies, test_article_processing};
+use crate::tools::{debug_article_processing_anomalies, test, test_article_processing};
 use crate::utils::settings::Settings;
 
 pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::Error>> {
@@ -40,6 +40,7 @@ pub fn run(settings: Settings, mode: RunMode) -> Result<(), Box<dyn std::error::
         RunMode::DebugArticleProcessingAnomalies => {
             debug_article_processing_anomalies::run_anomaly_analyzer(&settings)?
         }
+        RunMode::Test => test::test(&settings)?,
         o => println!("{:?} not implemented.", o),
     }
 
