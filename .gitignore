@@ -1,7 +1,7 @@
 *.zim
 *.gz
 
-bin/
+/bin/
 data/
 logs/
 tmp/
