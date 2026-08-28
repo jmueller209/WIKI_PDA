@@ -86,17 +86,18 @@ flowchart TD
 ### Generator:
 * Generates offline **Wikipedia** database.
 * **Multi-language support** for Wikipedia articles.
-* **Omni Search Index.**
-* **Astronomical Search Index.**
-* **Temporal Search Index.**
-* **Global Search Index.**
-* **QID Search Index.**
-* **PID Search Index.**
+* Generation of the following **search indexes**:
+  - **Omni Search Index.**
+  - **Astronomical Search Index.**
+  - **Temporal Search Index.**
+  - **Global Search Index.**
+  - **QID Search Index.**
+  - **PID Search Index.**
 * customizable **Wikipedia** content and metadata.
 * **Content compression** (no metadata compression right now) using ZSTD (customizable dictionary size, compression level, etc.).
 * All indexes include **customizable search tags** (E.g., `is_human`, `is_capital_city`).
 * **Partially multithreaded generator pipeline.**
-* Tool to partition storage media **flash database** to it.
+* Tool to partition storage media and **flash database** to it.
 
 ### Query API:
 * Functions for initializing a **DatabaseContext** and querying the following indexes based on your custom tags and language:
@@ -106,7 +107,6 @@ flowchart TD
   - Temporal Search Index
   - QID & PID Search
 + **Fast Lookups** optimized for SD Cards and low RAM usage using custom data structures and streaming compression, ensuring even large articles that do not fit into RAM can be read.
-* Initialize a **DataStream** to read articles into a buffer.
 * **DatabasePlatform** interface to define your own `read_database_function()` for your specific platform.
 * Predefined **DatabasePlatform** for desktop and Teensy4.1.
 * Example program: **Wikipedia Terminal Reader.**
