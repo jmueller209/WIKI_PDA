@@ -1,23 +1,13 @@
 # Here you can customize your database 
 [database_content]
 
-# Specify which wikis to include in this database. 
-# Here is a list of all possible wikis:
-# - wiki
-# - wiktionary
-# - wikiquote
-# - wikisource
-# - wikivoyage
-# - wikiversity
-# - wikibooks 
-wikis_to_include = ["wiki"]
 
-# All entries that have at least one entry in one of the included wikis will be added to the 
-# omni search index automatically. If you want to add any concepts that do not have an entry 
-# in any of the included wikis or no wikis at all, you can do this by adding classes to the 
-# following list. You might want to do this because those concepts might still have helpful 
-# metadata (e.g., the year of birth of a human that is not famous enough to have a Wikipedia 
-# article but still has an entry in the database). If one of the filters applies, the concept 
+# All entries that have a wikipedia article in one of the configured languages will be
+# added automatically. If you want to add any concepts that do not have a wikipedia article,
+# you can do this by adding classes to the
+# following list. You might want to do this because those concepts might still have helpful
+# metadata (e.g., the year of birth of a human that is not famous enough to have a Wikipedia
+# article but still has an entry in the database). If one of the filters applies, the concept
 # will be included. 
 #
 # Here is a list of the most important properties you might want to include:
@@ -27,11 +17,11 @@ wikis_to_include = ["wiki"]
 # - Q43229: Organization (Companies, institutions, political parties, groups)
 #
 # Geography & Places:
-# - Q515: City 
-# - Q511: Capital city 
-# - Q625: Country 
-# - Q486972: Human settlement 
-# - Q3863: Mountain 
+# - Q515: City
+# - Q511: Capital city
+# - Q625: Country
+# - Q486972: Human settlement
+# - Q3863: Mountain
 #
 # History & Events:
 # - Q13418847: Historical event (Battles, treaties, disasters, turning points)
@@ -47,8 +37,8 @@ include_concepts_with_given_property_in_omni_search_index = [
     "Q5", "Q515", "Q511", "Q625", "Q3305213", "Q11424", "Q7725634", "Q486972"
 ] 
 
-# Specify which tags should be included in the omni_search_index. 
-# Tags specify if a concept is an instance of something, e.g., human. 
+# Specify which tags should be included in the omni_search_index.
+# Tags specify if a concept is an instance of something, e.g., human.
 # Here is a list of the most important "is-an-instance-of" categories:
 # - Q5: Human
 # - Q515: City
@@ -61,25 +51,25 @@ include_concepts_with_given_property_in_omni_search_index = [
 omni_search_index_tags = ["has_wikipedia_article","Q5", "Q515", "Q511", "Q625", "Q11424", "Q7725634"
 ]
 
-# Specify whether the omni search index should be case sensitive or not. 
-# Setting this to false will save a little bit of space as some duplicates can be removed. 
-# Since many simple search algorithms are case insensitive, you will probably want to set this to false. 
-omni_search_index_case_sensitive = false 
+# Specify whether the omni search index should be case sensitive or not.
+# Setting this to false will save a little bit of space as some duplicates can be removed.
+# Since many simple search algorithms are case insensitive, you will probably want to set this to false.
+omni_search_index_case_sensitive = false
 
-# Set this to true if you want to create an additional search index to look up coordinates quickly. 
-# All entries that have coordinate metadata will be included here. If you set 
-# 'include_all_matches_in_globe_coordinate_search_index' to true, EVERYTHING that has coordinates 
-# will be included. Otherwise, only the entries that have an entry in 'wikis_to_include' and 
+# Set this to true if you want to create an additional search index to look up coordinates quickly.
+# All entries that have coordinate metadata will be included here. If you set
+# 'include_all_matches_in_globe_coordinate_search_index' to true, EVERYTHING that has coordinates
+# will be included. Otherwise, only the entries that have a Wikipedia article and
 # have coordinates will be included. You can again specify tags like before.
 create_globe_coordinate_search_index                 = true
 include_all_matches_in_globe_coordinate_search_index = true
 globe_coordinate_search_index_tags                   = ["has_wikipedia_article", "Q515", "Q511"]
 
-# Set this to true if you want to create an additional search index to look up temporal data quickly. 
-# All entries that have temporal metadata will be included here. If you set 
-# 'include_all_matches_in_temporal_search_index' to true, EVERYTHING that has temporal metadata 
-# will be included. Otherwise, only the entries that have an entry in 'wikis_to_include' and 
-# contain temporal metadata will be included. You can again specify tags like before. 
+# Set this to true if you want to create an additional search index to look up temporal data quickly.
+# All entries that have temporal metadata will be included here. If you set
+# 'include_all_matches_in_temporal_search_index' to true, EVERYTHING that has temporal metadata
+# will be included. Otherwise, only the entries that have a Wikipedia article and
+# contain temporal metadata will be included. You can again specify tags like before.
 #
 # The kinds of temporal properties that will trigger an inclusion in the temporal search index are:
 # - P569 (Date of birth): Used for people and animals.
@@ -91,7 +81,7 @@ create_temporal_search_index                 = true
 include_all_matches_in_temporal_search_index = true
 temporal_search_index_tags                   = ["has_wikipedia_article", "Q5"]
 
-# Set this to true if you want to create an additional search index for astronomical objects. 
+# Set this to true if you want to create an additional search index for astronomical objects.
 create_astronomical_search_index                 = true
 include_all_matches_in_astronomical_search_index = true
 astronomical_search_index_tags                   = ["has_wikipedia_article", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
@@ -107,18 +97,18 @@ astronomical_search_index_tags                   = ["has_wikipedia_article", "Q5
 astronomical_objects_to_include = ["Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
 
 # Maximum apparent magnitude limit for astronomical objects to be included.
-# Note: The magnitude scale is reverse logarithmic—lower (and even negative) numbers 
+# Note: The magnitude scale is reverse logarithmic—lower (and even negative) numbers
 # mean brighter objects. For reference:
 # - Minus numbers (-1.46 for Sirius, -26.7 for the Sun) are extremely bright.
 # - +6.0 is roughly the limit of what the human eye can see on a clear, dark night.
 # - +10.0 and above include millions of faint stars requiring telescopes.
 max_apparent_magnitude = 6.5
 
-# Specify which property datatypes should be included in the metadata. Excluding specific metadata 
-# will not affect the specialized search indexes like the coordinate search index. 
+# Specify which property datatypes should be included in the metadata. Excluding specific metadata
+# will not affect the specialized search indexes like the coordinate search index.
 # Here is a list of all available datatypes:
-# external-id, commonsMedia, url, string, quantity, math, wikibase-item, time, 
-# musical-notation, wikibase-form, globe-coordinate, geo-shape, wikibase-lexeme, 
+# external-id, commonsMedia, url, string, quantity, math, wikibase-item, time,
+# musical-notation, wikibase-form, globe-coordinate, geo-shape, wikibase-lexeme,
 # monolingualtext, wikibase-property, wikibase-sense, tabular-data 
 property_datatypes_to_include_in_metadata = [
     "string", "quantity", "math", "wikibase-item", "time", "musical-notation", 
@@ -128,28 +118,16 @@ property_datatypes_to_include_in_metadata = [
 
 # Change these URLs if the source locations change in the future.
 [urls]
-wikidata_dump_url    = "https://dumps.wikimedia.org/other/wikibase/wikidatawiki/latest-all.json.gz"
-wiki_base_url        = "https://ftp.fau.de/kiwix/zim/wikipedia/"
-wiktionary_base_url  = "https://ftp.fau.de/kiwix/zim/wiktionary/" 
-wikiquote_base_url   = "https://ftp.fau.de/kiwix/zim/wikiquote/"
-wikisource_base_url  = "https://ftp.fau.de/kiwix/zim/wikisource/"
-wikivoyage_base_url  = "https://ftp.fau.de/kiwix/zim/wikivoyage/"
-wikiversity_base_url = "https://ftp.fau.de/kiwix/zim/wikiversity/"
-wikibooks_base_url   = "https://ftp.fau.de/kiwix/zim/wikibooks/"
+wikidata_dump_url = "https://dumps.wikimedia.org/other/wikibase/wikidatawiki/latest-all.json.gz"
+wikipedia_base_url = "https://ftp.fau.de/kiwix/zim/wikipedia/"
 
-# These patterns are used to match the ZIM files for articles in different languages for different wikis. 
+# These patterns are used to match the ZIM files for Wikipedia articles in different languages.
 # You only need to change these if the patterns change in the future. Make sure to use single quotes here.
 [match_patterns]
-wiki_zim_file_match_pattern        = 'wikipedia_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wiktionary_zim_file_match_pattern  = 'wiktionary_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wikiquote_zim_file_match_pattern   = 'wikiquote_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wikisource_zim_file_match_pattern  = 'wikisource_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wikivoyage_zim_file_match_pattern  = 'wikivoyage_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wikiversity_zim_file_match_pattern = 'wikiversity_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
-wikibooks_zim_file_match_pattern   = 'wikibooks_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
+wikipedia_zim_file_match_pattern = 'wikipedia_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
 
 
-# These are the local paths where the downloaded files will be stored. Keeping the default ones should work.
+# These are the local paths the database generator uses. Keeping the default ones should work.
 [paths]
 wikidata_dump_path   = "./data/wikidata/latest-all.json.gz"
 language_config_path = "./config/languages.config"
