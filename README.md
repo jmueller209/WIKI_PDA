@@ -7,7 +7,7 @@ A customizable Wiki database generator + lightweight C Query API optimized for m
 
 
 > [!Warning]  
-> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Windows Subsystem for Linux (WSL). MacOS is not supported as of right now. Keep in mind that the query API might change in the future.  
+> This project is under construction. Some features are not thoroughly tested, incompletely implemented, or lacking documentation. This project has only been tested on Fedora so far; other Linux distributions will probably work with little to no tweaking. Windows will work in combination with Windows Subsystem for Linux (WSL). MacOS is not supported as of right now.  
 
 ---
 
@@ -82,60 +82,43 @@ flowchart TD
 - ***[Database Generator](docs/generator_pipeline.md)***
 - ***[API for querying the database](docs/query_api.md)***
 
-## Future Core Functionality (Not everything is implemented right now)
-*   Support for **Wikipedia**, **Wiktionary**, (and perhaps **Wikiquotes**, **Wikiversity**, **Wikibooks**, **Wikisource**, and **Wikivoyage**) in any or multiple languages.
-*   **Customizable Metadata** based on **Wiki** properties.
-*   **Multi-Index Search:**
-    *   **Omni Search Index:** Search for **Wikipedia** concepts (QIDs) by text.
-    *   **Lexeme Search Index:** Use the database as an offline dictionary based on **Wiktionary**.
-    *   **Property (PID) Search Index:** Search for **Wiki** properties to process metadata.
-    *   **Global Search Index:** Search for **Wiki** concepts based on their globe coordinates (might be useful in combination with OpenStreetMap).
-    *   **Astronomical Search Index:** Search for **Wiki** concepts referring to galaxies, stars, planets, comets, and more using their celestial coordinates.
-    *   **Temporal Search Index:** Search for **Wiki** concepts based on their dates (e.g., dates of birth/death for people, start/end dates for historical concepts).
-    *   **QID Search Index:** Search **Wiki** concepts directly. Used internally by the API to find articles corresponding to an Omni Search term. Can be used externally to implement automatic offline routing between articles using redirects.
-* **Custom Search Tags** based on **Wiki** properties (PIDs). E.g., `is_human`, `is_capital_city`.
-* **Search Articles by language.**
-*   **Fast Lookups** optimized for SD Cards and low RAM usage using custom data structures and streaming compression, ensuring even large articles that do not fit into RAM can be read. 
-*   **Z-Standard Compression** using a pre-trained dictionary with customizable performance metrics such as compression level and size.
-*   **Interface to customize article processing:** Turn raw HTML into the format you'd like to have in your database while keeping redirects between articles intact.
-*   **Interface to port the Query API to any platform.**
-*   Tools to flash database to SD card with custom (or no) filesystem.
-*   Examples on how to use the API (on PC and ESP32).
-*   Preconfigured Databases (avoid running the heavy generator)
-
 ## Current Functionality:
 ### Generator:
-* Only **Wikipedia** is supported right now (no Wiktionary, Wikibooks, etc.).
+* Generates offline **Wikipedia** database.
 * **Multi-language support** for Wikipedia articles.
 * **Omni Search Index.**
 * **Astronomical Search Index.**
 * **Temporal Search Index.**
 * **Global Search Index.**
-* **Wikipedia** content and customizable metadata.
+* **QID Search Index.**
+* **PID Search Index.**
+* customizable **Wikipedia** content and metadata.
 * **Content compression** (no metadata compression right now) using ZSTD (customizable dictionary size, compression level, etc.).
-* All indexes include **customizable search tags**.
+* All indexes include **customizable search tags** (E.g., `is_human`, `is_capital_city`).
 * **Partially multithreaded generator pipeline.**
+* Tool to partition storage media **flash database** to it.
 
 ### Query API:
-* Functionality for initializing a **DatabaseContext** and querying the following indexes based on your custom tags and language:
+* Functions for initializing a **DatabaseContext** and querying the following indexes based on your custom tags and language:
   - Omni Search Index
   - Globe Coordinate Search Index
+  - Astronomical Search Index
+  - Temporal Search Index
+  - QID & PID Search
++ **Fast Lookups** optimized for SD Cards and low RAM usage using custom data structures and streaming compression, ensuring even large articles that do not fit into RAM can be read.
 * Initialize a **DataStream** to read articles into a buffer.
 * **DatabasePlatform** interface to define your own `read_database_function()` for your specific platform.
-* Predefined **DatabasePlatform** for desktops.
+* Predefined **DatabasePlatform** for desktop and Teensy4.1.
 * Example program: **Wikipedia Terminal Reader.**
 
-## Priority Feature List
-*(Please open an issue if you think there is something you would like added to this list)*
-* Fixing bugs.
-* Actual tests on MCUs + development of required tooling.
-* Add API support for the **Temporal Search Index**, **Global Search Index**, **Astronomical Search Index**, direct **QID Search Index**, and **PID Search Index**.
-* **Wiktionary** support.
-* Decide whether to properly support other wikis such as **Wikibooks**. This is a pain in the a** because, unlike Wikipedia articles, a Wiki Book consists of multiple chapters that need to be individually parsed and linked. This prevents me from using the same pipeline as Wikipedia articles, and considering the small size of those other wikis compared to Wikipedia, it might not be worth it.
-* Making the generator work on Windows (or maybe not, because people should switch to  anyway).
-* Implementing a better default processing function for articles. Additionally, an easy way to turn redirects into QIDs would be nice so offline redirecting can be implemented (using the QID Index).
+## Future Plans
+* Multi languages **Wiktionary** support. 
+* Add **Interface to customize article processing:** Turn raw HTML into the format you'd like to have in your database while keeping redirects between articles intact.
+* Add more Examples on how to use the API (on PC and ESP32).
+* Downloadable preconfigured Databases (avoid running the heavy generator).
+* Add predefined **DatabasePlatform** for ESP32.
 * Performance improvements (focusing on the API).
-
+* Fix bugs.
 ---
 
 ## Quick Start
