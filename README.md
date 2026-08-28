@@ -251,8 +251,6 @@ internet that require you to provide your credentials. You are highly encouraged
   sudo ./src/wiki_pda_tools/target/release/flasher config/config.toml
   ```
 
-### Manual Flashing with `dd`
-
 If you prefer to flash manually using `dd`, **do not write the database to the root block device** (e.g., `/dev/sdb`). The microcontroller expects the database to be located on **Partition 2** to function properly.
 
 1. **Partition the Drive:** Use `fdisk` or `parted` to create two partitions:
