@@ -1,4 +1,4 @@
-use html2text::from_read;
+use html2text;
 use kuchikiki::traits::*;
 use redb::ReadOnlyTable;
 
