@@ -9,13 +9,32 @@ pub fn test(_settings: &Settings) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn reproduce_error() {
-    let html = r###"/div>
+    println!("testing html");
 
-    <table class="wikitable center" style="text-align:center" id="mwMg">
-    <td rowspan="00" id="mwOw"><"###;
+    let html = r###"/table>
+    <table class="wikitable" id="mwBkY">
+    <td bgcolor="gainsboro" rowspan="6" id="mwBkk"><div class="quote">Este sitio abarca la zona central del Parque Nacional de la Isla de la Reunión, esto es, una extensión de 100.000 hectáreas equivalente al 40% de la superficie de esta isla, que está ubicada al sudoeste del Océano Índico y cuenta con dos macizos volcánicos. Dominado por dos picos volcánicos, el sitio posee un conjunto de escarpaduras, desfiladeros y lagunas con bosques, que forman un paisaje espectacular. Es el hábitat natural de una gran variedad de plantas con un alto grado de endemismo. Los bosques umbrófilos subtropicales, los bosques de niebla y las landas que pueblan el sitio forman todo un mosaico de ecosistemas y un paisaje de características excepcionales. (UNESCO/BPI)</table>
+    <table class="wikitable" id="mwBmI">
+    <td id="mwBmk"></a> (<td id="mwDpM">4<"###;
 
-    // Trigger the panic
-    let _ = html2text::config::plain().string_from_read(html.as_bytes(), 10000);
+    // Fange das Resultat ab, anstatt es wegzuwerfen
+    let result = html2text::config::plain().string_from_read(html.as_bytes(), 10000);
+
+    // Werte aus, ob es geklappt hat (Ok) oder ein Fehler aufgetreten ist (Err)
+    match result {
+        Ok(text) => {
+            println!("Wahnsinn! Kein Crash. Hier ist der generierte Text:\n");
+            println!("--------------------------------------------------");
+            println!("{}", text);
+            println!("--------------------------------------------------");
+        }
+        Err(e) => {
+            println!(
+                "Die Bibliothek hat einen sauberen Fehler (Warning) zurückgegeben: {:?}",
+                e
+            );
+        }
+    }
 }
 
 // fn get_rust_version() -> String {
@@ -73,4 +92,3 @@ fn reproduce_error() {
 //         .replace("{os_name}", os_name)
 //         .replace("{arch}", arch)
 // }
-
