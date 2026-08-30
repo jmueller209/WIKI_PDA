@@ -1,4 +1,4 @@
-# Database Architecture
+# Database Architecture (Docs out of date)
 This document outlines the internal structure and binary layout of the generated Wiki database. The database is designed as a single, contiguous binary file optimized for low-memory environments. You can look at the diagram [here](../README.md) to get a high level overview. Throughout this documentation ⚙️ `some_setting` is used to indicate that something is configurable via the [config_file](../config/config.toml).
 
 ---
