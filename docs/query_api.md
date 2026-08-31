@@ -365,8 +365,9 @@ bool success = search_next(cursor, &result);
 if (success == false) {
     Serial.println("End of results reached");
 }
+search_end(cursor);
 ```
-The function takes two parameters: A reference to the search cursor and a reference to the result. It returns a single boolean value telling you whether a result has been found or not. This is especially useful because you can call `search_next` multiple times (for example, in a `while` loop) to iterate over all the results based on the arguments provided by the search query. 
+The function takes two parameters: A reference to the search cursor and a reference to the result. It returns a single boolean value telling you whether a result has been found or not. This is especially useful because you can call `search_next` multiple times (for example, in a `while` loop) to iterate over all the results based on the arguments provided by the search query. When you are done searching, do not forget to call `search_end` to free the memory.
 
 
 The populated result contains the following pieces of information:
@@ -374,8 +375,8 @@ The populated result contains the following pieces of information:
 uint32_t id = result.id;                 // The exact QID/PID of the matched item.
 const char* title = result.title;        // A temporary text buffer containing the article title.
 const char* term = result.term;          // A temporary text buffer containing the exact matched term, coordinate, or date.
-uint32_t tags = result.tags;        // The tags assigned to this specific item.
-uint32_t type = result.article_type;  // The type of payload available to fetch (Same as the one provided in the search query).
+uint32_t tags = result.tags;             // The tags assigned to this specific item.
+uint32_t type = result.article_type;     // The type of payload available to fetch (Same as the one provided in the search query).
 uint64_t offset = result.data_offset;    // The byte position in the database file where this article's data starts.
 uint32_t length = result.data_length;    // The size of the compressed article (or metadata) data in bytes.
 ```
@@ -387,7 +388,41 @@ If you specified `SEARCH_TYPE_PID` in your query, the fields in the result must 
 - `result.data_offset`, `result.data_length`, `result.tags`,  are **not populated** and should be ignored.
 
 ### Step 4: Streaming Article Data and Metadata
+Since individual articles can be too large to fit into RAM, it is often preferred to stream only parts of an article into RAM at once. To initiate an article stream you can use the following function:
+```cpp
+// Initialize data stream and check if the result is valid
+DataStream* stream = data_stream_begin(ctx, result->data_offset, result->data_length);
+if (stream == nullptr) {
+    printf("Failed to open stream.\n");
+    break;
+}
+```
+The `data_stream_begin` function takes three arguments: The database context, the data offset which specifies the start of the data we want to read and the data length which specifies, how much data we want to read with the initiated stream. Note, that the data length does not specify the amount of data that is loaded into RAM but is used internally, when the end of the data is reached to prevent accidental reads beyond the end of an article. The function returns a pointer to an internally used `DataStream` struct. Make sure the function does not return a `nullptr` as this indicates that the initialization failed. This happens for example when trying to access invalid memory. You can now read the actual data into a buffer using the `data_stream_read` function:
+```cpp
+// Create a buffer of chars with a fixed size
+// and a variable to keep track of the bytes read
+char buffer[1024 + 1];
+uint32_t bytes_read = 0;
 
-### Step 5: Freeing API Ressources
+// Read the data into the buffer and update bytes_read
+bool end_reached = data_stream_read(stream, &buffer, 1024, &bytes_read)
+
+// Null terminate the string for printing
+buffer[bytes_read] = '\0';
+
+// Print the read data
+Serial.println(buffer);
+
+// Do not forget to close the stream
+data_stream_end(stream);
+```
+
+The `data_stream_read` function takes three arguments: The data stream, a pointer to a buffer of chars the actual data should be streamed into, the number of bytes to read and a pointer to an unsigned 32 bit integer that will contain the actual number of bytes read. Usually this will just be the specified amount of bytes to read, unless you have reached the end of the stream and there are only a few bytes left to read. The reason we are making the buffer one byte larger than the number of bytes were are reading is that strings in C are null-terminated but the `data_stream_read` function does only return the bytes it finds in the database which usually do not end in a null character. Therefore, we manually have to add `'\0'` after the last valid read byte. This way we can just print the string as usual.  Do not forget to close the stream using the `data_stream_end` function.
+
+### Step 5: Freeing API Resources
+At the end of your program or when you are done querying the database you have to free its resources. You can do this using the `db_end` function:
+```cpp
+db_end(ctx);
+```
 
 ## Defining your own database Platforms
