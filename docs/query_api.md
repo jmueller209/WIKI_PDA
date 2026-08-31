@@ -335,7 +335,7 @@ memset(query, 0, sizeof(SearchQuery));
 // Search the omni search index
 query.type = SEARCH_TYPE_OMNI;
 // Search term "uni"
-query.omni.text = "uni";
+query.target.omni.text = "uni";
 // Search for articles written in first language in mapping
 query.article_type = 1;
 ```
@@ -364,6 +364,7 @@ To populate the result, use the `search_next` function:
 bool success = search_next(cursor, &result);
 if (success == false) {
     Serial.println("End of results reached");
+    return;
 }
 search_end(cursor);
 ```
@@ -391,10 +392,10 @@ If you specified `SEARCH_TYPE_PID` in your query, the fields in the result must 
 Since individual articles can be too large to fit into RAM, it is often preferred to stream only parts of an article into RAM at once. To initiate an article stream you can use the following function:
 ```cpp
 // Initialize data stream and check if the result is valid
-DataStream* stream = data_stream_begin(ctx, result->data_offset, result->data_length);
+DataStream* stream = data_stream_begin(ctx, result.data_offset, result.data_length);
 if (stream == nullptr) {
     printf("Failed to open stream.\n");
-    break;
+    return;
 }
 ```
 The `data_stream_begin` function takes three arguments: The database context, the data offset which specifies the start of the data we want to read and the data length which specifies, how much data we want to read with the initiated stream. Note, that the data length does not specify the amount of data that is loaded into RAM but is used internally, when the end of the data is reached to prevent accidental reads beyond the end of an article. The function returns a pointer to an internally used `DataStream` struct. Make sure the function does not return a `nullptr` as this indicates that the initialization failed. This happens for example when trying to access invalid memory. You can now read the actual data into a buffer using the `data_stream_read` function:
@@ -405,7 +406,7 @@ char buffer[1024 + 1];
 uint32_t bytes_read = 0;
 
 // Read the data into the buffer and update bytes_read
-bool end_reached = data_stream_read(stream, &buffer, 1024, &bytes_read)
+bool end_reached = data_stream_read(stream, buffer, 1024, &bytes_read);
 
 // Null terminate the string for printing
 buffer[bytes_read] = '\0';
@@ -422,7 +423,13 @@ The `data_stream_read` function takes three arguments: The data stream, a pointe
 ### Step 5: Freeing API Resources
 At the end of your program or when you are done querying the database you have to free its resources. You can do this using the `db_end` function:
 ```cpp
+// free the database context
 db_end(ctx);
+
+// hold program indefinitely
+while(true) {
+    delay(1000);
+}
 ```
 
 ## Defining your own database Platforms
