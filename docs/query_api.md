@@ -368,15 +368,16 @@ if (success == false) {
 ```
 The function takes two parameters: A reference to the search cursor and a reference to the result. It returns a single boolean value telling you whether a result has been found or not. This is especially useful because you can call `search_next` multiple times (for example, in a `while` loop) to iterate over all the results based on the arguments provided by the search query. 
 
+
 The populated result contains the following pieces of information:
 ```cpp
-result.id;           // The exact Wikidata ID of the matched item.
-result.title;        // A temporary text buffer containing the article title.
-result.term;         // A temporary text buffer containing the exact matched term, coordinate, or date.
-result.tags;         // The tags assigned to this specific item.
-result.article_type; // The type of payload available to fetch (Same as the one provided in the search query)
-result.data_offset;  // The byte position in the database file where this article's data starts.
-result.data_length;  // The size of the compressed article (or metadata) data in bytes.
+uint32_t id = result.id;                 // The exact QID/PID of the matched item.
+const char* title = result.title;        // A temporary text buffer containing the article title.
+const char* term = result.term;          // A temporary text buffer containing the exact matched term, coordinate, or date.
+uint32_t tags = result.tags;        // The tags assigned to this specific item.
+uint32_t type = result.article_type;  // The type of payload available to fetch (Same as the one provided in the search query).
+uint64_t offset = result.data_offset;    // The byte position in the database file where this article's data starts.
+uint32_t length = result.data_length;    // The size of the compressed article (or metadata) data in bytes.
 ```
 
 **Important Note for PID Searches:**
