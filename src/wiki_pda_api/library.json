@@ -13,7 +13,7 @@
     "flags": [
       "-Iinclude",
       "-Ilib/zstd/src",
-      "-DZSTD_DISABLE_ASM"
+      "-DZSTD_DISABLE_ASM",
       "-Ilib/spatial_z/include",
       "-Ilib/tempus/include"
     ],
