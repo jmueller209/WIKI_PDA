@@ -1,17 +1,28 @@
 {
   "name": "wiki_pda_api",
   "version": "1.0.0",
+  "description": "Offline Wikipedia database engine with ZSTD streaming for memory-constrained devices.",
+  "keywords": ["wikipedia", "database", "wiki_pda"],
+  "platforms": ["espressif32", "teensy", "native"],
+  "frameworks": ["arduino"],
+  "dependencies": {
+    "greiman/SdFat": "^2.2.2"
+  },
   "build": {
     "srcDir": ".",
     "flags": [
       "-Iinclude",
       "-Ilib/zstd/src",
       "-DZSTD_DISABLE_ASM"
+      "-Ilib/spatial_z/include",
+      "-Ilib/tempus/include"
     ],
     "srcFilter": [
       "+<src/>",
       "+<lib/zstd/src/common/>",
-      "+<lib/zstd/src/decompress/>"
+      "+<lib/zstd/src/decompress/>",
+      "+<lib/spatial_z/src/>",
+      "+<lib/tempus/src/>"
     ]
   }
 }
