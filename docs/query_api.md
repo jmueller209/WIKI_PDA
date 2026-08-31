@@ -332,7 +332,7 @@ query.exclude_tags = 0;
 // Specify the article type to search for (metadata or an article in a specific language)..
 query.article_type = 0;
 ```
-Note that all of the tags are of type `uint32_t` which represents a tag mask according to the tags you have specified in the `config.toml` file of your database generator. Setting the `article_type` to 0 will always search for metadata; integers greater than zero refer to the actual text in a given language. To check which integer refers to which language, take a look at the `tmp/wiki_lang_mapping.txt` created by the database generator.
+Note that all of the tags are of type `uint32_t` which represents a tag mask according to the tags you have specified in the [config_file](../config/config.toml) of your database generator. Setting the `article_type` to 0 will always search for metadata; integers greater than zero refer to the actual text in a given language. To check which integer refers to which language, take a look at the `tmp/wiki_lang_mapping.txt` created by the database generator.
 Here is another example of how to create a very simple search query:
 ```cpp
 // Create the query.
