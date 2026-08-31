@@ -212,16 +212,17 @@ void setup() {
     }
 }
 ```
-There are a few additional things to note here: The `platform_esp32` and `platform_teensy` functions are provided by the API. If you want to use the API on another platform, you will have to write the platform-specific code yourself (see '[Defining your own database platforms](Defining your own database Platforms)'). Moreover, you might want to take a closer look at the `db_init` function. The first parameter specifies the indexes you want to load into RAM. The following indexes are available:
+There are a few additional things to note here: The `platform_esp32` and `platform_teensy` functions are provided by the API. If you want to use the API on another platform, you will have to write the platform-specific code yourself for now or open a new issue. Moreover, you might want to take a closer look at the `db_init` function. The first parameter specifies the indexes you want to load into RAM. The following indexes are available:
 - `INDEX_OMNI`
 - `INDEX_ASTRONOMICAL`
 - `INDEX_TEMPORAL`
 - `INDEX_GLOBE_COORDINATE`
+
 The second parameter is the platform defined above. You can load more than one index at a time by chaining multiple indexes together using the pipe `|` symbol, e.g.:
 ```cpp
 ctx = db_init(INDEX_OMNI | INDEX_TEMPORAL | INDEX_ASTRONOMICAL, platform);
 ```
-If you want to use multiple indexes in your program and you have enough RAM available you can always initialize all the indexes you need at the beginning. If you are really constrained in terms of RAM, you can always use only one index at a time, free the context once you are done using it and create a new context with another Index later. For freeing resources, see '[Freeing API resources](Freeing API Resources)'.
+If you want to use multiple indexes in your program and you have enough RAM available you can always initialize all the indexes you need at the beginning. If you are really constrained in terms of RAM, you can always use only one index at a time, free the context once you are done using it and create a new context with another Index later. For freeing resources, see '[Freeing API resources](#step-5-freeing-api-resources)'.
 The `db_init` function returns a pointer to the internally used `DatabaseContext` struct. For safety, I highly recommend checking that the returned pointer is not a `nullptr` to ensure that the initialization was successful.
 
 ### Step 2: Creating a Query
@@ -365,14 +366,14 @@ The `search_begin` function takes two parameters: the database context and a poi
 ```cpp
 SearchResult result;
 ```
-To populate the result, use the `search_next` function. You can call it repeatedly to iterate over all results:
+To populate the result, use the `search_next` function:
 ```cpp
-// Iterate over all search results.
-while (search_next(cursor, &result)) {
-    // Process the result here.
+// perform the search and check if results have been found
+bool success = search_next(cursor, &result);
+if (success == false) {
+    Serial.println("End of results reached");
+    return;
 }
-
-// Close the search cursor.
 search_end(cursor);
 ```
 The function takes two parameters: a pointer to the search cursor and a pointer to the result. It returns a single boolean value indicating whether a result has been found. This is especially useful because you can call `search_next` multiple times (for example, in a `while` loop) to iterate over all the results based on the arguments provided by the search query. When you are done searching, do not forget to call `search_end` to free the memory.
