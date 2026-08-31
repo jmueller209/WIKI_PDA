@@ -7,7 +7,7 @@
 #define SD_SECTOR_SIZE 512
 
 #define DB_MAGIC_STRING ""
-#define DB_MAGIC_LENGTH 0  
+#define DB_MAGIC_LENGTH 0
 
 typedef struct {
     SdCard* card;
@@ -66,7 +66,10 @@ static bool teensy_sd_read(uint64_t offset, uint8_t* buf, uint32_t len, void* us
     return true;
 }
 
-DatabasePlatform platform_teensy(SdCard* card) {
+DatabasePlatform platform_teensy(void* file_handle) {
+    // 1. Cast den Opaque Pointer sicher in deinen C++ SdCard* um
+    SdCard* card = (SdCard*)file_handle;
+
     DatabasePlatform platform = {0};
     if (!card) return platform;
 
