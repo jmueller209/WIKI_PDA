@@ -234,7 +234,9 @@ Insert your storage device into your computer and run:
 ```bash
 make flash
 ```
-This requires `sudo` priviliges. Why? To achieve maximum read speeds on microcontrollers with limited RAM, the database is not simply copied as a normal file. Instead, the flasher performs low-level hardware modifications:
+The flashing tool will ask you to provide a database path. If you generated your own database, you can just use the default path. If you skipped the generation step, you will have to provide the path to the database file yourself. For testing you can just use `test_databases/data_base.bin`.
+
+The tool requires `sudo` priviliges. Why? To achieve maximum read speeds on microcontrollers with limited RAM, the database is not simply copied as a normal file. Instead, the flasher performs low-level hardware modifications:
 1. It unmounts the drive and completely rewrites the partition table (via `parted`).
 2. It creates a visible FAT32 partition (for general files) and a hidden RAW partition.
 3. It writes the database byte-by-byte directly to the raw block device (bypassing the filesystem entirely).
