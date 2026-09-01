@@ -7,16 +7,6 @@ use std::path::{Path, PathBuf};
 use crate::utils::constants;
 use crate::utils::settings::Settings;
 
-const SD_CARD_SECTOR_SIZE: u64 = 512;
-const HEADER_SIZE_BYTES: u64 = 4096;
-
-// If you change this, you need to change
-// MAX_SPARSE_LEVELS in 'wiki_pda_api/src/common/common.h'
-// as well.
-const MAX_SPARSE_LEVELS: usize = 10;
-
-const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = true;
-
 pub struct FileToMerge {
     pub key_name: String,
     pub path: PathBuf,

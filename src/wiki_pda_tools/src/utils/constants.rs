@@ -1,3 +1,12 @@
+// If you change this, you need to change
+// MAX_SPARSE_LEVELS in 'wiki_pda_api/src/common/common.h'
+// as well.
+pub const SD_CARD_SECTOR_SIZE: u64 = 512;
+pub const HEADER_SIZE_BYTES: u64 = 4096;
+pub const MAX_SPARSE_LEVELS: usize = 10;
+pub const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = true;
+
+// Files
 // Temporary files
 pub const OMNI_SEARCH_TXT: &str = "omni_search.txt";
 pub const PROPERTIES_SEARCH_TXT: &str = "properties_search.txt";
@@ -21,7 +30,6 @@ pub const PID_HASHMAP_BIN: &str = "pid_hashmap.bin";
 pub const PID_INDEX_BIN: &str = "pid_index.bin";
 pub const PID_STRINGS_BIN: &str = "pid_strings.bin";
 pub const META_DATA_BIN: &str = "meta_data.bin";
-// pub const WIKI_LANG_MAPPING_BIN: &str = "wiki_lang_mapping.bin";
 pub const OMNI_SEARCH_BIN: &str = "omni_search.bin";
 pub const TEMPORAL_SEARCH_BIN: &str = "temporal_search.bin";
 pub const ASTRONOMICAL_SEARCH_BIN: &str = "astronomical_search.bin";
@@ -42,6 +50,3 @@ pub const ZIM_PROCESSING_LOG: &str = "zim_proccesing.log";
 pub const MAKE_METADATA_BINARY_LOG: &str = "create_metadata_binary.log";
 pub const MAKE_QID_BINARY_INDEX_LOG: &str = "create_qid_binary_index.log";
 pub const MAKE_PID_BINARY_INDEX_LOG: &str = "create_pid_binary_index.log";
-// pub const BINARIES_LOG: &str = "create_binaries.log";
-
-// Names
