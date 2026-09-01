@@ -20,8 +20,8 @@ struct IndexHeader {
     term_size: u32,
     row_size: u32,
     chunk_size: u32,
-    level_offsets: [u64; MAX_SPARSE_LEVELS],
-    level_sizes: [u64; MAX_SPARSE_LEVELS],
+    level_offsets: [u64; constants::MAX_SPARSE_LEVELS],
+    level_sizes: [u64; constants::MAX_SPARSE_LEVELS],
 }
 
 impl IndexHeader {
@@ -128,7 +128,7 @@ pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
         info_json_path
     );
 
-    if DELETE_SOURCE_BINARIES_AFTER_MERGE {
+    if constants::DELETE_SOURCE_BINARIES_AFTER_MERGE {
         println!("Deleting source binaries as configured...");
         for file in &files_to_merge {
             if file.path.exists() {
@@ -150,10 +150,10 @@ fn merge_files(
     let mut writer = BufWriter::new(output_file);
     let mut file_info_map = HashMap::new();
 
-    let mut current_offset: u64 = HEADER_SIZE_BYTES;
+    let mut current_offset: u64 = constants::HEADER_SIZE_BYTES;
     let total_bytes = calculate_total_bytes(files_to_merge)?;
 
-    let dummy_header = vec![0u8; HEADER_SIZE_BYTES as usize];
+    let dummy_header = vec![0u8; constants::HEADER_SIZE_BYTES as usize];
     writer.write_all(&dummy_header).map_err(|e| e.to_string())?;
 
     let pb = indicatif::ProgressBar::new(total_bytes);
@@ -184,8 +184,9 @@ fn merge_files(
             pb.inc(n as u64);
         }
 
-        let padding_needed =
-            (SD_CARD_SECTOR_SIZE - (actual_size % SD_CARD_SECTOR_SIZE)) % SD_CARD_SECTOR_SIZE;
+        let padding_needed = (constants::SD_CARD_SECTOR_SIZE
+            - (actual_size % constants::SD_CARD_SECTOR_SIZE))
+            % constants::SD_CARD_SECTOR_SIZE;
         if padding_needed > 0 {
             let padding = vec![0u8; padding_needed as usize];
             writer.write_all(&padding).map_err(|e| e.to_string())?;
@@ -201,10 +202,10 @@ fn merge_files(
     let mut header_bytes = header.to_bytes();
 
     assert!(
-        header_bytes.len() <= HEADER_SIZE_BYTES as usize,
+        header_bytes.len() <= constants::HEADER_SIZE_BYTES as usize,
         "Header is larger than 4096 bytes!"
     );
-    header_bytes.resize(HEADER_SIZE_BYTES as usize, 0);
+    header_bytes.resize(constants::HEADER_SIZE_BYTES as usize, 0);
 
     writer.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
     writer.write_all(&header_bytes).map_err(|e| e.to_string())?;
@@ -262,8 +263,8 @@ fn build_index_header(
         0
     };
 
-    let mut level_offsets = [0u64; MAX_SPARSE_LEVELS];
-    let mut level_sizes = [0u64; MAX_SPARSE_LEVELS];
+    let mut level_offsets = [0u64; constants::MAX_SPARSE_LEVELS];
+    let mut level_sizes = [0u64; constants::MAX_SPARSE_LEVELS];
 
     for i in 0..=num_sparse_levels {
         if let Some(&(off, size)) = file_info.get(&format!("{}_level_{}", index_name, i)) {
