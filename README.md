@@ -179,6 +179,8 @@ Generating the database is quite computationally expensive as we have to parse v
 2. Decompressing, parsing, and processing the Metadata Archive (In its uncompressed form, the Metadata Archive is a ~1TB JSON file).
 3. Decompressing, parsing, processing, and recompressing Data archives (For each Wikipedia article, wiki book, etc., we need to decompress its data in the dump file which contains raw HTML, process the data by removing HTML tags, compress the processed data, and save it).
 
+**If you do not have the time to download the 150GB Wikidata dump, you can jump straight to [Section 4](#4-test-the-database)**
+
 Before you get started make sure you have enough free space on your disk (A few hundred gigabytes). If you have multiple drives, this directory or at least the relevant configurable paths in the config should be located on the fastest disk that has enough space available since reading from and writing to disk can be a bottleneck during some steps of the generation phase. For testing (which I highly recommend given the current state of the project), run the following command from the root of this repository:
 ```bash
 make test-pipeline
@@ -261,6 +263,10 @@ If you prefer to flash manually using `dd`, **do not write the database to the r
    sudo dd if=data_base.bin of=/dev/sdb2 bs=4M status=progress conv=fsync
    ```
    *(Note: Replace `/dev/sdb2` with your actual partition path. The `conv=fsync` flag is required for block alignment).*
+
+
+### 6. Use the Database in your own program
+You can find a step-by-step guide on how to use the WIKI_PDA query API [here](docs/query_api.md)
 
 ## Contribution
 Any contributions, thoughts, and suggestions are very welcome. Because I just created this project, my documentation currently focuses mainly on how to get started quickly and how to use the query API. I don't have a lot of the deeper, under-the-hood documentation written yet that makes contributing easy, but I will be adding that step by step in the future. If you would still like to contribute to a specific part of the project right now, please open an issue! This way, I can either answer your questions directly or prioritize writing the documentation for that specific area to help you get started easier.
