@@ -267,13 +267,55 @@ int execute_and_display_search(DatabaseContext* ctx, SearchQuery* query, SearchR
     return match_count;
 }
 
+void get_bin_dir_from_config(char* dest, size_t max_len) {
+    strncpy(dest, "./bin", max_len);
+
+    FILE* fp = fopen("config/config.toml", "r");
+    if (!fp) return;
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, "bin_dir") != NULL) {
+            char* start_quote = strchr(line, '"');
+            if (start_quote) {
+                start_quote++;
+                char* end_quote = strchr(start_quote, '"');
+                if (end_quote) {
+                    size_t len = end_quote - start_quote;
+                    if (len < max_len) {
+                        strncpy(dest, start_quote, len);
+                        dest[len] = '\0';
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    fclose(fp);
+}
+
 int main(int argc, char** argv) {
     printf("--- ESP32 Memory-Constrained Simulation ---\n");
 
-    FILE* db_file = fopen("bin/data_base.bin", "rb");
+    char bin_dir[256];
+    get_bin_dir_from_config(bin_dir, sizeof(bin_dir));
+
+    char primary_db_path[512];
+    snprintf(primary_db_path, sizeof(primary_db_path), "%s/data_base.bin", bin_dir);
+
+    FILE* db_file = fopen(primary_db_path, "rb");
+
     if (!db_file) {
-        printf("ERROR: Could not open bin/data_base.bin\n");
-        return 1;
+        printf("WARNING: Could not open %s\n", primary_db_path);
+        printf("Falling back to test_databases/data_base.bin...\n");
+
+        db_file = fopen("test_databases/data_base.bin", "rb");
+        if (!db_file) {
+            printf("ERROR: Could not open fallback database either. Exiting.\n");
+            return 1;
+        }
+    } else {
+        printf("Successfully loaded database from: %s\n", primary_db_path);
     }
 
     DatabasePlatform pc_platform = platform_desktop(db_file);
