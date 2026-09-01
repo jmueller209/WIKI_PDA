@@ -75,7 +75,7 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
             name: "Omni Search",
             json_key: "omni_search",
             is_enabled: true, // Omni is always generated
-            term_encoding_bytes: settings.performance.omni_search_index_term_encoding_bytes,
+            term_encoding_bytes: constants::OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES,
             txt_path: tmp_dir.join(constants::OMNI_SEARCH_TXT),
             bin_path: bin_dir.join(constants::OMNI_SEARCH_BIN),
             tags: &settings.database_content.omni_search_index_tags,
@@ -91,7 +91,7 @@ pub fn make_binary_search_indexes(settings: &Settings) -> Result<(), String> {
             txt_path: tmp_dir.join(constants::TEMPORAL_SEARCH_TXT),
             bin_path: bin_dir.join(constants::TEMPORAL_SEARCH_BIN),
             tags: &settings.database_content.temporal_search_index_tags,
-            ram_limit_kb: settings.performance.temporal_serach_index_ram_limit_kb,
+            ram_limit_kb: settings.performance.temporal_search_index_ram_limit_kb,
             chunk_size_bytes: settings.performance.temporal_search_chunk_size_bytes,
             sparse_index_template: constants::TEMPORAL_SEARCH_SPARSE_INDEX_TEMPLATE_BIN,
         },

@@ -3,11 +3,7 @@
 #include <stdint.h>
 #include "SdFat.h"
 #include "../../include/wiki_pda_platforms.h"
-
-#define SD_SECTOR_SIZE 512
-
-#define DB_MAGIC_STRING ""
-#define DB_MAGIC_LENGTH 0
+#include "../common/common.h"
 
 typedef struct {
     SdCard* card;

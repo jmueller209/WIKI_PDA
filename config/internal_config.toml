@@ -1,0 +1,33 @@
+# This is the internal configuration of the repository. Do not change this
+# unless you know what you are doing, as changes here can result in incompatibilities
+# between the generator and the query API.
+[database_content]
+# Specify which tags should be included in the indexes.
+# Tags specify if a concept is an instance of something, e.g., human.
+# Here is a list of the most important "is-an-instance-of" categories:
+# - Q5: Human
+# - Q515: City
+# - Q511: Capital city 
+# - Q625: Country 
+# - Q11424: Film / Motion Picture
+# - Q7725634: Literary Work / Book
+#
+# - has_wikipedia_article
+omni_search_index_tags              = ["has_wikipedia_article","Q5", "Q515", "Q511", "Q625", "Q11424", "Q7725634"]
+globe_coordinate_search_index_tags  = ["has_wikipedia_article", "Q515", "Q511"]
+temporal_search_index_tags          = ["has_wikipedia_article", "Q5"]
+astronomical_search_index_tags      = ["has_wikipedia_article", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
+
+# Specify whether the omni search index should be case sensitive or not.
+# Setting this to false will save a little bit of space as some duplicates can be removed.
+# Since many simple search algorithms are case insensitive, you will probably want to set this to false.
+omni_search_index_case_sensitive = false
+
+[paths]
+user_settings_path = "config/user_settings.toml"
+
+[other]
+# Text Delimiter used in temporary text files. Make sure to use a character that is not used 
+# in any of the data.
+# We need to use double quotes here, otherwise '\' and 't' are read as two individual characters.
+text_delimiter = "\t"

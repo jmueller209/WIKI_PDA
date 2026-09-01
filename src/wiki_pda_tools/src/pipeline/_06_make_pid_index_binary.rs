@@ -1,7 +1,6 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::fs::File;
-// use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
@@ -67,27 +66,13 @@ pub fn make_pid_index_binary(settings: &Settings) -> Result<(), String> {
     let pid_index_bin_path = bin_dir.join(constants::PID_INDEX_BIN);
     let pid_strings_bin_path = bin_dir.join(constants::PID_STRINGS_BIN);
 
-    let wiki_lang_mapping_txt_path = tmp_dir.join(constants::WIKI_LANG_MAPPING_TXT);
-
     let mut lang_dict: HashMap<String, u16> = HashMap::new();
-    let mapping_file = File::open(&wiki_lang_mapping_txt_path).map_err(|e| {
-        format!(
-            "Could not open wiki_lang_mapping.txt. Did you run the QID script first? Error: {}",
-            e
-        )
-    })?;
-
-    for line_result in BufReader::new(mapping_file).lines() {
-        let line = line_result.unwrap();
-        let parts: Vec<&str> = line.split('\t').collect();
-        if parts.len() == 2 {
-            let lang = parts[0].to_string();
-            let id: u16 = parts[1].parse().unwrap();
-            lang_dict.insert(lang, id);
-        }
+    for lang in &settings.database_content.language_to_include {
+        lang_dict.insert(lang.as_str().to_string(), *lang as u16);
     }
+
     println!(
-        "Loaded {} existing language mappings for PIDs.",
+        "Loaded {} language mappings for PIDs from settings.",
         lang_dict.len()
     );
 

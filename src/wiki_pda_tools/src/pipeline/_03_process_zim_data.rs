@@ -231,13 +231,12 @@ pub fn process_directories(
     }
 
     let program_start_time = Instant::now();
-    let language_conf_path = &settings.paths.language_config_path;
 
-    let languages_to_include: HashSet<String> = fs::read_to_string(language_conf_path)
-        .expect("Failed to read language config")
-        .lines()
-        .map(|l| l.trim().to_string())
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+    let languages_to_include: HashSet<String> = settings
+        .database_content
+        .language_to_include
+        .iter()
+        .map(|lang| lang.as_str().to_string())
         .collect();
 
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);

@@ -35,7 +35,6 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
     let qid_index_bin_path = bin_dir.join(constants::QID_INDEX_BIN);
     let qid_hashmap_bin_path = bin_dir.join(constants::QID_HASHMAP_BIN);
     let titles_bin_path = bin_dir.join(constants::TITLES_BIN);
-    let wiki_lang_mapping_txt_path = tmp_dir.join(constants::WIKI_LANG_MAPPING_TXT);
 
     let input_file = File::open(&qid_index_txt_path)
         .map_err(|e| format!("Could not open QID index txt: {}", e))?;
@@ -54,7 +53,9 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
     let mut current_title_offset: u32 = 1;
 
     let mut language_dict: HashMap<String, u16> = HashMap::new();
-    let mut next_language_id: u16 = 1;
+    for lang in &settings.database_content.language_to_include {
+        language_dict.insert(lang.as_str().to_string(), *lang as u16);
+    }
 
     let mut expected_qid: u32 = 1;
     let mut current_binary_row: u32 = 0;
@@ -111,13 +112,12 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
         let lang_id = if language_str == "metadata" {
             0
         } else {
-            *language_dict
-                .entry(language_str.to_string())
-                .or_insert_with(|| {
-                    let id = next_language_id;
-                    next_language_id += 1;
-                    id
-                })
+            *language_dict.get(language_str).unwrap_or_else(|| {
+                panic!(
+                    "CRITICAL: Found unmapped language '{}' in index file!",
+                    language_str
+                )
+            })
         };
 
         let mut row_title_offset: u32 = 0;
@@ -152,13 +152,6 @@ pub fn make_qid_index_binary(settings: &Settings) -> Result<(), String> {
 
     pb.finish_and_clear();
     println!("Successfully built QID binary indexes!");
-
-    let mut dict_writer = BufWriter::new(File::create(wiki_lang_mapping_txt_path).unwrap());
-    let mut sorted_languages: Vec<(String, u16)> = language_dict.into_iter().collect();
-    sorted_languages.sort_by_key(|&(_, id)| id);
-    for (lang, id) in sorted_languages {
-        writeln!(dict_writer, "{}\t{}", lang, id).unwrap();
-    }
 
     let summary_string = "Summary not available.";
     logs::write_summary_to_log(

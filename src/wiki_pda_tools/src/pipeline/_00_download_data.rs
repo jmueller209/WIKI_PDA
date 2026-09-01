@@ -11,6 +11,7 @@ use std::path::Path;
 use crate::utils::checkpoints;
 use crate::utils::constants;
 use crate::utils::logs;
+use crate::utils::settings;
 use crate::utils::settings::Settings;
 
 struct DownloadMetrics {
@@ -57,15 +58,7 @@ pub fn download_data(settings: &Settings) -> Result<(), String> {
 
     let data_dir_path = &settings.paths.data_dir;
 
-    let languages_config_path = &settings.paths.language_config_path;
-    let languages = fs::read_to_string(languages_config_path)
-        .map_err(|e| format!("Failed to read the language config: {e}"))?;
-
-    let languages_vec: Vec<String> = languages
-        .lines()
-        .map(|line| line.trim().to_string())
-        .filter(|line| !line.is_empty())
-        .collect();
+    let languages_vec = settings.database_content.language_to_include.clone();
 
     let client = reqwest::blocking::Client::builder()
         .user_agent("Offline Wikipedia Database")
@@ -119,7 +112,7 @@ fn download_wikidata_dump(
 fn download_wikis_from_base_url(
     base_url: &str,
     match_pattern: &str,
-    languages: &Vec<String>,
+    languages: &Vec<settings::Language>,
     client: &reqwest::blocking::Client,
     download_dir: &str,
 ) -> Result<DownloadMetrics, String> {
@@ -137,7 +130,7 @@ fn download_wikis_from_base_url(
     let mut failed_retrievals: Vec<String> = Vec::new();
 
     for lang in languages {
-        let pattern_string = match_pattern.replace("{lang}", lang);
+        let pattern_string = match_pattern.replace("{lang}", lang.as_str());
 
         let re =
             Regex::new(&pattern_string).map_err(|e| format!("Invalid regex pattern: {}", e))?;

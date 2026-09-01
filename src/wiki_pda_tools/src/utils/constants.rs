@@ -1,10 +1,11 @@
-// If you change this, you need to change
-// MAX_SPARSE_LEVELS in 'wiki_pda_api/src/common/common.h'
-// as well.
-pub const SD_CARD_SECTOR_SIZE: u64 = 512;
-pub const HEADER_SIZE_BYTES: u64 = 4096;
-pub const MAX_SPARSE_LEVELS: usize = 10;
-pub const DELETE_SOURCE_BINARIES_AFTER_MERGE: bool = true;
+pub const VERSION: &str = "0.1.0";
+
+// Changing this will break everything as this needs to match the API
+pub const MAX_SPARSE_LEVELS: usize = 15;
+pub const SD_CARD_SECTOR_SIZE_BYTES: u64 = 512;
+pub const HEADER_SIZE_BYTES: usize = 4096;
+pub const OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES: usize = 24; //needs to be a power of 2 minus 8
+pub const MAGIC: &str = "WPDA";
 
 // Files
 // Temporary files
@@ -16,7 +17,6 @@ pub const META_DATA_TXT: &str = "meta_data.txt";
 pub const GLOBE_COORDINATE_SEARCH_TXT: &str = "globe_coordinate_search.txt";
 pub const ASTRONOMICAL_SEARCH_TXT: &str = "astronomical_search.txt";
 pub const TEMPORAL_SEARCH_TXT: &str = "temporal_search.txt";
-pub const WIKI_LANG_MAPPING_TXT: &str = "wiki_lang_mapping.txt";
 pub const INFO_JSON: &str = "info.json";
 
 // Binary files

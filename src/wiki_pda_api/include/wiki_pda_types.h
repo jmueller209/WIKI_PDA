@@ -205,6 +205,63 @@ typedef struct SearchCursor_t SearchCursor;
 /** @brief Opaque handle for reading compressed payload data chunks. */
 typedef struct DataStream_t DataStream;
 
+/**
+ * @brief Supported Wikipedia Projects/Languages
+ */
+typedef enum {
+    WPDA_METADATA = 0,      // Meta data
+    WPDA_LANG_EN = 1,       // English
+    WPDA_LANG_CEB = 2,      // Cebuano
+    WPDA_LANG_DE = 3,       // German
+    WPDA_LANG_SV = 4,       // Swedish
+    WPDA_LANG_FR = 5,       // French
+    WPDA_LANG_NL = 6,       // Dutch
+    WPDA_LANG_RU = 7,       // Russian
+    WPDA_LANG_ES = 8,       // Spanish
+    WPDA_LANG_IT = 9,       // Italian
+    WPDA_LANG_PL = 10,      // Polish
+    WPDA_LANG_JA = 11,      // Japanese
+    WPDA_LANG_ZH = 12,      // Chinese
+    WPDA_LANG_VI = 13,      // Vietnamese
+    WPDA_LANG_UK = 14,      // Ukrainian
+    WPDA_LANG_AR = 15,      // Arabic
+    WPDA_LANG_PT = 16,      // Portuguese
+    WPDA_LANG_FA = 17,      // Persian
+    WPDA_LANG_CA = 18,      // Catalan
+    WPDA_LANG_SR = 19,      // Serbian
+    WPDA_LANG_ID = 20,      // Indonesian
+    WPDA_LANG_KO = 21,      // Korean
+    WPDA_LANG_NO = 22,      // Norwegian
+    WPDA_LANG_FI = 23,      // Finnish
+    WPDA_LANG_TR = 24,      // Turkish
+    WPDA_LANG_HU = 25,      // Hungarian
+    WPDA_LANG_CS = 26,      // Czech
+    WPDA_LANG_RO = 27,      // Romanian
+    WPDA_LANG_EU = 28,      // Basque
+    WPDA_LANG_MS = 29,      // Malay
+    WPDA_LANG_EO = 30,      // Esperanto
+    WPDA_LANG_HE = 31,      // Hebrew
+    WPDA_LANG_DA = 32,      // Danish
+    WPDA_LANG_BG = 33,      // Bulgarian
+    WPDA_LANG_SK = 34,      // Slovak
+    WPDA_LANG_ET = 35,      // Estonian
+    WPDA_LANG_BE = 36,      // Belarusian
+    WPDA_LANG_SIMPLE = 37,  // Simple English
+    WPDA_LANG_EL = 38,      // Greek
+    WPDA_LANG_HR = 39,      // Croatian
+    WPDA_LANG_LT = 40,      // Lithuanian
+    WPDA_LANG_GL = 41,      // Galician
+    WPDA_LANG_SL = 42,      // Slovenian
+    WPDA_LANG_UR = 43,      // Urdu
+    WPDA_LANG_HI = 44,      // Hindi
+    WPDA_LANG_TH = 45,      // Thai
+    WPDA_LANG_BN = 46,      // Bengali
+    WPDA_LANG_TA = 47,      // Tamil
+    WPDA_LANG_TE = 48,      // Telugu
+    WPDA_LANG_SW = 49,      // Swahili
+    WPDA_LANG_LV = 50       // Latvian
+} WPDA_Project;
+
 #ifdef __cplusplus
 }
 #endif

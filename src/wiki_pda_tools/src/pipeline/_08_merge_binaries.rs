@@ -76,8 +76,28 @@ struct DatabaseHeader {
 impl DatabaseHeader {
     fn to_bytes(&self) -> Vec<u8> {
         let mut buf = Vec::new();
-        buf.extend_from_slice(b"WPDA");
-        buf.extend_from_slice(&1u32.to_le_bytes());
+
+        let magic_bytes = constants::MAGIC.as_bytes();
+        assert_eq!(
+            magic_bytes.len(),
+            4,
+            "CRITICAL: Magic string must be exactly 4 bytes!"
+        );
+        buf.extend_from_slice(magic_bytes);
+
+        let version_parts: Vec<u8> = constants::VERSION
+            .split('.')
+            .map(|s| s.parse::<u8>().unwrap_or(0))
+            .collect();
+
+        let major = *version_parts.get(0).unwrap_or(&0);
+        let minor = *version_parts.get(1).unwrap_or(&0);
+        let patch = *version_parts.get(2).unwrap_or(&0);
+
+        buf.push(major);
+        buf.push(minor);
+        buf.push(patch);
+        buf.push(0);
 
         buf.extend_from_slice(&self.offset_qid_hashmap.to_le_bytes());
         buf.extend_from_slice(&self.offset_qid_index.to_le_bytes());
@@ -89,6 +109,7 @@ impl DatabaseHeader {
         buf.extend_from_slice(&self.offset_metadata.to_le_bytes());
         buf.extend_from_slice(&self.offset_zstd_dictionary.to_le_bytes());
 
+        // 5. Write all the sizes
         buf.extend_from_slice(&self.size_qid_hashmap.to_le_bytes());
         buf.extend_from_slice(&self.size_qid_index.to_le_bytes());
         buf.extend_from_slice(&self.size_titles.to_le_bytes());
@@ -99,6 +120,7 @@ impl DatabaseHeader {
         buf.extend_from_slice(&self.size_metadata.to_le_bytes());
         buf.extend_from_slice(&self.size_zstd_dictionary.to_le_bytes());
 
+        // 6. Write the search index headers
         buf.extend_from_slice(&self.omni_search.to_bytes());
         buf.extend_from_slice(&self.temporal_search.to_bytes());
         buf.extend_from_slice(&self.astro_search.to_bytes());
@@ -107,7 +129,6 @@ impl DatabaseHeader {
         buf
     }
 }
-
 pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
     let tmp_dir = PathBuf::from(&settings.paths.tmp_dir);
     let bin_dir = PathBuf::from(&settings.paths.bin_dir);
@@ -128,7 +149,7 @@ pub fn merge_into_master_database(settings: &Settings) -> Result<(), String> {
         info_json_path
     );
 
-    if constants::DELETE_SOURCE_BINARIES_AFTER_MERGE {
+    if settings.other.delete_source_binaries_after_merge {
         println!("Deleting source binaries as configured...");
         for file in &files_to_merge {
             if file.path.exists() {
@@ -150,10 +171,10 @@ fn merge_files(
     let mut writer = BufWriter::new(output_file);
     let mut file_info_map = HashMap::new();
 
-    let mut current_offset: u64 = constants::HEADER_SIZE_BYTES;
+    let mut current_offset: u64 = constants::HEADER_SIZE_BYTES as u64;
     let total_bytes = calculate_total_bytes(files_to_merge)?;
 
-    let dummy_header = vec![0u8; constants::HEADER_SIZE_BYTES as usize];
+    let dummy_header = vec![0u8; constants::HEADER_SIZE_BYTES];
     writer.write_all(&dummy_header).map_err(|e| e.to_string())?;
 
     let pb = indicatif::ProgressBar::new(total_bytes);
@@ -184,9 +205,9 @@ fn merge_files(
             pb.inc(n as u64);
         }
 
-        let padding_needed = (constants::SD_CARD_SECTOR_SIZE
-            - (actual_size % constants::SD_CARD_SECTOR_SIZE))
-            % constants::SD_CARD_SECTOR_SIZE;
+        let padding_needed = (constants::SD_CARD_SECTOR_SIZE_BYTES
+            - (actual_size % constants::SD_CARD_SECTOR_SIZE_BYTES))
+            % constants::SD_CARD_SECTOR_SIZE_BYTES;
         if padding_needed > 0 {
             let padding = vec![0u8; padding_needed as usize];
             writer.write_all(&padding).map_err(|e| e.to_string())?;
@@ -202,10 +223,10 @@ fn merge_files(
     let mut header_bytes = header.to_bytes();
 
     assert!(
-        header_bytes.len() <= constants::HEADER_SIZE_BYTES as usize,
+        header_bytes.len() <= constants::HEADER_SIZE_BYTES,
         "Header is larger than 4096 bytes!"
     );
-    header_bytes.resize(constants::HEADER_SIZE_BYTES as usize, 0);
+    header_bytes.resize(constants::HEADER_SIZE_BYTES, 0);
 
     writer.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
     writer.write_all(&header_bytes).map_err(|e| e.to_string())?;

@@ -89,18 +89,11 @@ pub fn generate_zstd_dictionary(settings: &Settings) -> Result<(), String> {
         checkpoints::CheckpointState::DoesNotExist => (),
     }
 
-    let language_conf_path = &settings.paths.language_config_path;
-
-    let languages_to_include: HashSet<String> = fs::read_to_string(language_conf_path)
-        .map_err(|e| {
-            format!(
-                "Failed to read language config at {:?}: {}",
-                language_conf_path, e
-            )
-        })?
-        .lines()
-        .map(|l| l.trim().to_string())
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+    let languages_to_include: HashSet<String> = settings
+        .database_content
+        .language_to_include
+        .iter()
+        .map(|lang| lang.as_str().to_string())
         .collect();
 
     let data_dir = Path::new(&settings.paths.data_dir);

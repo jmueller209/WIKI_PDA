@@ -1,16 +1,17 @@
-# Here you can customize your database 
+# Here you can customize your database. Changing any of the settings below will maintain compatibility
+# with the Query API as long as the the versions are compatible.
 [database_content]
-
+language_to_include = ["en", "de", "es"]
 
 # All entries that have a wikipedia article in one of the configured languages will be
 # added automatically. If you want to add any concepts that do not have a wikipedia article,
-# you can do this by adding classes to the
-# following list. You might want to do this because those concepts might still have helpful
+# you can do this by adding classes to 'include_concepts_with_given_property_in_omni_search_index'.
+# You might want to do this because those concepts might still have helpful
 # metadata (e.g., the year of birth of a human that is not famous enough to have a Wikipedia
 # article but still has an entry in the database). If one of the filters applies, the concept
-# will be included. 
+# will be included.
 #
-# Here is a list of the most important properties you might want to include:
+# Here is a list of the most important classes you might want to include:
 #
 # People & Groups:
 # - Q5: Human
@@ -35,35 +36,15 @@
 # - Q4022: Musical work / Album / Song
 include_concepts_with_given_property_in_omni_search_index = [
     "Q5", "Q515", "Q511", "Q625", "Q3305213", "Q11424", "Q7725634", "Q486972"
-] 
-
-# Specify which tags should be included in the omni_search_index.
-# Tags specify if a concept is an instance of something, e.g., human.
-# Here is a list of the most important "is-an-instance-of" categories:
-# - Q5: Human
-# - Q515: City
-# - Q511: Capital city 
-# - Q625: Country 
-# - Q11424: Film / Motion Picture
-# - Q7725634: Literary Work / Book
-#
-# - has_wikipedia_article
-omni_search_index_tags = ["has_wikipedia_article","Q5", "Q515", "Q511", "Q625", "Q11424", "Q7725634"
 ]
-
-# Specify whether the omni search index should be case sensitive or not.
-# Setting this to false will save a little bit of space as some duplicates can be removed.
-# Since many simple search algorithms are case insensitive, you will probably want to set this to false.
-omni_search_index_case_sensitive = false
 
 # Set this to true if you want to create an additional search index to look up coordinates quickly.
 # All entries that have coordinate metadata will be included here. If you set
 # 'include_all_matches_in_globe_coordinate_search_index' to true, EVERYTHING that has coordinates
 # will be included. Otherwise, only the entries that have a Wikipedia article and
-# have coordinates will be included. You can again specify tags like before.
+# have coordinates will be included.
 create_globe_coordinate_search_index                 = true
 include_all_matches_in_globe_coordinate_search_index = true
-globe_coordinate_search_index_tags                   = ["has_wikipedia_article", "Q515", "Q511"]
 
 # Set this to true if you want to create an additional search index to look up temporal data quickly.
 # All entries that have temporal metadata will be included here. If you set
@@ -79,12 +60,10 @@ globe_coordinate_search_index_tags                   = ["has_wikipedia_article",
 # - P582 (End time): Used for the conclusion of events, historical periods, or roles.
 create_temporal_search_index                 = true
 include_all_matches_in_temporal_search_index = true
-temporal_search_index_tags                   = ["has_wikipedia_article", "Q5"]
 
 # Set this to true if you want to create an additional search index for astronomical objects.
 create_astronomical_search_index                 = true
 include_all_matches_in_astronomical_search_index = true
-astronomical_search_index_tags                   = ["has_wikipedia_article", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
 
 # Specify which astronomical objects to include in the astronomical search index.
 # Here is the core list of important astronomical QIDs:
@@ -115,7 +94,6 @@ property_datatypes_to_include_in_metadata = [
     "globe-coordinate", "geo-shape", "monolingualtext", "wikibase-property", "tabular-data"
 ]
 
-
 # Change these URLs if the source locations change in the future.
 [urls]
 wikidata_dump_url = "https://dumps.wikimedia.org/other/wikibase/wikidatawiki/latest-all.json.gz"
@@ -126,11 +104,9 @@ wikipedia_base_url = "https://ftp.fau.de/kiwix/zim/wikipedia/"
 [match_patterns]
 wikipedia_zim_file_match_pattern = 'wikipedia_{lang}_all_nopic_(\d{4}-\d{2})\.zim'
 
-
 # These are the local paths the database generator uses. Keeping the default ones should work.
 [paths]
 wikidata_dump_path   = "./data/wikidata/latest-all.json.gz"
-language_config_path = "./config/languages.config"
 data_dir             = "./data"
 bin_dir              = "./bin"
 log_dir              = "./logs"
@@ -138,72 +114,63 @@ tmp_dir              = "./tmp"
 checkpoint_dir       = "./checkpoints"
 example_articles_dir = "./example_articles"
 
-
-# Here you can specify some performance-related metrics for parsing the large data files. 
+# Here you can specify some performance-related metrics for parsing the large data files.
 # Adjust these values based on your system's capabilities and the size of the data you are processing.
 [performance]
 
-# Number of threads used for the database generation. For best performance, set this to the 
-# number of cores/threads your CPU has. This will not affect the performance of the database 
+# Number of threads used for the database generation. For best performance, set this to the
+# number of cores/threads your CPU has. This will not affect the performance of the database
 # itself, only the time it takes to generate it. 
 thread_count = 16
 
-# Size of the buffer in kilobytes for reading files from disk and writing to files during the 
-# database generation phase. This only affects the performance during the database generation 
+# Size of the buffer in kilobytes for reading files from disk and writing to files during the
+# database generation phase. This only affects the performance during the database generation
 # phase and not the performance of the database itself.
 read_buffer_size_kb  = 16384 
 write_buffer_size_kb = 32768
 
-# Maximum amount of RAM in megabytes that the database generator is allowed to use. 
+# Maximum amount of RAM in megabytes that the database generator is allowed to use.
 # This will not affect the RAM usage of the database itself, only the generation process.
 # ram_limit_mb = 8192
 # ram_limit_mb = 16384
 ram_limit_mb = 12000
 
-# Size of the Zstandard dictionary used for compression and decompression. A larger dictionary 
-# can improve compression rate but will use more RAM. If you plan to use this database on a 
-# microcontroller or another system with very limited RAM, make sure to set this to a value 
+# Size of the Zstandard dictionary used for compression and decompression. A larger dictionary
+# can improve compression rate but will use more RAM. If you plan to use this database on a
+# microcontroller or another system with very limited RAM, make sure to set this to a value
 # that is supported.
 zstd_dict_size_kb = 32 
 
-# Size of the sample data used to train the Zstandard dictionary. A larger sample size can 
-# improve compression rate but will also cause the training process to take longer. This will 
-# only affect the initial creation of the database and not the usage of it. 
+# Size of the sample data used to train the Zstandard dictionary. A larger sample size can
+# improve compression rate but will also cause the training process to take longer. This will
+# only affect the initial creation of the database and not the usage of it.
 zstd_dict_training_sample_size_mb = 5
 
-# The Zstandard compression level (1-22) used for compressing the articles. Values range 
-# from 1 (fastest generation, larger database) to 22 (slowest generation, smallest database). 
-# Levels above 19 are ultra-compression modes and will significantly increase generation time. 
+# The Zstandard compression level (1-22) used for compressing the articles. Values range
+# from 1 (fastest generation, larger database) to 22 (slowest generation, smallest database).
+# Levels above 19 are ultra-compression modes and will significantly increase generation time.
 # This does not affect decompression speed while using the database.
 zstd_compression_level = 3
 
-# The maximum sliding window size in kilobytes used by Zstandard during compression. 
-# As this is also used for decompression, make sure this fits in the RAM of the system 
+# The maximum sliding window size in kilobytes used by Zstandard during compression.
+# As this is also used for decompression, make sure this fits in the RAM of the system
 # you plan to use the database on. 
 zstd_window_size_kb = 32
 
-# Specify how many bytes should be used to encode the search term in the omni search index. 
-# If you use more bytes, the search index will be larger but it becomes less likely that 
-# search terms are truncated. If you use fewer bytes, the search index will be smaller but 
-# it might happen that search terms do not fit into the allocated space and are truncated. 
-# The database generator will automatically add bytes for the encoding if the specified number 
-# does not meet memory alignment requirements. Therefore, this value is only a minimum value.
-omni_search_index_term_encoding_bytes = 20
-
-# Specify the maximum amount of RAM in kilobytes that the top-level sparse index of the 
-# each search index is allowed to use. This affects the performance of the database while 
-# searching. Increasing the size here is generally better for performance if you have enough 
+# Specify the maximum amount of RAM in kilobytes that the top-level sparse index of the
+# each search index is allowed to use. This affects the performance of the database while
+# searching. Increasing the size here is generally better for performance if you have enough
 # RAM available. If you set this to 0, no sparse index will be created.
 omni_search_sparse_index_ram_limit_kb = 32
 globe_coordinate_search_index_ram_limit_kb = 32
-temporal_serach_index_ram_limit_kb = 32
+temporal_search_index_ram_limit_kb = 32
 astronomical_search_index_ram_limit_kb = 32
 
-# Specify the chunk size in bytes for the omni search index. This will affect how many 
-# sparse index levels are created. A smaller chunk size will create more levels which will 
-# cause more random reads during the search. However, if the chunk size is too large, 
-# the binary search performed on the sparse indexes will be slower. I recommend setting 
-# this to the largest possible value that fits into the cache of your SD card or hard drive 
+# Specify the chunk size in bytes for the omni search index. This will affect how many
+# sparse index levels are created. A smaller chunk size will create more levels which will
+# cause more random reads during the search. However, if the chunk size is too large,
+# the binary search performed on the sparse indexes will be slower. I recommend setting
+# this to the largest possible value that fits into the cache of your SD card or hard drive
 # to avoid slow random reads while ensuring a minimum number of sparse index levels.
 omni_search_chunk_size_bytes = 8192
 globe_coordinate_search_chunk_size_bytes = 8192
@@ -211,7 +178,5 @@ temporal_search_chunk_size_bytes = 8192
 astronomical_search_chunk_size_bytes = 8192
 
 [other]
-# Text Delimiter used in temporary text files. Make sure to use a character that is not used 
-# in any of the data.
-# We need to use double quotes here, otherwise '\' and 't' are read as two individual characters.
-text_delimiter = "\t"
+delete_source_binaries_after_merge = true
+delete_tmp_dir_after_generation = true

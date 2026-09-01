@@ -33,13 +33,18 @@ extern "C" {
     #define DEBUG_PRINT(fmt, ...)
 #endif
 
-// If you change this, you need to change
-// the corresponding constants in
-// 'db_generator/src/pipeline_steps/_08_merge_binaries.rs/'
-// as well.
-#define MAX_SPARSE_LEVELS 10
-#define WIKI_PDA_SUPPORTED_DB_VERSION 1
-#define MAGIC "WPDA" // Must be 4 bytes
+#define SUPPORT_MAJOR_VERSION 0
+#define SUPPORT_MINOR_VERSION 1
+
+// Changing this will break everything as this needs to match the generator
+#define MAX_SPARSE_LEVELS 15
+#define SD_SECTOR_SIZE 512
+#define HEADER_SIZE_BYTES 4096
+#define OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES 24
+#define MAGIC "WPDA"
+#define DB_MAGIC_STRING ""
+#define DB_MAGIC_LENGTH 0
+
 
 typedef struct {
     uint8_t is_enabled;
@@ -56,7 +61,10 @@ typedef struct {
 
 typedef struct {
     char magic[4];
-    uint32_t version;
+    uint8_t version_major;
+    uint8_t version_minor;
+    uint8_t version_patch;
+    uint8_t _padding;
     uint64_t offset_qid_hashmap;
     uint64_t offset_qid_index;
     uint64_t offset_titles;
@@ -182,7 +190,7 @@ struct DataStream_t {
     uint32_t bytes_remaining_on_disk;
     ZSTD_DCtx* dctx;
     ZSTD_inBuffer input;
-    uint8_t compressed_chunk[512]; 
+    uint8_t compressed_chunk[512];
     bool is_compressed;
 };
 

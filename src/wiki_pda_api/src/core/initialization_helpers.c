@@ -16,9 +16,11 @@ bool load_and_verify_header(DatabaseContext* ctx) {
         return false;
     }
 
-    if (ctx->header.version != WIKI_PDA_SUPPORTED_DB_VERSION) {
-        DEBUG_PRINT("INIT FAILED: Version mismatch. Expected v%d, got v%u.\n", 
-                    WIKI_PDA_SUPPORTED_DB_VERSION, ctx->header.version);
+    if (ctx->header.version_major != SUPPORT_MAJOR_VERSION || 
+        ctx->header.version_minor != SUPPORT_MINOR_VERSION) {
+        DEBUG_PRINT("INIT FAILED: Version mismatch. Expected v%d.%d.x, got v%u.%u.%u.\n", 
+                    SUPPORT_MAJOR_VERSION, SUPPORT_MINOR_VERSION, 
+                    ctx->header.version_major, ctx->header.version_minor, ctx->header.version_patch);
         return false;
     }
 
@@ -26,7 +28,8 @@ bool load_and_verify_header(DatabaseContext* ctx) {
     DEBUG_PRINT("===           DATABASE HEADER SUCCESSFULLY LOADED   ===\n");
     DEBUG_PRINT("=======================================================\n");
     DEBUG_PRINT("Magic   : %c%c%c%c\n", ctx->header.magic[0], ctx->header.magic[1], ctx->header.magic[2], ctx->header.magic[3]);
-    DEBUG_PRINT("Version : %u\n", ctx->header.version);
+
+    DEBUG_PRINT("Version : %u.%u.%u\n", ctx->header.version_major, ctx->header.version_minor, ctx->header.version_patch);
 
     DEBUG_PRINT("\n--- Core Offsets & Sizes ---\n");
     DEBUG_PRINT("%-18s | Offset: %12" PRIu64 " | Size: %12" PRIu64 "\n", "QID HashMap",    ctx->header.offset_qid_hashmap,     ctx->header.size_qid_hashmap);

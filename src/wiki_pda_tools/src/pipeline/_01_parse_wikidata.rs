@@ -3,7 +3,7 @@ use flate2::read::MultiGzDecoder;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as FmtWrite;
-use std::fs::{self, File};
+use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write as IoWrite};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -595,18 +595,12 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         .into_iter()
         .collect();
 
-    let language_conf_path = &settings.paths.language_config_path;
-    let languages_to_include: HashSet<String> = fs::read_to_string(language_conf_path)
-        .expect("Failed to read language.conf")
-        .lines()
-        .map(|l| l.trim().to_string())
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+    let languages_to_include: std::collections::HashSet<String> = settings
+        .database_content
+        .language_to_include
+        .iter()
+        .map(|lang| lang.as_str().to_string())
         .collect();
-
-    println!(
-        "Loaded {} languages from language.conf",
-        languages_to_include.len()
-    );
 
     let input_file = File::open(&settings.paths.wikidata_dump_path)
         .expect("Failed to open the Wikidata dump file.");

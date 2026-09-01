@@ -2,7 +2,7 @@ ELEVATE := sudo
 
 GENERATOR_DIR  = ./src/wiki_pda_tools/
 QUERY_LIB_DIR  = ./src/wiki_pda_api/
-CONFIG_FILE    = ./config/config.toml
+CONFIG_FILE    = ./config/internal_config.toml
 
 GENERATOR_BIN  = $(GENERATOR_DIR)/target/release/generator
 FLASHER_BIN    = $(GENERATOR_DIR)/target/release/flasher
