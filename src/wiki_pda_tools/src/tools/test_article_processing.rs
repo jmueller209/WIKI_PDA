@@ -166,10 +166,18 @@ pub fn extract_sample_articles(settings: &Settings) -> Result<(), Box<dyn std::e
 
     let target_lang = "en";
     let target_titles = vec![
+        "Bread Clip",
         "Fourier transform",
         "List of chemical elements",
         "Musical notation",
         "Software Engineering",
+        "Photosynthesis",
+        "Animal",
+        "Mount Everest",
+        "Arabic",
+        "Emoji",
+        "Mercury",
+        "World War II",
     ];
 
     println!("Extraction of test articles started...");

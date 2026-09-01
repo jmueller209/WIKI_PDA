@@ -1,0 +1,5 @@
+---
+source: src/utils/article_processing.rs
+expression: plain_text
+---
+This is the only valid text.

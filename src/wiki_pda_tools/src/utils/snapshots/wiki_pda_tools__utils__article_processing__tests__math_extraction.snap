@@ -1,0 +1,5 @@
+---
+source: src/utils/article_processing.rs
+expression: plain_text
+---
+The famous equation $E=mc^2$ changed physics.

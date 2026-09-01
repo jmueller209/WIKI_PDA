@@ -1,0 +1,12 @@
+---
+source: src/utils/article_processing.rs
+expression: plain_text
+---
+Here is some data:
+
+
+
+[[TABLE_START]]
+H|Column A|Column B ¦ Data
+R|Row 1|Value 1
+[[TABLE_END]]

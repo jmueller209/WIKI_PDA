@@ -124,7 +124,7 @@ bool data_stream_read(DataStream* stream, char* out_buffer, uint32_t buffer_capa
         if (stream->input.pos >= stream->input.size) {
             if (stream->bytes_remaining_on_disk == 0) {
                 DEBUG_PRINT("Read finished: No more bytes on disk.");
-                return false; 
+                return false;
             }
             uint32_t to_read = sizeof(stream->compressed_chunk);
             if (to_read > stream->bytes_remaining_on_disk) {

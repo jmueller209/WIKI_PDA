@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct Settings {
     pub database_content: DatabaseContent,
     pub urls: Urls,
@@ -21,7 +21,7 @@ impl Settings {
     }
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct DatabaseContent {
     pub include_concepts_with_given_property_in_omni_search_index: Vec<String>,
     pub omni_search_index_tags: Vec<String>,
@@ -44,18 +44,18 @@ pub struct DatabaseContent {
     pub property_datatypes_to_include_in_metadata: Vec<String>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct Urls {
     pub wikidata_dump_url: String,
     pub wikipedia_base_url: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct MatchPatterns {
     pub wikipedia_zim_file_match_pattern: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct Paths {
     pub wikidata_dump_path: String,
     pub language_config_path: String,
@@ -67,7 +67,7 @@ pub struct Paths {
     pub example_articles_dir: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct Performance {
     pub thread_count: usize,
     pub read_buffer_size_kb: usize,
@@ -90,7 +90,7 @@ pub struct Performance {
     pub astronomical_search_chunk_size_bytes: usize,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Default, Deserialize, Debug, Clone)]
 pub struct Other {
     pub text_delimiter: String,
 }
