@@ -5,29 +5,59 @@
 # Specify which tags should be included in the indexes.
 # Tags specify if a concept is an instance of something, e.g., human.
 # Here is a list of the most important "is-an-instance-of" categories:
-# - Q5: Human
-# - Q515: City
-# - Q511: Capital city 
-# - Q625: Country 
-# - Q11424: Film / Motion Picture
-# - Q7725634: Literary Work / Book
+# Filter   : has_wikipedia_article (Item must be notable enough to have a Wiki page)
 #
-# - has_wikipedia_article
-omni_search_index_tags              = ["has_wikipedia_article","Q5", "Q515", "Q511", "Q625", "Q11424", "Q7725634"]
-globe_coordinate_search_index_tags  = ["has_wikipedia_article", "Q515", "Q511"]
-temporal_search_index_tags          = ["has_wikipedia_article", "Q5"]
-astronomical_search_index_tags      = ["has_wikipedia_article", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867"]
+# People & Biology:
+# Q5       : Human
+# Q16521   : Taxon (Biological species: animals, plants)
+#
+# Geography & Places:
+# Q6256    : Country
+# Q5119    : Capital city
+# Q515     : City
+# Q486972  : Human settlement (Towns/Villages)
+# Q8502    : Mountain
+# Q4022    : River
+# Q1248764 : Airport
+#
+# Media, Art & Tech:
+# Q11424   : Film
+# Q7725634 : Literary work
+# Q571     : Book
+# Q482994  : Album
+# Q1194951 : Video game
+#
+# Society & History:
+# Q783794  : Company
+# Q43229   : Organization
+# Q1190554 : Occurrence / Event (Historical events, wars, disasters)
+#
+# Astronomy & Space:
+# Q523     : Star
+# Q318     : Galaxy
+# Q634     : Planet
+# Q2537    : Natural satellite (Moons)
+# Q3559    : Nebula
+# Q1022867 : Constellation
+# Q3863    : Asteroid
+# Q32074   : Extrasolar planet / Exoplanet
+
+omni_search_index_tags             = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
+globe_coordinate_search_index_tags = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
+temporal_search_index_tags         = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
+astronomical_search_index_tags     = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
 
 # Specify whether the omni search index should be case sensitive or not.
-# Setting this to false will save a little bit of space as some duplicates can be removed.
-# Since many simple search algorithms are case insensitive, you will probably want to set this to false.
+# Setting this to false will save a little bit of space as some
+# duplicates can be removed. Since many simple search algorithms
+# are case insensitive, you will probably want to set this to false.
 omni_search_index_case_sensitive = false
 
 [paths]
 user_settings_path = "config/user_settings.toml"
 
 [other]
-# Text Delimiter used in temporary text files. Make sure to use a character that is not used 
+# Text Delimiter used in temporary text files. Make sure to use a character that is not used
 # in any of the data.
 # We need to use double quotes here, otherwise '\' and 't' are read as two individual characters.
 text_delimiter = "\t"
