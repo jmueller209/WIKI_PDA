@@ -262,6 +262,52 @@ typedef enum {
     WPDA_LANG_LV = 50       // Latvian
 } WPDA_Project;
 
+/**
+ * @brief 32-bit Bitmasks for Wikidata Entity Tags
+ * Used to filter search indexes. Because these are bitmasks, 
+ * multiple tags can be combined using the bitwise OR (|) operator.
+ */
+typedef enum {
+    // Filter
+    WPDA_TAG_HAS_WIKIPEDIA_ARTICLE = (1 << 0),
+
+    // People & Biology
+    WPDA_TAG_HUMAN_Q5              = (1 << 1),
+    WPDA_TAG_TAXON_Q16521          = (1 << 2),
+
+    // Geography & Places
+    WPDA_TAG_COUNTRY_Q6256         = (1 << 3),
+    WPDA_TAG_CAPITAL_CITY_Q5119    = (1 << 4),
+    WPDA_TAG_CITY_Q515             = (1 << 5),
+    WPDA_TAG_SETTLEMENT_Q486972    = (1 << 6),
+    WPDA_TAG_MOUNTAIN_Q8502        = (1 << 7),
+    WPDA_TAG_RIVER_Q4022           = (1 << 8),
+    WPDA_TAG_AIRPORT_Q1248764      = (1 << 9),
+
+    // Media, Art & Tech
+    WPDA_TAG_FILM_Q11424           = (1 << 10),
+    WPDA_TAG_LITERARY_WORK_Q7725634 = (1 << 11),
+    WPDA_TAG_BOOK_Q571             = (1 << 12),
+    WPDA_TAG_ALBUM_Q482994         = (1 << 13),
+    WPDA_TAG_VIDEO_GAME_Q1194951   = (1 << 14),
+
+    // Society & History
+    WPDA_TAG_COMPANY_Q783794       = (1 << 15),
+    WPDA_TAG_ORGANIZATION_Q43229   = (1 << 16),
+    WPDA_TAG_EVENT_Q1190554        = (1 << 17),
+
+    // Astronomy & Space
+    WPDA_TAG_STAR_Q523             = (1 << 18),
+    WPDA_TAG_GALAXY_Q318           = (1 << 19),
+    WPDA_TAG_PLANET_Q634           = (1 << 20),
+    WPDA_TAG_MOON_Q2537            = (1 << 21),
+    WPDA_TAG_NEBULA_Q3559          = (1 << 22),
+    WPDA_TAG_CONSTELLATION_Q1022867= (1 << 23),
+    WPDA_TAG_ASTEROID_Q3863        = (1 << 24),
+    WPDA_TAG_EXOPLANET_Q32074      = (1 << 25)
+
+} WPDA_TagMask;
+
 #ifdef __cplusplus
 }
 #endif
