@@ -423,7 +423,7 @@ typedef enum {
     WPDA_TAG_ASTEROID_Q3863         = (1 << 22)
 } WPDA_TagMask;
 ```
-If you need support for another language, you can open an issue and i will add it. Note that the individual tags are one hot encoded bit masks. They correspond to the tags specified in the [internal config file](config/internal_config.toml). If you need different tags for your specific project you can change the lists in the config file. However, you will not be able to use the pre configured tag masks anymore and have to create your own ones. 
+If you need support for another language, you can open an issue and i will add it. Note that the individual tags are one hot encoded bit masks. They correspond to the tags specified in the [internal config file](../config/internal_config.toml). If you need different tags for your specific project you can change the lists in the config file. However, you will not be able to use the pre configured tag masks anymore and have to create your own ones. 
 Here is another example of how to create a very simple search query:
 ```cpp
 // Create the query.
