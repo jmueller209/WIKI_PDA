@@ -10,6 +10,7 @@
   - [Step 3: Executing a Query](#step-3-executing-a-query)
   - [Step 4: Streaming Article Data and Metadata](#step-4-streaming-article-data-and-metadata)
   - [Step 5: Freeing API Resources](#step-5-freeing-api-resources)
+  - [The complete example program](#the-complete-example-program)
 
 The C Query API is designed to allow you to query databases created with the generator this repository provides. It aims to be ultra-lightweight, memory-efficient, and platform-agnostic. In this part of the documentation, the different functions and data structures of the API are explained as you walk through a simple step-by-step manual of how to set up a new PlatformIO project for a microcontroller and access the database. You can follow along step by step or only apply the core concepts to your own existing projects. For the step-by-step guide to creating a new PlatformIO project, etc., this guide assumes that you have already flashed a database to an SD card using the flashing tool provided by this repository.
 
@@ -524,9 +525,141 @@ At the end of your program, or when you are done querying the database, you have
 ```cpp
 // Free the database context.
 db_end(ctx);
+```
 
-// Hold the program indefinitely.
-while(true) {
-    delay(1000);
+### The complete example program
+```cpp
+#include <Arduino.h>
+#include "SdFat.h"
+#include <wiki_pda.h>
+
+SdFat sd;
+DatabaseContext* ctx = nullptr;
+
+void setup() {
+    // Initialize the serial interface.
+    Serial.begin(115200);
+    while (!Serial) { ; }
+
+    Serial.println("Initializing SD card hardware...");
+
+    // Initialize the SD card based on your platform.
+    // You can remove the preprocessor macros and use only
+    // the code for the platform you are using.
+
+    #if defined(CORE_TEENSY)
+        if (!sd.begin(BUILTIN_SDCARD)) {
+            Serial.println("SD card initialization failed on Teensy!");
+            return;
+        }
+    #elif defined(ESP32)
+        // You might need to change this to the specific chipSelect I/O pin
+        // your card reader uses.
+        const int chipSelect = 5;
+        if (!sd.begin(chipSelect, SPI_FULL_SPEED)) {
+            Serial.println("SD card initialization failed on ESP32!");
+            return;
+        }
+    #endif
+
+    Serial.println("SD card hardware initialized...");
+
+    // Create a database platform. You can again remove
+    // the preprocessor macros if you want the code to work only
+    // for one specific platform.
+
+    DatabasePlatform platform;
+
+    #if defined(ESP32)
+        Serial.println("Detected ESP32 platform.");
+        platform = platform_esp32((void*)sd.card());
+    #elif defined(CORE_TEENSY)
+        Serial.println("Detected Teensy platform.");
+        platform = platform_teensy((void*)sd.card());
+    #else
+        #error "Unsupported platform!"
+    #endif
+
+    // Initialize the database context.
+
+    ctx = db_init(INDEX_OMNI, platform);
+
+    if (ctx != nullptr) {
+        Serial.println("Wiki PDA initialized successfully from raw partition!");
+    } else {
+        Serial.println("Database init failed! Check MBR, Magic String or Memory.");
+    }
+}
+
+void loop() {
+    // Create the query.
+    SearchQuery query;
+    // Set default values.
+    memset(&query, 0, sizeof(SearchQuery));
+
+    // Search the omni search index.
+    query.type = SEARCH_TYPE_OMNI;
+    // Search for the term "uni".
+    query.target.omni.text = "uni";
+    // Search for articles written in the first language in the mapping.
+    query.article_type = WPDA_LANG_EN;
+    // Specify tags
+    query.include_tags = WPDA_TAG_CITY_Q515 | WPDA_TAG_SETTLEMENT_Q486972;
+
+    // Begin the search.
+    SearchCursor* cursor = search_begin(ctx, &query);
+
+    // Make sure that no error occurred.
+    if (cursor == nullptr) {
+        Serial.println("Search initialization failed or index empty.\n");
+        return;
+    }
+
+    // Create empty result
+    SearchResult result;
+
+    // perform the search and check if results have been found
+    bool success = search_next(cursor, &result);
+    if (success == false) {
+        Serial.println("End of results reached");
+        return;
+    }
+    // free the search cursor
+    search_end(cursor);
+
+    Serial.printf("Found Search Term '%s' which lead to article title '%s'\n", result.term, result.title);
+
+    // Initialize the data stream and check whether the result is valid.
+    DataStream* stream = data_stream_begin(ctx, result.data_offset, result.data_length);
+    if (stream == nullptr) {
+        printf("Failed to open stream.\n");
+        return;
+    }
+
+    // Create a character buffer with a fixed size
+    // and a variable to keep track of the bytes read
+    char buffer[1024 + 1];
+    uint32_t bytes_read = 0;
+
+    // Read the data into the buffer and update bytes_read.
+    bool end_reached = data_stream_read(stream, buffer, 1024, &bytes_read);
+
+    // Null-terminate the string for printing
+    buffer[bytes_read] = '\0';
+
+    // Print the read data.
+    Serial.println(buffer);
+
+    // Close the stream.
+    data_stream_end(stream);
+
+    // Free the database context.
+    db_end(ctx);
+
+    // Hold the program indefinitely.
+    while(true) {
+        delay(1000);
+    }
+
 }
 ```
