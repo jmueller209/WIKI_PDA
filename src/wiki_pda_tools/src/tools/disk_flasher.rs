@@ -485,4 +485,3 @@ fn write_fat32_metadata(part1_path: &str, db_size_bytes: u64) {
     let _ = run_command("umount", &[mount_dir]);
     let _ = std::fs::remove_dir(mount_dir);
 }
-

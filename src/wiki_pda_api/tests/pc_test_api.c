@@ -113,7 +113,23 @@ bool build_query(SearchQuery* query, int* out_max_results) {
 
     printf("\n--- SELECT ARTICLE TYPE ---\n");
     printf("0. Metadata (Only works for QIDs)\n");
-    printf("1, 2, 3... Language ID (Check wiki_lang_mapping.txt for mapping)\n");
+    printf(
+        "Available Language IDs:\n"
+        " 1=English      11=Japanese     21=Korean       31=Hebrew       41=Galician\n"
+        " 2=Cebuano      12=Chinese      22=Norwegian    32=Danish       42=Slovenian\n"
+        " 3=German       13=Vietnamese   23=Finnish      33=Bulgarian    43=Urdu\n"
+        " 4=Swedish      14=Ukrainian    24=Turkish      34=Slovak       44=Hindi\n"
+        " 5=French       15=Arabic       25=Hungarian    35=Estonian     45=Thai\n"
+        " 6=Dutch        16=Portuguese   26=Czech        36=Belarusian   46=Bengali\n"
+        " 7=Russian      17=Persian      27=Romanian     37=Simple Eng   47=Tamil\n"
+        " 8=Spanish      18=Catalan      28=Basque       38=Greek        48=Telugu\n"
+        " 9=Italian      19=Serbian      29=Malay        39=Croatian     49=Swahili\n"
+        "10=Polish       20=Indonesian   30=Esperanto    40=Lithuanian   50=Latvian\n"
+        "\n"
+        "⚠️ WARNING: The search will not yield any results if the selected language\n"
+        "was not included during the database generation process.\n\n"
+        "Enter Language ID (1-50): "
+    );
     if (!get_input("Enter Article Type (0+): ", temp_input, sizeof(temp_input))) return false;
     query->article_type = atoi(temp_input);
 

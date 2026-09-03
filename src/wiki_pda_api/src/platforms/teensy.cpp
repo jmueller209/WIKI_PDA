@@ -2,7 +2,9 @@
 #include <Arduino.h>
 #include <stdint.h>
 #include "SdFat.h"
+#include <string.h>
 #include "../../include/wiki_pda_platforms.h"
+#include "../../include/wiki_pda_options.h"
 
 typedef struct {
     SdCard* card;
@@ -77,7 +79,7 @@ DatabasePlatform platform_teensy(void* file_handle) {
         return platform; 
     }
 
-    #if DB_MAGIC_LENGTH > 0
+    #if WPDA_MAGIC_LENGTH > 0
     {
         uint8_t first_sector[SD_SECTOR_SIZE];
         if (!card->readSector(ctx->start_sector, first_sector)) {
@@ -85,7 +87,7 @@ DatabasePlatform platform_teensy(void* file_handle) {
             return platform;
         }
 
-        if (memcmp(first_sector, DB_MAGIC_STRING, DB_MAGIC_LENGTH) != 0) {
+        if (memcmp(first_sector, WPDA_MAGIC, WPDA_MAGIC_LENGTH) != 0) {
             delete ctx;
             return platform;
         }

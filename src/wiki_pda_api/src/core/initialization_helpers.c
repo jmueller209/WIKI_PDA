@@ -11,7 +11,7 @@ bool load_and_verify_header(DatabaseContext* ctx) {
         return false;
     }
 
-    if (memcmp(ctx->header.magic, MAGIC, 4) != 0) {
+    if (memcmp(ctx->header.magic, WPDA_MAGIC, WPDA_MAGIC_LENGTH) != 0) {
         DEBUG_PRINT("INIT FAILED: Invalid magic bytes.\n");
         return false;
     }
