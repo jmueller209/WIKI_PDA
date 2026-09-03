@@ -319,20 +319,111 @@ query.target.qid.first_result_must_match = true;
 Finally, no matter which search type you choose, you can apply **Global Filters** to narrow down your results. Because we zeroed out the memory initially, these will safely default to `0` (ignored) unless you explicitly set them:
 
 ```cpp
-// Specify an exact tag mask that results must have to not be ignored.
-// Setting this to 0 ignores this setting.
-query.exact_tags = 0;
-
 // Only return items that contain all of these tags.
-query.include_tags = 0;
+query.include_tags = WPDA_TAG_CITY_Q515 | WPDA_TAG_SETTLEMENT_Q486972;
 
 // Reject items that contain any of these tags.
-query.exclude_tags = 0;
+query.exclude_tags = WPDA_TAG_CAPITAL_CITY_Q5119;
 
 // Specify the article type to search for (metadata or an article in a specific language)..
-query.article_type = 0;
+query.article_type = WPDA_LANG_EN;
 ```
-Note that all of the tags are of type `uint32_t` which represents a tag mask according to the tags you have specified in the [config_file](../config/config.toml) of your database generator. Setting the `article_type` to 0 will always search for metadata; integers greater than zero refer to the actual text in a given language. To check which integer refers to which language, take a look at the `tmp/wiki_lang_mapping.txt` created by the database generator.
+Note that you can chain multiple tags together using the pipe `|` symbol. In the example above, we are searching for articles that are cities AND human settlements but not capital cities. As article type you can either specify a language or metadata. The following Tags and languages are available:
+```cpp
+typedef enum {
+    WPDA_METADATA = 0,      // Meta data
+    WPDA_LANG_EN = 1,       // English
+    WPDA_LANG_CEB = 2,      // Cebuano
+    WPDA_LANG_DE = 3,       // German
+    WPDA_LANG_SV = 4,       // Swedish
+    WPDA_LANG_FR = 5,       // French
+    WPDA_LANG_NL = 6,       // Dutch
+    WPDA_LANG_RU = 7,       // Russian
+    WPDA_LANG_ES = 8,       // Spanish
+    WPDA_LANG_IT = 9,       // Italian
+    WPDA_LANG_PL = 10,      // Polish
+    WPDA_LANG_JA = 11,      // Japanese
+    WPDA_LANG_ZH = 12,      // Chinese
+    WPDA_LANG_VI = 13,      // Vietnamese
+    WPDA_LANG_UK = 14,      // Ukrainian
+    WPDA_LANG_AR = 15,      // Arabic
+    WPDA_LANG_PT = 16,      // Portuguese
+    WPDA_LANG_FA = 17,      // Persian
+    WPDA_LANG_CA = 18,      // Catalan
+    WPDA_LANG_SR = 19,      // Serbian
+    WPDA_LANG_ID = 20,      // Indonesian
+    WPDA_LANG_KO = 21,      // Korean
+    WPDA_LANG_NO = 22,      // Norwegian
+    WPDA_LANG_FI = 23,      // Finnish
+    WPDA_LANG_TR = 24,      // Turkish
+    WPDA_LANG_HU = 25,      // Hungarian
+    WPDA_LANG_CS = 26,      // Czech
+    WPDA_LANG_RO = 27,      // Romanian
+    WPDA_LANG_EU = 28,      // Basque
+    WPDA_LANG_MS = 29,      // Malay
+    WPDA_LANG_EO = 30,      // Esperanto
+    WPDA_LANG_HE = 31,      // Hebrew
+    WPDA_LANG_DA = 32,      // Danish
+    WPDA_LANG_BG = 33,      // Bulgarian
+    WPDA_LANG_SK = 34,      // Slovak
+    WPDA_LANG_ET = 35,      // Estonian
+    WPDA_LANG_BE = 36,      // Belarusian
+    WPDA_LANG_SIMPLE = 37,  // Simple English
+    WPDA_LANG_EL = 38,      // Greek
+    WPDA_LANG_HR = 39,      // Croatian
+    WPDA_LANG_LT = 40,      // Lithuanian
+    WPDA_LANG_GL = 41,      // Galician
+    WPDA_LANG_SL = 42,      // Slovenian
+    WPDA_LANG_UR = 43,      // Urdu
+    WPDA_LANG_HI = 44,      // Hindi
+    WPDA_LANG_TH = 45,      // Thai
+    WPDA_LANG_BN = 46,      // Bengali
+    WPDA_LANG_TA = 47,      // Tamil
+    WPDA_LANG_TE = 48,      // Telugu
+    WPDA_LANG_SW = 49,      // Swahili
+    WPDA_LANG_LV = 50       // Latvian
+} WPDA_Project;
+
+typedef enum {
+    // People
+    WPDA_TAG_HUMAN_Q5               = (1 << 0),
+
+    // Geography & Places
+    WPDA_TAG_CITY_Q515              = (1 << 1),
+    WPDA_TAG_CAPITAL_CITY_Q5119     = (1 << 2),
+    WPDA_TAG_COUNTRY_Q6256          = (1 << 3),
+    WPDA_TAG_SETTLEMENT_Q486972     = (1 << 4),
+    WPDA_TAG_MOUNTAIN_Q8502         = (1 << 5),
+    WPDA_TAG_RIVER_Q4022            = (1 << 6),
+
+    // Media, Art & Tech
+    WPDA_TAG_FILM_Q11424            = (1 << 7),
+    WPDA_TAG_LITERARY_WORK_Q7725634 = (1 << 8),
+    WPDA_TAG_BOOK_Q571              = (1 << 9),
+    WPDA_TAG_ALBUM_Q482994          = (1 << 10),
+    WPDA_TAG_VIDEO_GAME_Q1194951    = (1 << 11),
+
+    // Society & History
+    WPDA_TAG_COMPANY_Q783794        = (1 << 12),
+    WPDA_TAG_ORGANIZATION_Q43229    = (1 << 13),
+
+    // Biology
+    WPDA_TAG_TAXON_Q16521           = (1 << 14),
+
+    // Events
+    WPDA_TAG_EVENT_Q1190554         = (1 << 15),
+
+    // Astronomy & Space
+    WPDA_TAG_STAR_Q523              = (1 << 16),
+    WPDA_TAG_GALAXY_Q318            = (1 << 17),
+    WPDA_TAG_PLANET_Q634            = (1 << 18),
+    WPDA_TAG_MOON_Q2537             = (1 << 19),
+    WPDA_TAG_NEBULA_Q3559           = (1 << 20),
+    WPDA_TAG_MINOR_PLANET_Q1022867  = (1 << 21),
+    WPDA_TAG_ASTEROID_Q3863         = (1 << 22)
+} WPDA_TagMask;
+```
+If you need support for another language, you can open an issue and i will add it. Note that the individual tags are one hot encoded bit masks. They correspond to the tags specified in the [internal config file](config/internal_config.toml). If you need different tags for your specific project you can change the lists in the config file. However, you will not be able to use the pre configured tag masks anymore and have to create your own ones. 
 Here is another example of how to create a very simple search query:
 ```cpp
 // Create the query.
@@ -345,10 +436,10 @@ query.type = SEARCH_TYPE_OMNI;
 // Search for the term "uni".
 query.target.omni.text = "uni";
 // Search for articles written in the first language in the mapping.
-query.article_type = 1;
+query.article_type = WPDA_LANG_EN;
 ```
 **Important note for PID searches:**
-PID searches do not support `query.article_type = 1;` no metadata about the properties is saved except their name and description.
+PID searches do not support `query.article_type = WPDA_METADATA;` no metadata about the properties is saved except their name and description.
 
 ### Step 3: Executing a Query
 Once you have created the search query you can perform the actual search like this:
