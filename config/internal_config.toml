@@ -4,6 +4,10 @@
 [database_content]
 # Specify which tags should be included in the indexes.
 # Tags specify if a concept is an instance of something, e.g., human.
+# The generator is configured in a way that it will not only check the specified tags
+# but all of their subtags as well. If you add Q515 (City) as a tag for examples, articles 
+# that only have the Wikipedia internal tag Q5119 (Capital City) will also be assigned
+# the tag 'City' by the generator.
 # Here is a list of the most important "is-an-instance-of" categories:
 # Filter   : has_wikipedia_article (Item must be notable enough to have a Wiki page)
 #
@@ -44,7 +48,8 @@
 # -------------------------------------------------------------------------------------------------------------------------
 # TAG ORDER MAP:
 # ["Human", "City", "Capital city", "Country", "Human settlement", "Mountain", "River", "Film", "Literary work", "Book", "Album", "Video game", "Company", "Organization", "Taxon", "Occurrence / Event", "Star", "Galaxy", "Planet", "Natural satellite", "Nebula", "Minor Planet", "Asteroid"]
-# WARNING: When changing these lists, the preconfigured tags in the search api will stop working correctly.
+# WARNING: When changing these lists, the preconfigured tag masks in the query API will not yield the correct results.
+# You will have to either change the preconfigured masks or define your own ones.
 # -------------------------------------------------------------------------------------------------------------------------
 omni_search_index_tags             = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
 globe_coordinate_search_index_tags = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
