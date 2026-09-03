@@ -4,7 +4,7 @@ This document outlines the internal structure and binary layout of the generated
 
 The database is designed as a single contiguous binary file optimized for efficient random access and low-memory environments. The database contains the indexes, titles, metadata, compressed article content, and the ZSTD compression dictionary required by the query API.
 
-Throughout this documentation, ⚙️ `some_setting` is used to indicate that something is configurable via the [config_file](../config/config.toml).
+Throughout this documentation, ⚙️ `some_setting` is used to indicate that something is configurable via the [user settings](../config/user_settings.toml). Changing any of those settings will not break compatibility with the query API. There is another [internal config file](../config/internal_config.toml) which you should only touch if you need a more customized experience as it breaks compatibility with the query API (You have to adjust some constants there yourself, if you really need to do this, open an issue).
 
 ---
 
@@ -58,21 +58,15 @@ The database is written in the following order:
 10. Metadata
 11. ZSTD Dictionary
 
-The exact byte offsets and section sizes are stored directly in the database header. This means the query API does not need a separately generated header file containing database-specific offsets.
-
-The header therefore provides everything required to locate the individual sections of the database.
-
 ---
 
 # 1. Database Header
 
-The database begins with a fixed-layout `DatabaseHeader`. The query API reads the header from byte offset `0`, validates its magic and version, and then uses its offsets and sizes to access the remaining sections.
-
-Unlike the previous architecture, database-specific offsets are **stored inside the database itself** rather than being generated into a C header file.
+The database begins with a fixed-layout `DatabaseHeader`. The query API reads the header from byte offset `0`, validates its magic ("WPDA") and version, and then uses its offsets and sizes to access the remaining sections.
 
 ## 1.1 Header Structure
 
-The current header is:
+The header is:
 
 ```c
 typedef struct {
@@ -318,6 +312,7 @@ typedef struct __attribute__((packed)) {
 where `N = OMNI_SEARCH_TERM_SIZE`.
 
 Total size: **`OMNI_SEARCH_TERM_SIZE + 8` bytes**.
+Note: In the current version `OMNI_SEARCH_TERM_SIZE` is 56 bytes.
 
 ---
 
@@ -375,11 +370,11 @@ All four indexes use the sparse-level architecture described above, but the sear
 
 **Sparse row type:** `OmniSparseRow`
 
-**Term size:** Configurable through ⚙️ `omni_search_index_term_encoding_bytes` and stored in `IndexMetadata.term_size`.
+**Term size:** 56 bytes.
 
 **Search strategy:** UTF-8 encoded text.
 
-**Case sensitivity:** Determined by ⚙️ `omni_search_index_case_sensitive`.
+**Case sensitivity:** Determined via the [internal config file](../config/internal_config.toml).
 
 **Tags:** The bitmask is created from ⚙️ `omni_search_index_tags`.
 
@@ -656,7 +651,7 @@ typedef struct __attribute__((packed)) {
 
 | Offset | Size | Type | Name | Description |
 | :--- | ---: | --- | :--- | :--- |
-| `0` | `2` | `uint16_t` | `project_id` | Language/project identifier. |
+| `0` | `2` | `uint16_t` | `project_id` | Language. |
 | `2` | `4` | `uint32_t` | `title_offset` | Offset into the PID string pool for the property title. |
 | `6` | `4` | `uint32_t` | `desc_offset` | Offset into the PID string pool for the property description. |
 
@@ -672,8 +667,8 @@ PID
              |
              v
       PIDIndexRow[]
-        ├── language/project A
-        ├── language/project B
+        ├── language A
+        ├── language B
         └── ...
 ```
 
@@ -847,7 +842,7 @@ header.size_zstd_dictionary
 
 The query API can therefore load the dictionary directly from the database instead of requiring a separate dictionary file.
 
-The compressed article and metadata payloads are intended to be decompressed using this dictionary.
+The compressed article payloads are intended to be decompressed using this dictionary.
 
 ---
 
@@ -943,45 +938,3 @@ The fixed-size packed structures currently have the following sizes:
 | `PIDIndexRow` | 10 bytes |
 
 The `__attribute__((packed))` annotation is important because these structures are used as fixed binary records. Padding inserted by the compiler must not change the on-disk layout.
-
----
-
-## Summary
-
-The current database architecture separates the problem into several layers:
-
-```text
-                         DATABASE
-                            │
-                     ┌──────┴──────┐
-                     │    HEADER   │
-                     └──────┬──────┘
-                            │
-        ┌───────────────────┼────────────────────┐
-        │                   │                    │
-        v                   v                    v
-   SEARCH INDEXES      ENTITY INDEXES       DATA STORAGE
-        │                   │                    │
-        │             ┌─────┴─────┐       ┌────┴────┐
-        │             │           │       │         │
-        v             v           v       v         v
-  Omni/Temporal/     QID         PID   Content   Metadata
-  Astro/Globe       HashMap     HashMap
-        │              │           │
-        │              v           v
-        │          QIDIndex    PIDIndex
-        │              │           │
-        │              │           └──> PID Strings
-        │              │
-        │              └──> Titles
-        │
-        └──> QID + Tags
-                 │
-                 v
-          article / metadata
-                 │
-                 v
-               ZSTD
-```
-
-The database is self-describing at the section level through its header. Primary search-index levels are located directly through `IndexMetadata`, while QID and PID indexes use compact section-relative offsets to locate their associated payloads and strings.
