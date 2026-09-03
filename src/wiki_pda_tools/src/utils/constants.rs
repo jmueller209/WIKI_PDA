@@ -12,6 +12,7 @@ pub const MAGIC: &str = "WPDA";
 pub const OMNI_SEARCH_TXT: &str = "omni_search.txt";
 pub const PROPERTIES_SEARCH_TXT: &str = "properties_search.txt";
 pub const SITELINKS_QID_MAPPING_DB: &str = "sitelinks_qid_mapping.db";
+pub const TAG_SUBCLASS_DICTIONARY_DB: &str = "tag_subclass_dictionary.db";
 pub const QID_INDEX_TXT: &str = "qid_index.txt";
 pub const META_DATA_TXT: &str = "meta_data.txt";
 pub const GLOBE_COORDINATE_SEARCH_TXT: &str = "globe_coordinate_search.txt";

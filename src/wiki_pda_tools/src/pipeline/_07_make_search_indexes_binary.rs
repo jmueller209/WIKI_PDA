@@ -19,18 +19,6 @@ pub struct IndexMetadata {
     pub top_level_rows: u32,
 }
 
-// impl IndexMetadata {
-//     pub fn empty() -> Self {
-//         Self {
-//             total_row_size: 0,
-//             term_size: 0,
-//             chunk_size_rows: 0,
-//             num_sparse_levels: 0,
-//             top_level_rows: 0,
-//         }
-//     }
-// }
-
 #[derive(Debug)]
 struct IndexConfig<'a> {
     name: &'a str,

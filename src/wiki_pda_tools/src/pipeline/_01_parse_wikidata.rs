@@ -17,115 +17,124 @@ use crate::utils::settings::Settings;
 use crate::utils::txt_file_processing::{self, SortMode};
 
 #[derive(Default, Debug)]
-struct ParserMetrics {
-    num_lines_read: u64,
-    num_lines_skipped: u64,
+pub struct ParserMetrics {
+    pub num_lines_read: u64,
+    pub num_lines_skipped: u64,
 
-    qids_found_total: u64,
-    qids_used_total: u64,
+    pub qids_found_total: u64,
+    pub qids_used_total: u64,
 
-    qids_used_in_omni_search: u64,
-    omni_search_entries_created: u64,
-    qids_used_in_omni_search_with_article_total: u64,
-    qids_used_in_omni_search_no_article_total: u64,
-    qids_used_in_omni_search_by_lang: HashMap<String, u64>,
-    qids_used_in_omni_search_with_included_concept_and_no_article: HashMap<String, u64>,
+    // OMNI SEARCH
+    pub qids_used_in_omni_search: u64,
+    pub omni_search_entries_created: u64,
+    pub qids_used_in_omni_search_with_article_total: u64,
+    pub qids_used_in_omni_search_no_article_total: u64,
+    pub qids_used_in_omni_search_by_lang: HashMap<String, u64>,
+    pub tag_usage_in_omni: HashMap<String, u64>,
 
-    qids_used_in_coordinate_search: u64,
-    qids_used_in_coordinate_search_with_article_total: u64,
-    qids_used_in_coordinate_search_without_article: u64,
-    qids_used_in_coordinate_search_by_lang: HashMap<String, u64>,
+    // GLOBE COORDINATES
+    pub qids_used_in_coordinate_search: u64,
+    pub qids_used_in_coordinate_search_with_article_total: u64,
+    pub qids_used_in_coordinate_search_without_article: u64,
+    pub qids_used_in_coordinate_search_by_lang: HashMap<String, u64>,
+    pub tag_usage_in_globe: HashMap<String, u64>,
 
-    qids_used_in_temporal_search: u64,
-    qids_used_in_temporal_search_with_article_total: u64,
-    qids_used_in_temporal_search_without_article: u64,
-    qids_used_in_temporal_search_by_lang: HashMap<String, u64>,
+    // TEMPORAL
+    pub qids_used_in_temporal_search: u64,
+    pub qids_used_in_temporal_search_with_article_total: u64,
+    pub qids_used_in_temporal_search_without_article: u64,
+    pub qids_used_in_temporal_search_by_lang: HashMap<String, u64>,
+    pub tag_usage_in_temporal: HashMap<String, u64>,
 
-    qids_used_in_astronomical_search: u64,
-    qids_used_in_astronomical_search_with_article_total: u64,
-    qids_used_in_astronomical_search_without_article: u64,
-    qids_used_in_astronomical_search_by_lang: HashMap<String, u64>,
-    concept_usage_count_in_astronomical_search: HashMap<String, u64>,
+    // ASTRONOMICAL
+    pub qids_used_in_astronomical_search: u64,
+    pub qids_used_in_astronomical_search_with_article_total: u64,
+    pub qids_used_in_astronomical_search_without_article: u64,
+    pub qids_used_in_astronomical_search_by_lang: HashMap<String, u64>,
+    pub tag_usage_in_astro: HashMap<String, u64>,
 
-    metadata_entries_written: u64,
-    empty_metadata_entries_written: u64,
+    pub metadata_entries_written: u64,
+    pub empty_metadata_entries_written: u64,
 
-    pids_found: u64,
-    pids_used: u64,
-
-    property_usage_count: HashMap<String, u64>,
+    pub pids_found: u64,
+    pub pids_used: u64,
+    pub property_usage_count: HashMap<String, u64>,
 }
 
 impl ParserMetrics {
-    fn merge(&mut self, other: Self) {
+    pub fn merge(&mut self, other: Self) {
         self.num_lines_read += other.num_lines_read;
         self.num_lines_skipped += other.num_lines_skipped;
         self.qids_found_total += other.qids_found_total;
         self.qids_used_total += other.qids_used_total;
 
+        // OMNI
         self.qids_used_in_omni_search += other.qids_used_in_omni_search;
         self.omni_search_entries_created += other.omni_search_entries_created;
         self.qids_used_in_omni_search_with_article_total +=
             other.qids_used_in_omni_search_with_article_total;
         self.qids_used_in_omni_search_no_article_total +=
             other.qids_used_in_omni_search_no_article_total;
+        for (k, v) in other.qids_used_in_omni_search_by_lang {
+            *self.qids_used_in_omni_search_by_lang.entry(k).or_insert(0) += v;
+        }
+        for (k, v) in other.tag_usage_in_omni {
+            *self.tag_usage_in_omni.entry(k).or_insert(0) += v;
+        }
 
+        // GLOBE
         self.qids_used_in_coordinate_search += other.qids_used_in_coordinate_search;
         self.qids_used_in_coordinate_search_with_article_total +=
             other.qids_used_in_coordinate_search_with_article_total;
         self.qids_used_in_coordinate_search_without_article +=
             other.qids_used_in_coordinate_search_without_article;
-
-        self.qids_used_in_temporal_search += other.qids_used_in_temporal_search;
-        self.qids_used_in_temporal_search_with_article_total +=
-            other.qids_used_in_temporal_search_with_article_total;
-        self.qids_used_in_temporal_search_without_article +=
-            other.qids_used_in_temporal_search_without_article;
-
-        self.qids_used_in_astronomical_search += other.qids_used_in_astronomical_search;
-        self.qids_used_in_astronomical_search_with_article_total +=
-            other.qids_used_in_astronomical_search_with_article_total;
-        self.qids_used_in_astronomical_search_without_article +=
-            other.qids_used_in_astronomical_search_without_article;
-
-        self.metadata_entries_written += other.metadata_entries_written;
-        self.empty_metadata_entries_written += other.empty_metadata_entries_written;
-        self.pids_found += other.pids_found;
-        self.pids_used += other.pids_used;
-
-        for (k, v) in other.qids_used_in_omni_search_by_lang {
-            *self.qids_used_in_omni_search_by_lang.entry(k).or_insert(0) += v;
-        }
-        for (k, v) in other.qids_used_in_omni_search_with_included_concept_and_no_article {
-            *self
-                .qids_used_in_omni_search_with_included_concept_and_no_article
-                .entry(k)
-                .or_insert(0) += v;
-        }
         for (k, v) in other.qids_used_in_coordinate_search_by_lang {
             *self
                 .qids_used_in_coordinate_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
+        for (k, v) in other.tag_usage_in_globe {
+            *self.tag_usage_in_globe.entry(k).or_insert(0) += v;
+        }
+
+        // TEMPORAL
+        self.qids_used_in_temporal_search += other.qids_used_in_temporal_search;
+        self.qids_used_in_temporal_search_with_article_total +=
+            other.qids_used_in_temporal_search_with_article_total;
+        self.qids_used_in_temporal_search_without_article +=
+            other.qids_used_in_temporal_search_without_article;
         for (k, v) in other.qids_used_in_temporal_search_by_lang {
             *self
                 .qids_used_in_temporal_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
+        for (k, v) in other.tag_usage_in_temporal {
+            *self.tag_usage_in_temporal.entry(k).or_insert(0) += v;
+        }
+
+        // ASTRO
+        self.qids_used_in_astronomical_search += other.qids_used_in_astronomical_search;
+        self.qids_used_in_astronomical_search_with_article_total +=
+            other.qids_used_in_astronomical_search_with_article_total;
+        self.qids_used_in_astronomical_search_without_article +=
+            other.qids_used_in_astronomical_search_without_article;
         for (k, v) in other.qids_used_in_astronomical_search_by_lang {
             *self
                 .qids_used_in_astronomical_search_by_lang
                 .entry(k)
                 .or_insert(0) += v;
         }
-        for (k, v) in other.concept_usage_count_in_astronomical_search {
-            *self
-                .concept_usage_count_in_astronomical_search
-                .entry(k)
-                .or_insert(0) += v;
+        for (k, v) in other.tag_usage_in_astro {
+            *self.tag_usage_in_astro.entry(k).or_insert(0) += v;
         }
+
+        self.metadata_entries_written += other.metadata_entries_written;
+        self.empty_metadata_entries_written += other.empty_metadata_entries_written;
+        self.pids_found += other.pids_found;
+        self.pids_used += other.pids_used;
+
         for (k, v) in other.property_usage_count {
             *self.property_usage_count.entry(k).or_insert(0) += v;
         }
@@ -133,6 +142,30 @@ impl ParserMetrics {
 
     pub fn make_summary(&self) -> String {
         let mut summary = String::new();
+
+        // Helper function to print top tags for any index
+        let print_top_tags = |summary: &mut String, tags: &HashMap<String, u64>, title: &str| {
+            if !tags.is_empty() {
+                writeln!(summary, "  -> {}:", title).unwrap();
+                let mut tag_vec: Vec<(&String, &u64)> = tags.iter().collect();
+                tag_vec.sort_by(|a, b| b.1.cmp(a.1)); // Sort descending
+                for (tag, count) in tag_vec.iter().take(10) {
+                    writeln!(summary, "      - {}: {} matches", tag, count).unwrap();
+                }
+            }
+        };
+
+        // Helper function to print languages
+        let print_langs = |summary: &mut String, langs: &HashMap<String, u64>| {
+            if !langs.is_empty() {
+                writeln!(summary, "     (Breakdown by language)").unwrap();
+                let mut lang_vec: Vec<(&String, &u64)> = langs.iter().collect();
+                lang_vec.sort_by(|a, b| b.1.cmp(a.1));
+                for (lang, count) in lang_vec {
+                    writeln!(summary, "      - {}: {} matches", lang, count).unwrap();
+                }
+            }
+        };
 
         writeln!(
             &mut summary,
@@ -212,34 +245,18 @@ impl ParserMetrics {
             self.qids_used_in_omni_search_with_article_total
         )
         .unwrap();
+        print_langs(&mut summary, &self.qids_used_in_omni_search_by_lang);
         writeln!(
             &mut summary,
-            "     (Breakdown by language - items can match multiple languages)"
-        )
-        .unwrap();
-
-        let mut lang_vec: Vec<(&String, &u64)> =
-            self.qids_used_in_omni_search_by_lang.iter().collect();
-        lang_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (lang, count) in lang_vec {
-            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
-        }
-
-        writeln!(
-            &mut summary,
-            "  -> Unique QIDs added via Concept (No Article): {}",
+            "  -> Unique QIDs via Concept (No Article):{}",
             self.qids_used_in_omni_search_no_article_total
         )
         .unwrap();
-        writeln!(&mut summary, "     (Breakdown by concept)").unwrap();
-        let mut concept_vec: Vec<(&String, &u64)> = self
-            .qids_used_in_omni_search_with_included_concept_and_no_article
-            .iter()
-            .collect();
-        concept_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (concept, count) in concept_vec.iter().take(15) {
-            writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
-        }
+        print_top_tags(
+            &mut summary,
+            &self.tag_usage_in_omni,
+            "Top 10 Tags Used in Omni",
+        );
 
         writeln!(
             &mut summary,
@@ -259,19 +276,18 @@ impl ParserMetrics {
             self.qids_used_in_coordinate_search_with_article_total
         )
         .unwrap();
-        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
-        let mut globe_lang_vec: Vec<(&String, &u64)> =
-            self.qids_used_in_coordinate_search_by_lang.iter().collect();
-        globe_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (lang, count) in globe_lang_vec {
-            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
-        }
+        print_langs(&mut summary, &self.qids_used_in_coordinate_search_by_lang);
         writeln!(
             &mut summary,
-            "  -> Unique QIDs Without Article (Independent): {}",
+            "  -> Unique QIDs Without Article:         {}",
             self.qids_used_in_coordinate_search_without_article
         )
         .unwrap();
+        print_top_tags(
+            &mut summary,
+            &self.tag_usage_in_globe,
+            "Top 10 Tags Used in Globe",
+        );
 
         writeln!(
             &mut summary,
@@ -291,19 +307,18 @@ impl ParserMetrics {
             self.qids_used_in_temporal_search_with_article_total
         )
         .unwrap();
-        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
-        let mut temp_lang_vec: Vec<(&String, &u64)> =
-            self.qids_used_in_temporal_search_by_lang.iter().collect();
-        temp_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (lang, count) in temp_lang_vec {
-            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
-        }
+        print_langs(&mut summary, &self.qids_used_in_temporal_search_by_lang);
         writeln!(
             &mut summary,
-            "  -> Unique QIDs Without Article (Independent): {}",
+            "  -> Unique QIDs Without Article:         {}",
             self.qids_used_in_temporal_search_without_article
         )
         .unwrap();
+        print_top_tags(
+            &mut summary,
+            &self.tag_usage_in_temporal,
+            "Top 10 Tags Used in Temporal",
+        );
 
         writeln!(
             &mut summary,
@@ -323,33 +338,18 @@ impl ParserMetrics {
             self.qids_used_in_astronomical_search_with_article_total
         )
         .unwrap();
-        writeln!(&mut summary, "     (Breakdown by language)").unwrap();
-        let mut astro_lang_vec: Vec<(&String, &u64)> = self
-            .qids_used_in_astronomical_search_by_lang
-            .iter()
-            .collect();
-        astro_lang_vec.sort_by(|a, b| b.1.cmp(a.1));
-        for (lang, count) in astro_lang_vec {
-            writeln!(&mut summary, "      - {}: {} matches", lang, count).unwrap();
-        }
+        print_langs(&mut summary, &self.qids_used_in_astronomical_search_by_lang);
         writeln!(
             &mut summary,
-            "  -> Unique QIDs Without Article (Independent): {}",
+            "  -> Unique QIDs Without Article:         {}",
             self.qids_used_in_astronomical_search_without_article
         )
         .unwrap();
-
-        if !self.concept_usage_count_in_astronomical_search.is_empty() {
-            writeln!(&mut summary, "  -> Included Concepts (Matches):").unwrap();
-            let mut astro_concept_vec: Vec<(&String, &u64)> = self
-                .concept_usage_count_in_astronomical_search
-                .iter()
-                .collect();
-            astro_concept_vec.sort_by(|a, b| b.1.cmp(a.1));
-            for (concept, count) in astro_concept_vec.iter().take(5) {
-                writeln!(&mut summary, "      - {}: {} matches", concept, count).unwrap();
-            }
-        }
+        print_top_tags(
+            &mut summary,
+            &self.tag_usage_in_astro,
+            "Top 10 Tags Used in Astronomical",
+        );
 
         writeln!(
             &mut summary,
@@ -452,6 +452,7 @@ impl ParserMetrics {
             self.num_lines_read
         )
         .unwrap();
+
         writeln!(
             &mut summary,
             "========================================================"
@@ -461,7 +462,6 @@ impl ParserMetrics {
         summary
     }
 }
-
 struct PreparedBatch {
     omni_search_lines: String,
     metadata_lines: String,
@@ -551,7 +551,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
     let include_all_matches_in_globe_coordinate_search_index = settings
         .database_content
         .include_all_matches_in_globe_coordinate_search_index;
-    let globe_coordinate_search_index_tags: std::collections::HashSet<String> = settings
+    let globe_coordinate_search_index_tags: HashSet<String> = settings
         .database_content
         .globe_coordinate_search_index_tags
         .iter()
@@ -562,7 +562,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
     let include_all_matches_in_temporal_search_index = settings
         .database_content
         .include_all_matches_in_temporal_search_index;
-    let temporal_search_index_tags: std::collections::HashSet<String> = settings
+    let temporal_search_index_tags: HashSet<String> = settings
         .database_content
         .temporal_search_index_tags
         .iter()
@@ -574,13 +574,13 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
     let include_all_matches_in_astronomical_search_index = settings
         .database_content
         .include_all_matches_in_astronomical_search_index;
-    let astronomical_search_index_tags: std::collections::HashSet<String> = settings
+    let astronomical_search_index_tags: HashSet<String> = settings
         .database_content
         .astronomical_search_index_tags
         .iter()
         .cloned()
         .collect();
-    let astronomical_objects_to_include: std::collections::HashSet<String> = settings
+    let astronomical_objects_to_include: HashSet<String> = settings
         .database_content
         .astronomical_objects_to_include
         .iter()
@@ -595,7 +595,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         .into_iter()
         .collect();
 
-    let languages_to_include: std::collections::HashSet<String> = settings
+    let languages_to_include: HashSet<String> = settings
         .database_content
         .language_to_include
         .iter()
@@ -684,10 +684,19 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         None
     };
 
+    println!("Initializing unified tag dictionary...");
+    let (tag_dict_raw, tag_metrics) = crate::utils::tagging::get_or_create_tag_dictionary(settings)
+        .expect("Failed to initialize tag dictionary");
+    println!(
+        "Tag dictionary ready: {} metrics. {}",
+        tag_dict_raw.len(),
+        tag_metrics.cache_status
+    );
+    let shared_tag_dict = Arc::new(tag_dict_raw);
+
     let batch_size = 10_000;
     let (raw_tx, raw_rx) = bounded::<Vec<String>>(10);
     let (parsed_tx, parsed_rx) = bounded::<PreparedBatch>(10);
-
     println!(
         "Starting multi-threaded pipeline using {} threads...",
         num_threads
@@ -785,6 +794,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
         });
 
         let global_metrics_clone = Arc::clone(&global_metrics);
+        let tag_dict_clone = Arc::clone(&shared_tag_dict);
 
         let earth_ctx = encoding::safe_spatial_create_earth_ctx();
         let celestial_ctx = encoding::safe_spatial_create_celestial_ctx();
@@ -843,7 +853,7 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                 }
                             }
                         }
-                        let unique_langs: std::collections::HashSet<String> = valid_sitelinks.iter().map(|(l, _)| l.clone()).collect();
+                        let unique_langs: HashSet<String> = valid_sitelinks.iter().map(|(l, _)| l.clone()).collect();
                         let mut has_included_concept = false;
                         let mut p31_qids = Vec::new();
                         let mut matched_omni_concepts = Vec::new();
@@ -872,8 +882,8 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                         }
 
                         let mut entity_data = PreparedBatch::empty();
-                        let mut grouped_claims: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
-                        let mut export_claims: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+                        let mut grouped_claims: HashMap<String, Vec<String>> = HashMap::new();
+                        let mut export_claims: HashMap<String, Vec<String>> = HashMap::new();
 
                         if let Some(claims) = parsed["claims"].as_object() {
                             for (prop_id, claim_array) in claims {
@@ -978,21 +988,20 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                         let is_omni_match = has_relevant_sitelink || has_included_concept;
 
                         if is_omni_match {
-                            let mut tags = Vec::new();
-                            if has_relevant_sitelink {
-                                let tag_name = "has_wikipedia_article".to_string(); 
-                                if omni_search_index_tags.contains(&tag_name) {
-                                    tags.push(tag_name);
-                                }
-                            }
+                            let mut tags = HashSet::new();
                             for p31 in &p31_qids {
-                                if omni_search_index_tags.contains(p31.as_str()) {
-                                    tags.push(p31.clone());
+                                if let Some(parents) = tag_dict_clone.get(p31) {
+                                    for parent in parents {
+                                        if omni_search_index_tags.contains(parent) {
+                                            tags.insert(parent.clone());
+                                            *local_metrics.tag_usage_in_omni.entry(parent.clone()).or_insert(0) += 1;
+                                        }
+                                    }
                                 }
                             }
-                            let tags_str = tags.join(",");
+                            let tags_str = tags.into_iter().collect::<Vec<_>>().join(",");
 
-                            let mut search_terms = std::collections::HashSet::new();
+                            let mut search_terms = HashSet::new();
                             if let Some(labels_obj) = parsed["labels"].as_object() {
                                 for (lang, lang_data) in labels_obj {
                                     if languages_to_include.contains(lang) {
@@ -1036,9 +1045,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     }
                                 } else {
                                     local_metrics.qids_used_in_omni_search_no_article_total += 1;
-                                    for concept in &matched_omni_concepts {
-                                        *local_metrics.qids_used_in_omni_search_with_included_concept_and_no_article.entry(concept.clone()).or_insert(0) += 1;
-                                    }
                                 }
                             }
                         }
@@ -1051,19 +1057,18 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                         if parts.len() == 2 {
                                             if let (Ok(lat), Ok(lon)) = (parts[0].parse::<f32>(), parts[1].parse::<f32>()) {
                                                 let encoded_coord = encoding::safe_spatial_encode(lat, lon, earth_ctx);
-                                                let mut coord_tags = Vec::new();
-                                                if has_relevant_sitelink {
-                                                    let tag_name = "has_wikipedia_article".to_string(); 
-                                                    if globe_coordinate_search_index_tags.contains(&tag_name) {
-                                                        coord_tags.push(tag_name);
-                                                    }
-                                                }
+                                                let mut coord_tags = std::collections::HashSet::new();
                                                 for p31 in &p31_qids {
-                                                    if globe_coordinate_search_index_tags.contains(p31) {
-                                                        coord_tags.push(p31.clone());
+                                                    if let Some(parents) = tag_dict_clone.get(p31) {
+                                                        for parent in parents {
+                                                            if globe_coordinate_search_index_tags.contains(parent) {
+                                                                coord_tags.insert(parent.clone());
+                                                                *local_metrics.tag_usage_in_globe.entry(parent.clone()).or_insert(0) += 1;
+                                                            }
+                                                        }
                                                     }
                                                 }
-                                                let coord_tags_str = coord_tags.join(",");
+                                                let coord_tags_str = coord_tags.into_iter().collect::<Vec<_>>().join(",");
                                                 entity_data.coordinate_lines.push_str(&format!("{encoded_coord}{text_delimiter}{entity_id}{text_delimiter}{coord_tags_str}\n"));
                                                 added_to_globe = true;
                                             }
@@ -1090,19 +1095,18 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     if let Some(times) = grouped_claims.get(pid) {
                                         for time_val in times {
                                             let timestamp = encoding::safe_temporal_encode(time_val.as_str());
-                                            let mut temp_tags = Vec::new();
-                                            if has_relevant_sitelink {
-                                                let tag_name = "has_wikipedia_article".to_string(); 
-                                                if temporal_search_index_tags.contains(&tag_name) {
-                                                    temp_tags.push(tag_name);
-                                                }
-                                            }
+                                            let mut temp_tags = std::collections::HashSet::new();
                                             for p31 in &p31_qids {
-                                                if temporal_search_index_tags.contains(p31) {
-                                                    temp_tags.push(p31.clone());
+                                                if let Some(parents) = tag_dict_clone.get(p31) {
+                                                    for parent in parents {
+                                                        if temporal_search_index_tags.contains(parent) {
+                                                            temp_tags.insert(parent.clone());
+                                                            *local_metrics.tag_usage_in_temporal.entry(parent.clone()).or_insert(0) += 1;
+                                                        }
+                                                    }
                                                 }
                                             }
-                                            let temp_tags_str = temp_tags.join(",");
+                                            let temp_tags_str = temp_tags.into_iter().collect::<Vec<_>>().join(",");
                                             entity_data.temporal_lines.push_str(&format!("{timestamp}{text_delimiter}{entity_id}{text_delimiter}{pid}{text_delimiter}{temp_tags_str}\n"));
                                             added_to_temporal = true;
                                         }
@@ -1136,19 +1140,18 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                     let ra = grouped_claims.get("P6257").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
                                     let dec = grouped_claims.get("P6258").and_then(|v| v.first()).map_or(0.0, |v| extract_raw_num(v));
                                     let encoded_astro = encoding::safe_spatial_encode(dec as f32, ra as f32, celestial_ctx);
-                                    let mut astro_tags = Vec::new();
-                                    if has_relevant_sitelink {
-                                        let tag_name = "has_wikipedia_article".to_string(); 
-                                        if astronomical_search_index_tags.contains(&tag_name) {
-                                            astro_tags.push(tag_name);
-                                        }
-                                    }
+                                    let mut astro_tags = std::collections::HashSet::new();
                                     for p31 in &p31_qids {
-                                        if astronomical_search_index_tags.contains(p31) {
-                                            astro_tags.push(p31.clone());
+                                        if let Some(parents) = tag_dict_clone.get(p31) {
+                                            for parent in parents {
+                                                if astronomical_search_index_tags.contains(parent) {
+                                                    astro_tags.insert(parent.clone());
+                                                    *local_metrics.tag_usage_in_astro.entry(parent.clone()).or_insert(0) += 1;
+                                                }
+                                            }
                                         }
                                     }
-                                    let astro_tags_str = astro_tags.join(",");
+                                    let astro_tags_str = astro_tags.into_iter().collect::<Vec<_>>().join(",");
 
                                     entity_data.astronomical_lines.push_str(&format!(
                                         "{encoded_astro}{text_delimiter}{entity_id}{text_delimiter}{astro_tags_str}\n"
@@ -1164,9 +1167,6 @@ pub fn parse_wikidata(settings: &Settings, max_test_lines: Option<usize>) -> Res
                                         }
                                     } else {
                                         local_metrics.qids_used_in_astronomical_search_without_article += 1;
-                                    }
-                                    for concept in &matched_astro_concepts {
-                                        *local_metrics.concept_usage_count_in_astronomical_search.entry(concept.clone()).or_insert(0) += 1;
                                     }
                                 }
                             }

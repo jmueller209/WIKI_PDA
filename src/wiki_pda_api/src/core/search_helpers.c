@@ -17,7 +17,7 @@
 #include "../../lib/tempus/include/tempus.h"
 #include "../../lib/spatial_z/include/spatial_z.h"
 
-bool static _check_tags(uint32_t row_tags, SearchTagMask exact_tags, SearchTagMask include_tags, SearchTagMask exclude_tags) {
+bool static _check_tags(uint32_t row_tags, uint32_t exact_tags, uint32_t include_tags, uint32_t exclude_tags) {
     if (exact_tags != 0 && row_tags != exact_tags) return false;
     if (include_tags != 0 && (row_tags & include_tags) != include_tags) return false;
     if (exclude_tags != 0 && (row_tags & exclude_tags) != 0) return false;

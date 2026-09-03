@@ -116,6 +116,7 @@ bool build_query(SearchQuery* query, int* out_max_results) {
     printf("1, 2, 3... Language ID (Check wiki_lang_mapping.txt for mapping)\n");
     if (!get_input("Enter Article Type (0+): ", temp_input, sizeof(temp_input))) return false;
     query->article_type = atoi(temp_input);
+    query->include_tags = WPDA_TAG_CITY_Q515;
 
     switch (choice) {
         case 1:

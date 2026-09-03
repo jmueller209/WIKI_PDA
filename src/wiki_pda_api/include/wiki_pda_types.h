@@ -39,12 +39,6 @@ typedef enum {
     SEARCH_TYPE_PID
 } SearchType;
 
-/** @brief Bitmask used for filtering items based on assigned categorical tags. */
-typedef uint32_t SearchTagMask;
-
-/** @brief Identifier defining the payload format (e.g., Metadata-only, specific language content). */
-typedef uint32_t ArticleType;
-
 /**
  * @brief Defines a query for the Wikipedia PDA database.
  * 
@@ -169,16 +163,16 @@ typedef struct {
     // These filters apply to all search types. If set to 0, they are ignored.
 
     /** @brief The resulting item's tags must match this mask EXACTLY. */
-    SearchTagMask exact_tags;
+    uint32_t exact_tags;
 
     /** @brief The resulting item MUST contain ALL tags specified in this mask. */
-    SearchTagMask include_tags;
+    uint32_t include_tags;
 
     /** @brief The resulting item MUST NOT contain ANY tags specified in this mask. */
-    SearchTagMask exclude_tags;
+    uint32_t exclude_tags;
 
     /** @brief Specifies what kind of the article to fetch (e.g., Metadata-only, Full Content in given language). */
-    ArticleType article_type;
+    uint32_t article_type;
 
 } SearchQuery;
 
@@ -187,8 +181,8 @@ typedef struct {
  */
 typedef struct {
     uint32_t id;                /**< The Wikidata ID of the matched item. (QID or PID based on search type) */
-    SearchTagMask tags;         /**< The category tags associated with this item. */
-    ArticleType article_type;   /**< The type of payload available at the data offset. */
+    uint32_t tags;         /**< The category tags associated with this item. */
+    uint32_t article_type;   /**< The type of payload available at the data offset. */
     const char* title;          /**< Pointer to a temporary buffer holding the article title. */
     const char* term;           /**< Pointer to a temporary buffer holding the matched term/coordinate/date. */
     uint64_t data_offset;       /**< Absolute physical offset in the database file for this item's payload. */
@@ -268,44 +262,42 @@ typedef enum {
  * multiple tags can be combined using the bitwise OR (|) operator.
  */
 typedef enum {
-    // Filter
-    WPDA_TAG_HAS_WIKIPEDIA_ARTICLE = (1 << 0),
-
-    // People & Biology
-    WPDA_TAG_HUMAN_Q5              = (1 << 1),
-    WPDA_TAG_TAXON_Q16521          = (1 << 2),
+    // People
+    WPDA_TAG_HUMAN_Q5               = (1 << 0),
 
     // Geography & Places
-    WPDA_TAG_COUNTRY_Q6256         = (1 << 3),
-    WPDA_TAG_CAPITAL_CITY_Q5119    = (1 << 4),
-    WPDA_TAG_CITY_Q515             = (1 << 5),
-    WPDA_TAG_SETTLEMENT_Q486972    = (1 << 6),
-    WPDA_TAG_MOUNTAIN_Q8502        = (1 << 7),
-    WPDA_TAG_RIVER_Q4022           = (1 << 8),
-    WPDA_TAG_AIRPORT_Q1248764      = (1 << 9),
+    WPDA_TAG_CITY_Q515              = (1 << 1),
+    WPDA_TAG_CAPITAL_CITY_Q5119     = (1 << 2),
+    WPDA_TAG_COUNTRY_Q6256          = (1 << 3),
+    WPDA_TAG_SETTLEMENT_Q486972     = (1 << 4),
+    WPDA_TAG_MOUNTAIN_Q8502         = (1 << 5),
+    WPDA_TAG_RIVER_Q4022            = (1 << 6),
 
     // Media, Art & Tech
-    WPDA_TAG_FILM_Q11424           = (1 << 10),
-    WPDA_TAG_LITERARY_WORK_Q7725634 = (1 << 11),
-    WPDA_TAG_BOOK_Q571             = (1 << 12),
-    WPDA_TAG_ALBUM_Q482994         = (1 << 13),
-    WPDA_TAG_VIDEO_GAME_Q1194951   = (1 << 14),
+    WPDA_TAG_FILM_Q11424            = (1 << 7),
+    WPDA_TAG_LITERARY_WORK_Q7725634 = (1 << 8),
+    WPDA_TAG_BOOK_Q571              = (1 << 9),
+    WPDA_TAG_ALBUM_Q482994          = (1 << 10),
+    WPDA_TAG_VIDEO_GAME_Q1194951    = (1 << 11),
 
     // Society & History
-    WPDA_TAG_COMPANY_Q783794       = (1 << 15),
-    WPDA_TAG_ORGANIZATION_Q43229   = (1 << 16),
-    WPDA_TAG_EVENT_Q1190554        = (1 << 17),
+    WPDA_TAG_COMPANY_Q783794        = (1 << 12),
+    WPDA_TAG_ORGANIZATION_Q43229    = (1 << 13),
+
+    // Biology
+    WPDA_TAG_TAXON_Q16521           = (1 << 14),
+
+    // Events
+    WPDA_TAG_EVENT_Q1190554         = (1 << 15),
 
     // Astronomy & Space
-    WPDA_TAG_STAR_Q523             = (1 << 18),
-    WPDA_TAG_GALAXY_Q318           = (1 << 19),
-    WPDA_TAG_PLANET_Q634           = (1 << 20),
-    WPDA_TAG_MOON_Q2537            = (1 << 21),
-    WPDA_TAG_NEBULA_Q3559          = (1 << 22),
-    WPDA_TAG_CONSTELLATION_Q1022867= (1 << 23),
-    WPDA_TAG_ASTEROID_Q3863        = (1 << 24),
-    WPDA_TAG_EXOPLANET_Q32074      = (1 << 25)
-
+    WPDA_TAG_STAR_Q523              = (1 << 16),
+    WPDA_TAG_GALAXY_Q318            = (1 << 17),
+    WPDA_TAG_PLANET_Q634            = (1 << 18),
+    WPDA_TAG_MOON_Q2537             = (1 << 19),
+    WPDA_TAG_NEBULA_Q3559           = (1 << 20),
+    WPDA_TAG_MINOR_PLANET_Q1022867  = (1 << 21),
+    WPDA_TAG_ASTEROID_Q3863         = (1 << 22)
 } WPDA_TagMask;
 
 #ifdef __cplusplus

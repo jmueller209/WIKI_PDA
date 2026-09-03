@@ -38,14 +38,18 @@
 # Q634     : Planet
 # Q2537    : Natural satellite (Moons)
 # Q3559    : Nebula
-# Q1022867 : Constellation
+# Q1022867 : Minor Planet
 # Q3863    : Asteroid
-# Q32074   : Extrasolar planet / Exoplanet
 
-omni_search_index_tags             = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
-globe_coordinate_search_index_tags = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
-temporal_search_index_tags         = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
-astronomical_search_index_tags     = ["has_wikipedia_article", "Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q1248764", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863", "Q32074"]
+# -------------------------------------------------------------------------------------------------------------------------
+# TAG ORDER MAP:
+# ["Human", "City", "Capital city", "Country", "Human settlement", "Mountain", "River", "Film", "Literary work", "Book", "Album", "Video game", "Company", "Organization", "Taxon", "Occurrence / Event", "Star", "Galaxy", "Planet", "Natural satellite", "Nebula", "Minor Planet", "Asteroid"]
+# WARNING: When changing these lists, the preconfigured tags in the search api will stop working correctly.
+# -------------------------------------------------------------------------------------------------------------------------
+omni_search_index_tags             = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
+globe_coordinate_search_index_tags = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
+astronomical_search_index_tags     = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
+temporal_search_index_tags         = ["Q5", "Q515", "Q5119", "Q6256", "Q486972", "Q8502", "Q4022", "Q11424", "Q7725634", "Q571", "Q482994", "Q1194951", "Q783794", "Q43229", "Q16521", "Q1190554", "Q523", "Q318", "Q634", "Q2537", "Q3559", "Q1022867", "Q3863"]
 
 # Specify whether the omni search index should be case sensitive or not.
 # Setting this to false will save a little bit of space as some

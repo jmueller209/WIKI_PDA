@@ -6,4 +6,5 @@ pub mod encoding;
 pub mod logs;
 pub mod settings;
 pub mod sitelinks_lookup;
+pub mod tagging;
 pub mod txt_file_processing;

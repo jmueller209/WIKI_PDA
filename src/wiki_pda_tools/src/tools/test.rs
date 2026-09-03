@@ -1,94 +1,75 @@
 use crate::utils::settings::Settings;
-// use std::env;
-// use std::panic;
-// use std::process::Command;
+use crate::utils::tagging;
+use std::collections::HashMap;
+use std::time::Instant;
 
-pub fn test(_settings: &Settings) -> Result<(), Box<dyn std::error::Error>> {
-    reproduce_error();
-    Ok(())
-}
+pub fn test(settings: &Settings) -> Result<(), Box<dyn std::error::Error>> {
+    println!("=== Starting Tag Dictionary Test ===\n");
 
-fn reproduce_error() {
-    println!("testing html");
+    // --- 1. Fetch or Load the Dictionary ---
+    println!("Step 1: Initializing Dictionary...");
+    let start_time = Instant::now();
+    let (tag_dictionary, metrics) = tagging::get_or_create_tag_dictionary(settings)?;
+    let time_taken = start_time.elapsed();
 
-    let html = r###"/table>
-    <table class="wikitable" id="mwBkY">
-    <td bgcolor="gainsboro" rowspan="6" id="mwBkk"><div class="quote">Este sitio abarca la zona central del Parque Nacional de la Isla de la Reunión, esto es, una extensión de 100.000 hectáreas equivalente al 40% de la superficie de esta isla, que está ubicada al sudoeste del Océano Índico y cuenta con dos macizos volcánicos. Dominado por dos picos volcánicos, el sitio posee un conjunto de escarpaduras, desfiladeros y lagunas con bosques, que forman un paisaje espectacular. Es el hábitat natural de una gran variedad de plantas con un alto grado de endemismo. Los bosques umbrófilos subtropicales, los bosques de niebla y las landas que pueblan el sitio forman todo un mosaico de ecosistemas y un paisaje de características excepcionales. (UNESCO/BPI)</table>
-    <table class="wikitable" id="mwBmI">
-    <td id="mwBmk"></a> (<td id="mwDpM">4<"###;
+    println!("\n--- Dictionary Metrics ---");
+    println!("Status: {}", metrics.cache_status);
+    println!("Loaded from Cache: {}", metrics.loaded_from_cache);
+    println!("Total Mappings: {}", metrics.total_mappings);
+    println!("Rate Limit Hits: {}", metrics.rate_limit_hits);
+    if !metrics.failed_tags.is_empty() {
+        println!("Failed Tags: {:?}", metrics.failed_tags);
+    }
+    println!("Time taken: {:?}", time_taken);
+    println!("--------------------------\n");
 
-    // Fange das Resultat ab, anstatt es wegzuwerfen
-    let result = html2text::config::plain().string_from_read(html.as_bytes(), 10000);
+    // --- 2. Validate Data Structure ---
+    println!("Step 2: Validating Data Structure...");
+    let mut grouped_by_parent: HashMap<&String, Vec<&String>> = HashMap::new();
 
-    // Werte aus, ob es geklappt hat (Ok) oder ein Fehler aufgetreten ist (Err)
-    match result {
-        Ok(text) => {
-            println!("Wahnsinn! Kein Crash. Hier ist der generierte Text:\n");
-            println!("--------------------------------------------------");
-            println!("{}", text);
-            println!("--------------------------------------------------");
-        }
-        Err(e) => {
-            println!(
-                "Die Bibliothek hat einen sauberen Fehler (Warning) zurückgegeben: {:?}",
-                e
-            );
+    // Group subclasses by their parents to verify the overlaps worked
+    for (subclass, parents) in &tag_dictionary {
+        for parent in parents {
+            grouped_by_parent
+                .entry(parent)
+                .or_insert_with(Vec::new)
+                .push(subclass);
         }
     }
-}
 
-// fn get_rust_version() -> String {
-//     if let Ok(output) = Command::new("rustc").arg("--version").output() {
-//         if let Ok(version) = String::from_utf8(output.stdout) {
-//             return version.trim().to_string();
-//         }
-//     }
-//     "Unknown".to_string()
-// }
-//
-// fn generate_issue_markdown(html: &str, panic_msg: &str) -> String {
-//     let rust_version = get_rust_version();
-//     let os_name = env::consts::OS;
-//     let arch = env::consts::ARCH;
-//
-//     let template = vec![
-//         "**Title:** Panic: `{panic_msg}` when parsing HTML snippet",
-//         "",
-//         "### Description",
-//         "When parsing a specific, highly nested and malformed HTML snippet (extracted from a Wikipedia dump), the library panics.",
-//         "",
-//         "### Minimal Reproducible Example",
-//         "I am currently building an offline Wikipedia Database. Therefore, I am parsing a lot of html and occasionally encounter errors including hard panics which should not happen. I built a debugger to minimize a larger HTML file down to the exact snippet that triggers the panic. Running this simple code crashes the parser:",
-//         "",
-//         "```rust",
-//         "fn main() {",
-//         "    let html = r###\"{html}\"###;",
-//         "",
-//         "    // Trigger the panic",
-//         "    let _ = html2text::config::plain().string_from_read(html.as_bytes(), 10000);",
-//         "}",
-//         "```",
-//         "",
-//         "### Actual Behavior",
-//         "The code panics immediately. The panic message is:",
-//         "",
-//         "```text",
-//         "thread 'main' panicked at '{panic_msg}'",
-//         "```",
-//         "",
-//         "### Expected Behavior",
-//         "The library should handle the malformed HTML gracefully (e.g., by rendering it poorly or ignoring the broken tags) or return a `Result::Err`, rather than causing a hard panic.",
-//         "",
-//         "### Environment",
-//         "* **html2text version:** 0.17.1",
-//         "* **Rust version:** {rust_version}",
-//         "* **OS:** {os_name} ({arch})",
-//     ].join("\n");
-//
-//     template
-//         .replace("{panic_msg}", panic_msg)
-//         .replace("{html}", html)
-//         .replace("{rust_version}", &rust_version)
-//         .replace("{os_name}", os_name)
-//         .replace("{arch}", arch)
-// }
+    // We'll just print the Omni tags to keep the terminal output clean
+    let core_tags = &settings.database_content.omni_search_index_tags;
+    println!("\n--- Core Tag Association Summary ---");
+    for parent in core_tags {
+        if let Some(subclasses) = grouped_by_parent.get(parent) {
+            println!(
+                "Parent {}: Found {} associated subclasses",
+                parent,
+                subclasses.len()
+            );
+
+            let sample: Vec<String> = subclasses.iter().take(5).map(|s| s.to_string()).collect();
+            println!("  -> Previews: {:?}", sample);
+        } else {
+            println!("Parent {}: No subclasses found (or skipped).", parent);
+        }
+    }
+    println!("------------------------------------\n");
+
+    // --- 3. Test Cache Speed ---
+    println!("Step 3: Testing Cache Speed...");
+    let cache_start_time = Instant::now();
+    let (_, cache_metrics) = tagging::get_or_create_tag_dictionary(settings)?;
+    let cache_time_taken = cache_start_time.elapsed();
+
+    println!("Second run time: {:?}", cache_time_taken);
+
+    if cache_metrics.loaded_from_cache {
+        println!("✅ Cache test passed! The dictionary loaded instantly.");
+    } else {
+        println!("❌ Cache test failed! It tried to rebuild the dictionary.");
+    }
+
+    println!("\n=== Tag Dictionary Test Complete ===");
+    Ok(())
+}
