@@ -4,7 +4,7 @@ pub const VERSION: &str = "0.1.0";
 pub const MAX_SPARSE_LEVELS: usize = 15;
 pub const SD_CARD_SECTOR_SIZE_BYTES: u64 = 512;
 pub const HEADER_SIZE_BYTES: usize = 4096;
-pub const OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES: usize = 24; //needs to be a power of 2 minus 8
+pub const OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES: usize = 56; //needs to be a power of 2 minus 8
 pub const MAGIC: &str = "WPDA";
 
 // Files

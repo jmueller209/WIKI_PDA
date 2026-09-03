@@ -36,11 +36,12 @@ extern "C" {
 #define SUPPORT_MAJOR_VERSION 0
 #define SUPPORT_MINOR_VERSION 1
 
-// Changing this will break everything as this needs to match the generator
+// Changing this will break everything as this needs to match the generator 
+// (src/wiki_pda_tool/src/utils/constants.rs)
 #define MAX_SPARSE_LEVELS 15
 #define SD_SECTOR_SIZE 512
 #define HEADER_SIZE_BYTES 4096
-#define OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES 24
+#define OMNI_SEARCH_INDEX_TERM_ENCODING_BYTES 56 // Needs to be a power of two minus eight
 #define MAGIC "WPDA"
 #define DB_MAGIC_STRING ""
 #define DB_MAGIC_LENGTH 0

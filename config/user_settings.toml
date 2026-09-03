@@ -139,7 +139,7 @@ ram_limit_mb = 12000
 # can improve compression rate but will use more RAM. If you plan to use this database on a
 # microcontroller or another system with very limited RAM, make sure to set this to a value
 # that is supported.
-zstd_dict_size_kb = 32 
+zstd_dict_size_kb = 32
 
 # Size of the sample data used to train the Zstandard dictionary. A larger sample size can
 # improve compression rate but will also cause the training process to take longer. This will
