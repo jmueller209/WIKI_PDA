@@ -162,9 +162,6 @@ typedef struct {
     // --- GLOBAL FILTERS ---
     // These filters apply to all search types. If set to 0, they are ignored.
 
-    /** @brief The resulting item's tags must match this mask EXACTLY. */
-    uint32_t exact_tags;
-
     /** @brief The resulting item MUST contain ALL tags specified in this mask. */
     uint32_t include_tags;
 
